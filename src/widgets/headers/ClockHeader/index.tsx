@@ -9,7 +9,7 @@ interface Props {
 export default function ClockHeader({ mode, onClick }: Props) {
   
   return (
-    <Header title="Current Time">
+    <Header title="Times">
       <div className="switch-button" onClick={onClick}>
         <span className="active" style={{ left: !mode ? "0%" : "50%" }} />
         <button className={`switch-button-case left ${!mode && 'active-case'}`}>12h</button>
