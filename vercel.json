@@ -1,0 +1,4 @@
+{
+  "buildCommand": "yarn install --immutable && yarn build",
+  "installCommand": "corepack enable && yarn install --immutable"
+}
