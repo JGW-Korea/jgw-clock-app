@@ -1,10 +1,15 @@
 import { Outlet } from "react-router";
-import "./index.style.scss"
+import "./index.style.scss";
+import BottomTabNavigator from "../../../widgets/navigator";
 
 export default function Layout() {
   return (
     <div className="layout">
-      <Outlet />
+      <div className="content">
+        <Outlet />
+      </div>
+
+      <BottomTabNavigator />
     </div>
   );
 }
