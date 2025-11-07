@@ -2,5 +2,16 @@ div.layout {
   max-width: 436px;
   height: 100dvh;
   margin: 0 auto;
-  background-color: #151515;
+  box-sizing: border-box;
+  padding: 3rem 4rem 2rem;
+  background-color: #1b1b1d;
+
+  display: flex;
+  flex-direction: column;
+  position: relative;
+
+  & > .content {
+    flex: 1;
+  }
 }
+
