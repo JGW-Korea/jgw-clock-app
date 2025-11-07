@@ -4,6 +4,9 @@
   "packageManager": "yarn@4.10.3",
   "version": "0.0.0",
   "type": "module",
+  "engines": {
+    "node": "20.x"
+  },
   "scripts": {
     "start": "vite --host",
     "build": "tsc -b && vite build",
