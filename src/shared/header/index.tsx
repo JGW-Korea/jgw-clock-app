@@ -2,7 +2,7 @@ import "./index.style.scss"
 
 interface Props {
   title: string;
-  children: React.ReactElement | React.ReactElement[];
+  children?: React.ReactElement | React.ReactElement[];
 }
 
 export default function Header({ title, children }: Props) {
