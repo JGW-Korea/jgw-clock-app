@@ -1,16 +1,14 @@
 import style from "./style.module.scss";
 
 interface Props {
-  list: object[]
+  worldTimeList: object[]
 }
 
-export default function WorldContent({ list }: Props) {
-  console.log(list.length)
-  
+export default function WorldContent({ worldTimeList }: Props) {
   return (
-    <main className={`${style["layout"]} ${list.length === 0 ? style["layout-empty"] : ""}`}>
+    <main className={`${style["layout"]} ${worldTimeList.length === 0 ? style["layout-empty"] : ""}`}>
       {
-        list.length === 0
+        worldTimeList.length === 0
           ? <span>세계 시계 없음</span>
           : (
               <ul>
