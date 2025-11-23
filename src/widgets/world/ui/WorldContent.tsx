@@ -9,7 +9,7 @@ export default function WorldContent({ worldTimeList }: Props) {
     <main className={`${style["layout"]} ${worldTimeList.length === 0 ? style["layout-empty"] : ""}`}>
       {
         worldTimeList.length === 0
-          ? <span>세계 시계 없음</span>
+          ? <span>No World Clocks</span>
           : (
               <ul>
                 <li>

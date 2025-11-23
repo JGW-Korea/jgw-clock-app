@@ -14,7 +14,7 @@ export default function World() {
 
   return (
     <>
-      <WorldHeader />
+      <WorldHeader worldTimeList={worldTimeList} />
       
       {/* 사용자가 추가한 세계 시간 리스트를 출력한다. */}
       <WorldContent

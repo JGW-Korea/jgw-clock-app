@@ -14,10 +14,10 @@ interface Props {
 */
 export default function WorldHeader({ worldTimeList }: Props) {
   return (
-    <Header title="세계 시계">
+    <Header title="World Clock">
       <div style={{ display: "flex", justifyContent: "space-between" }}>
         <button className={`${style["glass-button"]} ${style["glass-button__text"]} ${worldTimeList.length === 0 && style["glass-button__hidden"]}`}>
-          편집
+          Edit
         </button>
         <button className={`${style["glass-button"]} ${style["glass-button__icon"]}`}>
           <PlusIcon />
