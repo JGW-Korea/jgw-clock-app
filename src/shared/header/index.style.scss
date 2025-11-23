@@ -1,9 +1,8 @@
 header {
   height: 12rem;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-sizing: border-box;
+  flex-direction: column;
+  gap: 4rem;
 
   & > h1 {
     display: inline;

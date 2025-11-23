@@ -8,8 +8,8 @@ interface Props {
 export default function Header({ title, children }: Props) {
   return (
     <header>
-      <h1>{title}</h1>
       {children}
+      <h1>{title}</h1>
     </header>
   );
 }
