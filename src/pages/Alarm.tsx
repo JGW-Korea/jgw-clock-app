@@ -1,3 +1,19 @@
+import { useEffect, useState } from "react";
+import { AlarmHeader } from "../widgets/headers";
+
 export default function Alarm() {
-  return <div>Alarm</div>;
+  const [alarmList, setAlarmList] = useState<object[]>([]);
+    
+  useEffect(() => {
+    const list = localStorage.getItem("alarm");
+    if(list) {
+      setAlarmList(JSON.parse(list));
+    }
+  }, []);
+  
+  return (
+    <>
+      <AlarmHeader alarmList={alarmList} />
+    </>
+  );
 }

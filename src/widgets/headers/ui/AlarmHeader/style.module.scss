@@ -1,0 +1,60 @@
+@use "sass:map";
+@use "./variable.scss" as *;
+@use "./mixin.scss" as *;
+
+.glass-button {
+  $blur: 2rem;
+  $transition: 200ms cubic-bezier(0.5, 0, 0, 1);
+  $borderRadius: 9999px;
+
+  &__hidden {
+    visibility: hidden;
+  }
+
+  // 단순, Tab Nativgation 레이아웃 패딩, 테두리 경계선 지정
+  padding: 2rem;
+  &__text {
+    padding: 2rem 4rem;
+  }
+
+  border-radius: $borderRadius;
+  border: none;
+  cursor: pointer;
+
+  // Liquid Glass 효과를 나타내기 위한 배경색 + 배경색 Blur 효과 / 채도 구성
+  background-color: color-mix(in srgb, map.get($colors, "glass") 12%, transparent);
+  backdrop-filter: blur($blur) saturate($saturation);
+  -webkit-backdrop-filter: blur($blur) saturate($saturation);
+
+  @include glass-shadow(); // Liquid Glass 효과를 나타내기 위한 Box-Shadow 스타일 구성
+  transition: $transition;
+
+  // 폰트 스타일
+  font-size: 4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  & > svg {
+    width: 6rem;
+    height: 6rem;
+
+    & > path {
+      stroke: #FAFAFA;
+      transition: $transition;
+    }
+  }
+
+  &:hover {
+    &.glass-button__text {
+      color: map.get($colors, "action");
+    }
+    &.glass-button__icon {
+      & > svg {
+        & path {
+          stroke: map.get($colors, "action");
+        }
+      }
+    }
+  }
+}
