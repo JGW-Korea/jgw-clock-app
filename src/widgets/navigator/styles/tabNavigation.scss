@@ -105,7 +105,7 @@
       transition: scale 200ms cubic-bezier(0.5, 0, 0, 1); // Hover 시 scale 전후 상태 제어 애니메이션 속성값
 
       & path {
-        stroke: map.get($colors, "content");
+        fill: map.get($colors, "content");
       }
     }
 
@@ -122,7 +122,7 @@
         & > .tab-nav__link-icon {
           scale: 1.14;
           & path {
-            stroke: map.get($colors, "action");
+            fill: map.get($colors, "action");
           }
         }
 
