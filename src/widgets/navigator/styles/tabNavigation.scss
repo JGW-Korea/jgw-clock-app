@@ -63,7 +63,7 @@
       animation: scaleToggleStart 440ms ease;
     }
     &:has(a[href="/world"][aria-current="page"])::after {
-      translate: calc(77px + 2rem) 0;
+      translate: calc(77px + 4rem) 0;
       animation: scaleToggle2 440ms ease;
     }
     &:has(a[href="/stopwatch"][aria-current="page"])::after {
