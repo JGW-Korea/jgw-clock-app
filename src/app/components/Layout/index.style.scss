@@ -9,6 +9,7 @@ div.layout {
   display: flex;
   flex-direction: column;
   position: relative;
+  overflow: hidden;
 
   & > .content {
     flex: 1;
