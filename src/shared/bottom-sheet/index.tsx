@@ -1,7 +1,7 @@
 import BottomSheetBackground from "./components/BottomSheetBackground";
 import BottomSheetContainer from "./components/BottomSheetContainer";
 
-interface Props {
+export interface Props {
   show: boolean;
   onClick: () => void;
   children: React.ReactNode;
