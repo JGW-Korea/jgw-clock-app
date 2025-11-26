@@ -4,6 +4,7 @@ import PlusIcon from "../../../../shared/assets/icons/plus.svg?react"
 
 interface Props {
   worldTimeList: object[]
+  onClick: () => void;
 }
 
 /**
@@ -12,14 +13,14 @@ interface Props {
  * -------------------------------------
  * - 사용자가 등록한 세계 시계 유무에 따라 `편집` 버튼의 보여짐이 결정된다.
 */
-export default function WorldHeader({ worldTimeList }: Props) {
+export default function WorldHeader({ worldTimeList, onClick }: Props) {
   return (
     <Header title="World Clock">
       <div style={{ display: "flex", justifyContent: "space-between" }}>
         <button className={`${style["glass-button"]} ${style["glass-button__text"]} ${worldTimeList.length === 0 && style["glass-button__hidden"]}`}>
           Edit
         </button>
-        <button className={`${style["glass-button"]} ${style["glass-button__icon"]}`}>
+        <button className={`${style["glass-button"]} ${style["glass-button__icon"]}`} onClick={onClick}>
           <PlusIcon />
         </button>
       </div>
