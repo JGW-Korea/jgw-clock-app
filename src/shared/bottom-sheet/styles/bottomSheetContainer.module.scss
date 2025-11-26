@@ -9,11 +9,16 @@
   background-color: #303030;
   border-top-left-radius: 4rem;
   border-top-right-radius: 4rem;
-  padding: 4rem;
+  padding: 8rem 4rem 6rem;
   z-index: 9999;
   box-sizing: border-box;
+  overflow-y: scroll;
   
   &.show {
     bottom: 0;
+  }
+
+  &::-webkit-scrollbar {
+    display: none;
   }
 }
