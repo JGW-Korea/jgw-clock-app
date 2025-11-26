@@ -1,0 +1,22 @@
+.list-item {
+  padding: 4rem 0;
+  border-bottom: 1px solid #414040;
+  
+  & > article {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+
+    & > div {
+      font-size: 4rem;
+
+      & > p { font-size: 2.8rem; color: #aca6a6; margin-bottom: 1.5rem; }
+    }
+
+    & > p {
+      font-size: 4rem;
+
+      & > time { font-size: 7rem; margin-left: 1.5rem; }
+    }
+  }
+}
