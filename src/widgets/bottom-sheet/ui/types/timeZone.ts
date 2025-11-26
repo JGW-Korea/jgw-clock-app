@@ -16,3 +16,16 @@ export interface TimeZoneListType {
     zones: TimeZoneListDataType[]
   }
 }
+
+// Convert Time Zone API 타입 구성
+export interface ConvertTimeZoneType {
+  [key: string]: unknown;
+  data: {
+    [key: string]: unknown;
+    status: "OK" | "FAILED";
+    message: string;
+    fromZoneName: string;
+    toZoneName: string;
+    offset: number;
+  }
+}
