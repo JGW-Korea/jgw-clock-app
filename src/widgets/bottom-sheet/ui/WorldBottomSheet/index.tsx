@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import BottomSheet, { type Props } from "../../../../shared/bottom-sheet";
 import type { TimeZoneListDataType, TimeZoneListType } from "../types/timeZone";
+import WorldTimeListItem from "./components/WorldTimeListItem";
 
 export default function WorldBottomSheet({ show, onClick }: Omit<Props, "children">) {
   const [worldTimeList, setWorldTimeList] = useState<TimeZoneListDataType[]>([]);
@@ -19,6 +20,7 @@ export default function WorldBottomSheet({ show, onClick }: Omit<Props, "childre
           throw new Error(message);
         }
 
+        console.log(zones)
         setWorldTimeList(zones);
       } catch(error) {
         console.error(error);
@@ -33,9 +35,11 @@ export default function WorldBottomSheet({ show, onClick }: Omit<Props, "childre
       <ul>
         {worldTimeList.map(({ countryName, zoneName }) => {
           return (
-            <li key={zoneName}>
-              {countryName}
-            </li>
+            <WorldTimeListItem
+              key={zoneName}
+              countryName={countryName}
+              zoneName={zoneName}
+            />
           );
         })}
       </ul>
