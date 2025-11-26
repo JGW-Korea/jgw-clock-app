@@ -1,7 +1,15 @@
+import WorldTimeListItem from "./components/WorldTimeListItem";
 import style from "./style.module.scss";
 
+type WordTimeListType = {
+  name: string;
+  from: string;
+  to: string;
+  offset: number;
+}
+
 interface Props {
-  worldTimeList: object[]
+  worldTimeList: WordTimeListType[]
 }
 
 export default function WorldContent({ worldTimeList }: Props) {
@@ -11,8 +19,21 @@ export default function WorldContent({ worldTimeList }: Props) {
         worldTimeList.length === 0
           ? <span>No World Clocks</span>
           : (
-              <ul>
-                <li>
+              <ul style={{ width: "100%" }}>
+                {worldTimeList.map((item) => (
+                  <WorldTimeListItem
+                    key={item.to}
+                    item={item}
+                  />
+                ))}
+              </ul>
+            )
+      }
+    </main>
+  );
+}
+
+{/* <li>
                     <article>
                       <div>
                         <p>오늘, <time>-7시간</time></p>
@@ -23,10 +44,4 @@ export default function WorldContent({ worldTimeList }: Props) {
 
                       <p>오후<time>4:17</time></p>
                     </article>
-                  </li>
-              </ul>
-            )
-      }
-    </main>
-  );
-}
+                  </li> */}
