@@ -1,4 +1,5 @@
-import style from "./index.module.scss";
+import BottomSheetBackground from "./components/BottomSheetBackground";
+import BottomSheetContainer from "./components/BottomSheetContainer";
 
 interface Props {
   show: boolean;
@@ -9,10 +10,10 @@ interface Props {
 export default function BottomSheet({ show = false, onClick, children }: Props) {
   return (
     <>
-      <div className={`${style["bottom-sheet__background"]} ${show ? style["show"] : ""}`} onClick={onClick}/>
-      <div className={`${style["bottom-sheet__container"]} ${show ? style["show"] : ""}`}>
+      <BottomSheetBackground show={show} onBackgroundClick={onClick} />
+      <BottomSheetContainer show={show}>
         {children}
-      </div>
+      </BottomSheetContainer>
     </>
   )
 }
