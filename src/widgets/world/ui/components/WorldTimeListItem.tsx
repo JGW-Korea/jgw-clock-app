@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import style from "../styles/worldTimeListItem.module.scss"
 
 type WordTimeListType = {
@@ -12,16 +13,62 @@ interface Props {
 }
 
 export default function WorldTimeListItem({ item }: Props) {
+  const [day, setDay] = useState<string>("");
+  const [target, setTarget] = useState<"PM" | "AM">();
+  const [time, setTime] = useState();
+
+  useEffect(() => {
+    const getLocalDateString = (timeZone: string) => {
+      // console.log(`${item.to}:`, new Intl.DateTimeFormat("en-CA", { timeZone, timeStyle: "full" }).format(new Date()));
+      
+      return new Intl.DateTimeFormat("en-CA", {
+        timeZone,
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }).format(new Date());
+    }
+    
+    const compare = (from: string, to: string) => {
+      if(from === to) return "Today";
+
+      const a = from.split("-").map(Number).reduce((a, b) => a + b);
+      const b = to.split("-").map(Number).reduce((a, b) => a + b);
+      if(a < b) return "Tomorrow";
+      else {
+        return "Yesterday";
+      }
+    }
+
+    const [from, to] = [getLocalDateString(item.from), getLocalDateString(item.to)];
+    setDay(compare(from, to));
+
+    const now = new Date();
+    const utc = now.getTime() + now.getTimezoneOffset() * 60 * 1000;
+    const target = new Date(utc + item.offset * 1000);
+    
+    const hours = target.getHours();
+    const minutes = target.getMinutes();
+
+    const isPM = hours >= 12;
+    setTarget(isPM ? "PM" : "AM");
+
+    setTime(`${hours % 12 || 12}:${String(minutes).padStart(2, "0")}`);
+
+    // console.log("from:", new Date())
+    // console.log("to:", new Date(new Date().getTime() + item.offset));
+  }, []);
+
   return (
     <li className={style["list-item"]}>
       <article>
         <div>
-          <p>Today, {item.offset}</p>
+          <p>{day}, {Math.floor(item.offset / 3600)}hour</p>
           <h3>{item.name}</h3>
         </div>
         <p>
-          PM
-          <time>{item.offset}</time>
+          {target}
+          <time>{time}</time>
         </p>
       </article>
     </li>
