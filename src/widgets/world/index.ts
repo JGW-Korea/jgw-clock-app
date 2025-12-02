@@ -1,1 +1,0 @@
-export { default as WorldContent } from "./ui/WorldContent"

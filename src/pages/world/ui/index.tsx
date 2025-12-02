@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { WorldHeader } from "../widgets/headers";
-import { WorldContent } from "../widgets/world";
-import WorldBottomSheet from "../widgets/bottom-sheet/ui/WorldBottomSheet";
+import { WorldHeader } from "../../../widgets/headers";
+import WorldBottomSheet from "../../../widgets/bottom-sheet/ui/WorldBottomSheet";
 import axios from "axios";
-import type { ConvertTimeZoneType } from "../widgets/bottom-sheet/ui/types/timeZone";
+import { WorldContent } from "../../../widgets/contents";
+import type { ConvertTimeZoneType } from "../../../widgets/bottom-sheet/types/timeZone";
 
 type WordTimeListType = {
   name: string;

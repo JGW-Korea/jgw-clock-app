@@ -1,5 +1,4 @@
-// import { useEffect, useState } from "react";
-import { TimerHeader } from "../widgets/headers";
+import { TimerHeader } from "../../../widgets/headers";
 
 export default function Timer() {
   // const [timerList, setTimerList] = useState<object[]>([]);

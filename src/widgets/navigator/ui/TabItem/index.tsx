@@ -6,7 +6,7 @@ interface Props {
   label: string;
 }
 
-export default function TabNavItem({ SvgIconComponent, path, label }: Props) {
+export default function TabItem({ SvgIconComponent, path, label }: Props) {
   return (
     <li className="tab-nav__item">
       <NavLink to={path} className="tab-nav__link">

@@ -1,4 +1,4 @@
-import style from "../styles/worldTimeListItem.module.scss";
+import style from "./index.module.scss";
 
 interface Props {
   countryName: string;
@@ -6,7 +6,7 @@ interface Props {
   onAppendTimeList: (name: string, to: string) => void;
 }
 
-export default function WorldTimeListItem({ countryName, zoneName, onAppendTimeList }: Props) {
+export default function ListItem({ countryName, zoneName, onAppendTimeList }: Props) {
   const name = zoneName.split("/").at(-1)?.replaceAll("_", " ") + ", " + countryName;
   
   return (

@@ -1,5 +1,5 @@
-import WorldTimeListItem from "./components/WorldTimeListItem";
-import style from "./style.module.scss";
+import ListItem from "./ListItem";
+import style from "./index.module.scss";
 
 type WordTimeListType = {
   name: string;
@@ -21,7 +21,7 @@ export default function WorldContent({ worldTimeList }: Props) {
           : (
               <ul style={{ width: "100%" }}>
                 {worldTimeList.map((item) => (
-                  <WorldTimeListItem
+                  <ListItem
                     key={item.to}
                     item={item}
                   />
@@ -32,16 +32,3 @@ export default function WorldContent({ worldTimeList }: Props) {
     </main>
   );
 }
-
-{/* <li>
-                    <article>
-                      <div>
-                        <p>오늘, <time>-7시간</time></p>
-                        <h3>
-                          가르보네
-                        </h3>
-                      </div>
-
-                      <p>오후<time>4:17</time></p>
-                    </article>
-                  </li> */}

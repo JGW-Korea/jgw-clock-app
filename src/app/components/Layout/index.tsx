@@ -1,6 +1,6 @@
 import { Outlet } from "react-router";
 import "./index.style.scss";
-import BottomTabNavigator from "../../../widgets/navigator";
+import { TabNavigator } from "../../../widgets/navigator";
 
 export default function Layout() {
   return (
@@ -9,7 +9,7 @@ export default function Layout() {
         <Outlet />
       </div>
 
-      <BottomTabNavigator />
+      <TabNavigator />
     </div>
   );
 }

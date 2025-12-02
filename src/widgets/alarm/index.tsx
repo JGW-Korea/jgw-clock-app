@@ -1,1 +1,0 @@
-export { default as AlarmContent } from "./components/AlarmContent"

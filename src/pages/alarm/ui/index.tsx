@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { AlarmHeader } from "../widgets/headers";
-import { AlarmContent } from "../widgets/alarm";
+import { AlarmHeader } from "../../../widgets/headers";
 
 export default function Alarm() {
   const [alarmList, setAlarmList] = useState<object[]>([]);
@@ -16,9 +15,6 @@ export default function Alarm() {
     <>
       <AlarmHeader alarmList={alarmList} />
 
-      <AlarmContent
-        alarmList={alarmList}
-      />
     </>
   );
 }

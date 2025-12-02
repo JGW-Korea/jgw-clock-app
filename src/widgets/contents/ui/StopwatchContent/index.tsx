@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import style from "./style.module.scss";
+import style from "./index.module.scss";
 
 type Timer = { minutes: number, seconds: number, milliseconds: number };
 

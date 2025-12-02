@@ -1,4 +1,4 @@
-export { default as Alarm } from "./Alarm";
-export { default as World } from "./World";
-export { default as Stopwatch } from "./Stopwatch";
-export { default as Timer } from "./Timer";
+export { World } from "./world";
+export { Alarm } from "./alarm";
+export { Stopwatch } from "./stopwatch";
+export { Timer } from "./timer";

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import style from "../styles/worldTimeListItem.module.scss"
+import style from "./index.module.scss";
 
 type WordTimeListType = {
   name: string;
@@ -12,7 +12,7 @@ interface Props {
   item: WordTimeListType
 }
 
-export default function WorldTimeListItem({ item }: Props) {
+export default function ListItem({ item }: Props) {
   const [day, setDay] = useState<string>("");
   const [target, setTarget] = useState<"PM" | "AM">();
   const [time, setTime] = useState<string>("");
