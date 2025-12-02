@@ -9,10 +9,11 @@ type WordTimeListType = {
 }
 
 interface Props {
-  item: WordTimeListType
+  item: WordTimeListType;
+  editMode: boolean;
 }
 
-export default function ListItem({ item }: Props) {
+export default function ListItem({ item, editMode }: Props) {
   const [day, setDay] = useState<string>("");
   const [target, setTarget] = useState<"PM" | "AM">();
   const [time, setTime] = useState<string>("");
@@ -58,14 +59,20 @@ export default function ListItem({ item }: Props) {
   return (
     <li className={style["list-item"]}>
       <article>
-        <div>
-          <p>{day}, {Math.floor(item.offset / 3600)}hour</p>
-          <h3>{item.name}</h3>
+        <div className={style["list-item__city"]} style={{ transform: editMode ? "translateX(0)" : `translateX(-${3 * 4 + 20}px)` }}>
+          <button />
+          <div>
+            <p>{day}, {Math.floor(item.offset / 3600)}hour</p>
+            <h3>{item.name}</h3>
+          </div>
         </div>
-        <p>
-          {target}
-          <time>{time}</time>
-        </p>
+
+        {!editMode && (
+          <p className={style["list-item__time"]}>
+            {target}
+            <time>{time}</time>
+          </p>
+        )}
       </article>
     </li>
   );

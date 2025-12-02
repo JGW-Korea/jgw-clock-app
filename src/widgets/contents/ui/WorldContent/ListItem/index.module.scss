@@ -6,17 +6,42 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
+    font-size: 4rem;
 
-    & > div {
-      font-size: 4rem;
+    & > .list-item__city {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 3rem;
+      transition: transform .4s ease;
 
-      & > p { font-size: 2.8rem; color: #aca6a6; margin-bottom: 1.5rem; }
+      & > button {
+        width: 5rem; height: 5rem;
+        background-color: #ff5348;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        
+        &::before {
+          content: "";
+          display: block;
+          height: 2px;
+          background-color: #fff;
+          border-radius: 2rem;
+        }
+      }
+
+      & > div > p {
+        font-size: 2.8rem;
+        color: #aca6a6;
+        margin-bottom: 1.5rem;
+      }
     }
 
-    & > p {
-      font-size: 4rem;
-
-      & > time { font-size: 7rem; margin-left: 1.5rem; }
+    & > .list-item__time {
+      & > time {
+        font-size: 7rem; margin-left: 1.5rem;
+      }
     }
   }
 }
