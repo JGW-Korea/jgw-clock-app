@@ -15,6 +15,7 @@ type WordTimeListType = {
 export default function World() {
   const [worldTimeList, setWorldTimeList] = useState<WordTimeListType[]>([]);
   const [worldTimeBottomSheetOpen, setWorldTimeBottomSheetOpen] = useState<boolean>(false);
+  const [editMode, setEditMode] = useState<boolean>(false);
   
   useEffect(() => {
     const list = localStorage.getItem("worldTime");
@@ -61,13 +62,30 @@ export default function World() {
     setWorldTimeBottomSheetOpen(false);
   }
 
+  const handleDelete = (key: string) => {
+    const afterDelete = worldTimeList.filter(({ to }) => key !== to);
+
+    if(afterDelete.length === 0) {
+      setEditMode(false);
+    }
+
+    localStorage.setItem("worldTime", JSON.stringify(afterDelete));
+    setWorldTimeList(afterDelete);
+  }
+
   return (
     <>
-      <WorldHeader worldTimeList={worldTimeList} onClick={() => setWorldTimeBottomSheetOpen(true)}/>
+      <WorldHeader
+        worldTimeList={worldTimeList}
+        onToggleEditMode={() => setEditMode((prev) => !prev)}
+        onOpenAddCitySheet={() => setWorldTimeBottomSheetOpen(true)}
+      />
       
       {/* 사용자가 추가한 세계 시간 리스트를 출력한다. */}
       <WorldContent
         worldTimeList={worldTimeList}
+        editMode={editMode}
+        onDelete={handleDelete}
       />
 
       <WorldBottomSheet

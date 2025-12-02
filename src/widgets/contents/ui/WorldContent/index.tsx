@@ -9,10 +9,12 @@ type WordTimeListType = {
 }
 
 interface Props {
-  worldTimeList: WordTimeListType[]
+  worldTimeList: WordTimeListType[];
+  editMode: boolean;
+  onDelete: (key: string) => void;
 }
 
-export default function WorldContent({ worldTimeList }: Props) {
+export default function WorldContent({ worldTimeList, editMode, onDelete }: Props) {
   return (
     <main className={`${style["layout"]} ${worldTimeList.length === 0 ? style["layout-empty"] : ""}`}>
       {
@@ -24,6 +26,8 @@ export default function WorldContent({ worldTimeList }: Props) {
                   <ListItem
                     key={item.to}
                     item={item}
+                    editMode={editMode}
+                    onDelete={onDelete}
                   />
                 ))}
               </ul>

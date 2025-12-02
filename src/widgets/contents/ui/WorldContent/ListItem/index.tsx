@@ -11,9 +11,10 @@ type WordTimeListType = {
 interface Props {
   item: WordTimeListType;
   editMode: boolean;
+  onDelete: (key: string) => void;
 }
 
-export default function ListItem({ item, editMode }: Props) {
+export default function ListItem({ item, editMode, onDelete }: Props) {
   const [day, setDay] = useState<string>("");
   const [target, setTarget] = useState<"PM" | "AM">();
   const [time, setTime] = useState<string>("");
@@ -60,7 +61,7 @@ export default function ListItem({ item, editMode }: Props) {
     <li className={style["list-item"]}>
       <article>
         <div className={style["list-item__city"]} style={{ transform: editMode ? "translateX(0)" : `translateX(-${3 * 4 + 20}px)` }}>
-          <button />
+          <button onClick={() => onDelete(item.to)} />
           <div>
             <p>{day}, {Math.floor(item.offset / 3600)}hour</p>
             <h3>{item.name}</h3>
