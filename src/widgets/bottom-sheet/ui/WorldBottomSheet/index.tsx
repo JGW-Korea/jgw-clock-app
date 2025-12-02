@@ -14,7 +14,7 @@ export default function WorldBottomSheet({ show, onClick, onAppendTimeList }: Om
           status,
           message,
           zones
-        } } = await axios.get(`http://api.timezonedb.com/v2.1/list-time-zone?key=${import.meta.env.VITE_TIME_ZONE_API}&format=json`) as TimeZoneListType;
+        } } = await axios.get(`https://api.timezonedb.com/v2.1/list-time-zone?key=${import.meta.env.VITE_TIME_ZONE_API}&format=json`) as TimeZoneListType;
         
         if(status === "FAILED") {
           throw new Error(message);
