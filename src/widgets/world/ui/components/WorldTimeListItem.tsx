@@ -15,12 +15,10 @@ interface Props {
 export default function WorldTimeListItem({ item }: Props) {
   const [day, setDay] = useState<string>("");
   const [target, setTarget] = useState<"PM" | "AM">();
-  const [time, setTime] = useState();
+  const [time, setTime] = useState<string>("");
 
   useEffect(() => {
     const getLocalDateString = (timeZone: string) => {
-      // console.log(`${item.to}:`, new Intl.DateTimeFormat("en-CA", { timeZone, timeStyle: "full" }).format(new Date()));
-      
       return new Intl.DateTimeFormat("en-CA", {
         timeZone,
         year: "numeric",
@@ -55,8 +53,6 @@ export default function WorldTimeListItem({ item }: Props) {
 
     setTime(`${hours % 12 || 12}:${String(minutes).padStart(2, "0")}`);
 
-    // console.log("from:", new Date())
-    // console.log("to:", new Date(new Date().getTime() + item.offset));
   }, []);
 
   return (
