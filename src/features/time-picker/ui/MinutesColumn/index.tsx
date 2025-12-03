@@ -1,15 +1,16 @@
 import { AMOUNT } from "../../consts";
+import styles from "../index.module.scss";
 
 export default function MinutesColumn() {
   return (
-    <div className="control control--minutes">
-      <ul className="controller controller--minutes">
+    <div className={`${styles["control"]} ${styles["control--minutes"]}`}>
+      <ul className={`${styles["controller"]} ${styles["controller--minutes"]}`}>
         {Array.from({ length: AMOUNT + 1 }).map((_, idx) => (
           <li key={idx}>{idx === AMOUNT ? 0 : idx}</li>
         ))}
       </ul>
 
-      <div className="wheel wheel--minutes">
+      <div className={`${styles["wheel"]} ${styles["wheel--minutes"]}`}>
         {Array.from({ length: AMOUNT }).map((_, idx) => (
           <div key={idx} style={{ "--index": idx } as React.CSSProperties}>
             {idx === AMOUNT ? "00" : idx.toString().padStart(2, "0")}
@@ -17,8 +18,8 @@ export default function MinutesColumn() {
         ))}
       </div>
 
-      <div className="track-holder">
-        <div className="track track--minutes">
+      <div className={`${styles["track-holder"]}`}>
+        <div className={`${styles["track"]} ${styles["track--minutes"]}`}>
           {
             Array.from({ length: AMOUNT + 1 })
               .map((_, idx) => idx === AMOUNT ? "00" : idx.toString().padStart(2, "0"))
