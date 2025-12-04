@@ -1,6 +1,8 @@
 import { useGSAP } from "@gsap/react";
 import { useRef } from "react";
-import { createScrollWatcher, fixInfiniteScroll, setScrollPositionByCurrentTime } from "../lib";
+import { 
+  setScrollPositionByCurrentTime,
+} from "../lib";
 
 export default function useTimePickerAnimation() {
   const meridiemRef = useRef<HTMLUListElement>(null);
@@ -18,17 +20,6 @@ export default function useTimePickerAnimation() {
       minutesRef.current
     );
 
-    const watchers = [
-      createScrollWatcher(meridiemRef.current, { onStop: () => fixInfiniteScroll(meridiemRef.current) }),
-      createScrollWatcher(hoursRef.current, { onStop: () => fixInfiniteScroll(hoursRef.current) }),
-      createScrollWatcher(minutesRef.current, { onStop: () => fixInfiniteScroll(minutesRef.current) }),
-    ]
-
-    return () => {
-      watchers.forEach((watcher) => {
-        watcher?.destroy();
-      });
-    }
   }, { dependencies: [] });
 
   return {
