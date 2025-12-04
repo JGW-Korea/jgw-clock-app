@@ -2,6 +2,9 @@
 
 // Picker Controls 영역 스타일 구성
 .picker-controls {
-  color: hsl(240deg 3.3% 87.64%); // 하위 요소들에게 상속되는 텍스트 속성
   transition: transform .25s;       // transform 변화 시 전 <-> 후 애니메이션 속성
+  
+  // 하위(후손) 요소들에게 상속될 스타일 선언
+  color: hsl(240deg 3.3% 87.64%);
+  font-size: 4rem;
 }
