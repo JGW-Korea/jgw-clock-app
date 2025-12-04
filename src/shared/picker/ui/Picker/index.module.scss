@@ -1,10 +1,33 @@
 @use "../styles/variables" as *;
 
-// Picker Controls 영역 스타일 구성
-.picker-controls {
-  transition: transform .25s;       // transform 변화 시 전 <-> 후 애니메이션 속성
-  
-  // 하위(후손) 요소들에게 상속될 스타일 선언
-  color: hsl(240deg 3.3% 87.64%);
-  font-size: 4rem;
+.picker {
+  display: flex;
+  justify-content: center;
+  position: relative;
+
+  // Picker Controls 영역 스타일 구성
+  &-controls {
+    transition: transform .25s;       // transform 변화 시 전 <-> 후 애니메이션 속성
+    transform-style: preserve-3d;
+    display: flex;
+    gap: 0;
+
+    // 하위(후손) 요소들에게 상속될 스타일 선언
+    color: hsl(240deg 3.3% 87.64%);
+    font-size: 4rem;
+    font-weight: 300;
+
+    &::after {
+      content: "";
+      position: absolute;
+      width: 346px;
+      height: $line-height;
+      border-radius: 1.5rem;
+      background: $visor;
+      top: 50%; left: 50%;
+      transform-style: preserve-3d;
+      transform: translate3d(-50%, -50%, -1px);
+      pointer-events: none;
+    }
+  }
 }
