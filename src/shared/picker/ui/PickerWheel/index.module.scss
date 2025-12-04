@@ -71,6 +71,11 @@ $rotation: calc(360deg / $total);
     scroll-timeline: --controller;
     padding-block: 0.5rem;
     scrollbar-color: #0000 #0000;
+
+    scrollbar-width: none;
+    &::-webkit-scrollbar {
+      display: none;
+    }
     
     li {
       width: 100%;
