@@ -13,8 +13,10 @@ export const MERIDIEM_ITEMS: ReadonlyArray<string> = ["AM", "PM"]; // 정오 이
 
 // 시간을 표시하기 위해 사용되는 상수 배열
 export const HOURS_LIST: ReadonlyArray<number> = Array.from({ length: TOTAL + 1 }, (_, idx) => idx % 12 || 12);
-export const HOURS_WHEEL: ReadonlyArray<string> = Array.from({ length: TOTAL }, (_, idx) => (idx % 12 || 12).toString().padStart(2, ""));
+export const HOURS_WHEEL: ReadonlyArray<string> = Array.from({ length: TOTAL }, (_, idx) => (idx % 12 || 12).toString().padStart(2, "0"));
+export const HOURS_TRACK: ReadonlyArray<string> = Array.from({ length: TOTAL + 1 }, (_, idx) => (idx % 12 || 12).toString().padStart(2, "0"));
 
 // 분을 표시하기 위해 사용되는 상수 배열
-export const MINUTES_LIST: ReadonlyArray<number> = Array.from({ length: TOTAL + 1 }, (_, idx) => idx % 12 || 12);
-export const MINUTES_WHEEL: ReadonlyArray<string> = Array.from({ length: TOTAL }, (_, idx) => (idx % 12 || 12).toString().padStart(2, ""));
+export const MINUTES_LIST: ReadonlyArray<number> = Array.from({ length: TOTAL + 1 }, (_, idx) => idx === 60 ? 0 : idx);
+export const MINUTES_WHEEL: ReadonlyArray<string> = Array.from({ length: TOTAL }, (_, idx) => (idx === 60 ? "00" : idx.toString().padStart(2, "0")));
+export const MINUTES_TRACK: ReadonlyArray<string> = Array.from({ length: TOTAL + 1 }, (_, idx) => (idx === 60 ? "00" : idx.toString().padStart(2, "0")));
