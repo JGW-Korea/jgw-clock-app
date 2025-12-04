@@ -1,1 +1,0 @@
-export const AMOUNT = 60;
