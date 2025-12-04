@@ -1,3 +1,5 @@
+import styles from "./index.module.scss";
+
 interface PickerProps {
   children: React.ReactElement[];
 }
@@ -7,8 +9,8 @@ interface PickerProps {
 */
 export default function Picker({ children }: PickerProps) {
   return (
-    <div className="picker">
-      <div className="picker-controls">
+    <div className={styles["picker"]}>
+      <div className={styles["picker-controls"]}>
         {children}
       </div>
     </div>
