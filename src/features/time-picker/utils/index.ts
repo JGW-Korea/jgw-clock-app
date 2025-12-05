@@ -47,8 +47,6 @@ export function getScrollIndex(element: HTMLElement) {
  * 
 */
 export function maintainInfiniteLoop(element: HTMLElement) {
-  const { scrollHeight, offsetHeight } = element;
-  
-  if(element.scrollTop >= (scrollHeight - offsetHeight) - offsetHeight) element.scrollTop = BUFFER * offsetHeight;
-  if(element.scrollTop <= offsetHeight) element.scrollTop = (scrollHeight - offsetHeight) - BUFFER * offsetHeight;
+  if(element.offsetHeight + element.scrollTop > element.scrollHeight - BUFFER) element.scrollTop = BUFFER;
+  else if(element.scrollTop < BUFFER) element.scrollTop = element.scrollHeight - BUFFER;
 }
