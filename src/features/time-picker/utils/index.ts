@@ -10,6 +10,10 @@ export function setMeridiem(state: TimePickerState, updateIsPMState: boolean) {
   state["isPMState"] = !!updateIsPMState;
 }
 
+
+
+
+
 /**
  * TimePicker Controller 요소에서 스크롤 된 높이를 가지고 오는 유틸 함수
  * 
@@ -17,3 +21,22 @@ export function setMeridiem(state: TimePickerState, updateIsPMState: boolean) {
  * @returns {number} target.scrollTop - 요소의 스크롤 된 높이
 */
 export const getScrollPosition = (target: HTMLElement) => target.scrollTop;
+
+
+
+
+
+/**
+ * TimePicker Controller 스크롤이 수행될 때 어떤 li 자식의 가까운지 계산해 index 위치를 계산하는 유틸 함수
+ * 
+ * @param {HTMLElement} element - 스크롤 도중 Index를 계산할 실제 DOM 요소
+*/
+export function getScrollIndex(element: HTMLElement) {
+  const itemHeight = element.offsetHeight;
+
+  if(!itemHeight) {
+    return 0;
+  }
+
+  return Math.round(element.scrollTop / itemHeight);
+}
