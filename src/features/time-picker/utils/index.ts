@@ -9,3 +9,11 @@ import type { TimePickerState } from "../types";
 export function setMeridiem(state: TimePickerState, updateIsPMState: boolean) {
   state["isPMState"] = !!updateIsPMState;
 }
+
+/**
+ * TimePicker Controller 요소에서 스크롤 된 높이를 가지고 오는 유틸 함수
+ * 
+ * @param {HTMLElement} target - 스크롤 수행을 감지 대상이 될 실제 DOM 요소
+ * @returns {number} target.scrollTop - 요소의 스크롤 된 높이
+*/
+export const getScrollPosition = (target: HTMLElement) => target.scrollTop;
