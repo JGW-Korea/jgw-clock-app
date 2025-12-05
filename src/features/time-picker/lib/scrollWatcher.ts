@@ -1,6 +1,5 @@
 import type { ScrollWatcher } from "../types";
-
-const getScrollPosition = (target: HTMLElement) => target.scrollTop; // Target 요소의 높이에서 스크롤 된 높이를 가지고 온다.
+import { getScrollPosition } from "../utils";
 
 /**
  * TimePicker > Controller의 스크롤 수행을 감지하는 보조 함수
