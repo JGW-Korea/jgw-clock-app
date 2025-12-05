@@ -1,6 +1,6 @@
 import { useGSAP } from "@gsap/react";
 import { useRef } from "react"
-import { setScrollPositionByCurrentTime } from "../lib";
+import { createScrollWatcher, setScrollPositionByCurrentTime } from "../lib";
 import type { TimePickerState } from "../types";
 
 export default function useTimePickerAnimation() {
@@ -22,6 +22,15 @@ export default function useTimePickerAnimation() {
     ];
 
     setScrollPositionByCurrentTime(state, refs); // TimePicker의 스크롤 위치를 현재 시간을 기준으로 지정한다.
+
+    // TimePicker Controller에 스크롤 추적을 위한 스크롤 추적 보조 함수를 등록한다.
+    refs.forEach((ref) => {
+      createScrollWatcher(ref, {
+        onStart: () => {},
+        onFrame: () => {},
+        onStop: () => {}
+      });
+    });
 
   }, { dependencies: [] });
 
