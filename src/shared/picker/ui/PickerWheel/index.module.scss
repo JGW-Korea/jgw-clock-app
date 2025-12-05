@@ -135,3 +135,16 @@ $rotation: calc(360deg / $total);
     transform: translateY(calc(-100% + $line-height))
   }
 }
+
+// GSAP 기반 드래그 활성화 도중 기존 스크롤 애니메이션 비활성화
+.picker-controller[data-no-snap] {
+  scroll-snap-type: unset;
+
+  & + .picker-wheel {
+    animation-name: none;
+  }
+
+  & ~ .picker-track .picker-track-holder {
+    animation-name: none;
+  }
+}
