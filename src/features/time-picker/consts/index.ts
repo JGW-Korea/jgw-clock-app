@@ -20,3 +20,10 @@ export const HOURS_TRACK: ReadonlyArray<string> = Array.from({ length: TOTAL + 1
 export const MINUTES_LIST: ReadonlyArray<number> = Array.from({ length: TOTAL + 1 }, (_, idx) => idx === 60 ? 0 : idx);
 export const MINUTES_WHEEL: ReadonlyArray<string> = Array.from({ length: TOTAL }, (_, idx) => (idx === 60 ? "00" : idx.toString().padStart(2, "0")));
 export const MINUTES_TRACK: ReadonlyArray<string> = Array.from({ length: TOTAL + 1 }, (_, idx) => (idx === 60 ? "00" : idx.toString().padStart(2, "0")));
+
+/*
+  ---------------------------------
+  Scroll Watcher에 사용될 상수 정의
+  ---------------------------------
+*/
+export const BUFFER = 2; // 

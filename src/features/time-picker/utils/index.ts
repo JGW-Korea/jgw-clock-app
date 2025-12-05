@@ -1,3 +1,4 @@
+import { BUFFER } from "../consts";
 import type { TimePickerState } from "../types";
 
 /**
@@ -39,4 +40,15 @@ export function getScrollIndex(element: HTMLElement) {
   }
 
   return Math.round(element.scrollTop / itemHeight);
+}
+
+
+/**
+ * 
+*/
+export function maintainInfiniteLoop(element: HTMLElement) {
+  const { scrollHeight, offsetHeight } = element;
+  
+  if(element.scrollTop >= (scrollHeight - offsetHeight) - offsetHeight) element.scrollTop = BUFFER * offsetHeight;
+  if(element.scrollTop <= offsetHeight) element.scrollTop = (scrollHeight - offsetHeight) - BUFFER * offsetHeight;
 }
