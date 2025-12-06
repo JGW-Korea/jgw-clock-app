@@ -32,14 +32,25 @@ export const getScrollPosition = (target: HTMLElement) => target.scrollTop;
  * 
  * @param {HTMLElement} element - 스크롤 도중 Index를 계산할 실제 DOM 요소
 */
-export function getScrollIndex(element: HTMLElement) {
+export function getScrollIndex(element: HTMLElement, straight = false) {
   const itemHeight = element.offsetHeight;
 
   if(!itemHeight) {
     return 0;
   }
 
-  return Math.round(element.scrollTop / itemHeight);
+  const raw = element.scrollTop / itemHeight;
+  let idx = Math.round(raw);
+
+  if(Math.abs(raw - Math.round(raw)) < 1e-6) idx = Math.round(raw);
+
+  if(straight) return idx;
+  
+  const count = Math.round(element.scrollHeight / itemHeight);
+
+  if(idx < 0 || idx > count - 2) idx = 0;
+
+  return idx;
 }
 
 
