@@ -3,15 +3,23 @@ import { useRef } from "react"
 import { 
   setScrollPositionByCurrentTime,
   registerScrollWatcher,
+  registerDraggable
 } from "../lib";
 import type { ScrollWatcherReturn, TimePickerController, TimePickerState } from "../types";
 import { getScrollIndex, setProxyRotationFromIndex } from "../utils";
+import gsap from "gsap";
+import Draggable from "gsap/Draggable";
+import InertiaPlugin from "gsap/InertiaPlugin";
+// import { registerDraggable } from "../lib/draggable";
+
+gsap.registerPlugin(Draggable, InertiaPlugin);
 
 export default function useTimePickerAnimation() {
   const meridiemRef = useRef<HTMLUListElement>(null);
   const hoursRef = useRef<HTMLUListElement>(null);
   const minutesRef = useRef<HTMLUListElement>(null);
 
+  // [] - TimePicker를 불러오는 Alarms Bottom Sheet가 설계되면 isPMState, currentHours, currentMinutes는 상위에서 관리해야 됨, 현재는 단순 TimePicker 자체의 기능 보존 용도
   const state: TimePickerState = {
     isPMState: false,
     currentHours: 0,
@@ -25,6 +33,16 @@ export default function useTimePickerAnimation() {
     meridiemGuard: false
   };
 
+  // const meridiemState: TimePickerMeridiemState = {
+  //   prevWrapped: null,
+  //   prevUnwrapped: null,
+  //   meridiemOverride: false,
+  //   lastOverride: false,
+  //   passiveTrigger: false,
+  //   meridiemStart: null,
+  //   meridiemGuard: false
+  // };
+
   // useGSAP Hook -> useEffect와 동일하게 의존성(dependencies) 항목에 따른 컴포넌트 생명주기 간에 부수효과(side-effect) 로직을 수행한다.
   // 단순히 useEffect와 동일한 것이 아닌 GSAP을 통해 등록한 애니메이션을 "자동으로 해제"하여 메모리 낭비를 방지한다.
   useGSAP(() => {
@@ -32,9 +50,9 @@ export default function useTimePickerAnimation() {
 
     // 실제 DOM에 연결한 참조 객체를 배열로 관리한다.
     const controllers: TimePickerController[] = [
-      { type: "meridiem", element: meridiemRef.current, wheel: meridiemRef.current.nextElementSibling as HTMLElement, track: meridiemRef.current.nextElementSibling!.nextElementSibling!.firstElementChild as HTMLElement },
-      { type: "hours", element: hoursRef.current, wheel: hoursRef.current.nextElementSibling as HTMLElement, track: hoursRef.current.nextElementSibling!.nextElementSibling!.firstElementChild as HTMLElement },
-      { type: "minutes", element: minutesRef.current, wheel: minutesRef.current.nextElementSibling as HTMLElement, track: minutesRef.current.nextElementSibling!.nextElementSibling!.firstElementChild as HTMLElement },
+      { type: "meridiem", element: meridiemRef.current, wheel: meridiemRef.current.nextElementSibling as HTMLDivElement, track: meridiemRef.current.nextElementSibling!.nextElementSibling!.firstElementChild as HTMLDivElement },
+      { type: "hours", element: hoursRef.current, wheel: hoursRef.current.nextElementSibling as HTMLDivElement, track: hoursRef.current.nextElementSibling!.nextElementSibling!.firstElementChild as HTMLDivElement },
+      { type: "minutes", element: minutesRef.current, wheel: minutesRef.current.nextElementSibling as HTMLDivElement, track: minutesRef.current.nextElementSibling!.nextElementSibling!.firstElementChild as HTMLDivElement },
     ];
 
     // 드래그 대상이 될 중간자(proxy) 요소를 지정
@@ -58,29 +76,20 @@ export default function useTimePickerAnimation() {
       );
     });
 
-    // 2. 각 TimePicker Controller에 스크롤 추적 함수를 등록한다.
-    // - scrollWatchers라는 배열을 두는 이유는 생성된 스크롤 추적 함수는 addEventListner와 같이 메모리를 점유하기 때문에,
-    // - 컴포넌트가 언마운트가 되면 계속해서 메모리를 점유하는 것이 아닌 removeEventListener를 통해 메모리에서 해제하기
+    // 2. 각 TimePicker Controller에 "스크롤 추적 함수"를 등록한다.
+    // 3. 각 TimePicker Controller에 "GSAP 기반 Draggable 이벤트"를 등록한다.
     const scrollWatchers: ScrollWatcherReturn[] = [];
+    const draggable: (Draggable[])[] = [];
     controllers.forEach((controller, idx) => {
-      scrollWatchers.push(
-        registerScrollWatcher(
-          controller,
-          proxys[idx],
-          controllers[0].element,
-          state
-        )
-      );
+      scrollWatchers.push(registerScrollWatcher({ controller, proxy: proxys[idx], meridiem: controllers[0].element, state }));
+      draggable.push(registerDraggable({ proxy: proxys[idx], controller, controllers, state }));
     });
-
-    // 3. 드래그를 위한 
 
     // 클린업(clean-up) 함수 컴포넌트가 언마운트 됬을 때 불필요한 메모리를 제거하기 위한 용도
     return () => {
       scrollWatchers.forEach((scrollWatcher) => {
         scrollWatcher.destroy();
       });
-
 
     }
 
