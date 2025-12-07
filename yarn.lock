@@ -1654,6 +1654,7 @@ __metadata:
     patch-package: "npm:^8.0.1"
     react: "npm:^19.1.1"
     react-dom: "npm:^19.1.1"
+    react-modal-sheet: "npm:^5.2.1"
     react-router: "npm:^7.9.5"
     sass-embedded: "npm:^1.93.3"
     swiper: "npm:^12.0.3"
@@ -3339,6 +3340,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-modal-sheet@npm:^5.2.1":
+  version: 5.2.1
+  resolution: "react-modal-sheet@npm:5.2.1"
+  dependencies:
+    react-use-measure: "npm:2.1.7"
+  peerDependencies:
+    motion: ">=11"
+    react: ">=16"
+  checksum: 10c0/b622d670e83d3035b3b798564143a7f7cf34987e66c800837d6dc784a1d3afb606c7e67d89ea92bca65c73fa286a0e6bc076ce6d0eb1dc64b91d95f2e85ffe97
+  languageName: node
+  linkType: hard
+
 "react-refresh@npm:^0.18.0":
   version: 0.18.0
   resolution: "react-refresh@npm:0.18.0"
@@ -3359,6 +3372,19 @@ __metadata:
     react-dom:
       optional: true
   checksum: 10c0/e961816b4096a6ca97fc53626fc6532014c0de4c45bf6c234b8205eb4f94be8f357d67819e4f4f58507f79ef9bda4c3f70031a8dd13c7045e3ad0ecb12f819e3
+  languageName: node
+  linkType: hard
+
+"react-use-measure@npm:2.1.7":
+  version: 2.1.7
+  resolution: "react-use-measure@npm:2.1.7"
+  peerDependencies:
+    react: ">=16.13"
+    react-dom: ">=16.13"
+  peerDependenciesMeta:
+    react-dom:
+      optional: true
+  checksum: 10c0/ff24130e6f95e853feb6892fb74af08dbc5aae3574b701169e3bc3adb392c3162f51a58ddfe39bb7337db13ae609bbec0bb51a9de8b5fae5420f9d17e1f8b542
   languageName: node
   linkType: hard
 
