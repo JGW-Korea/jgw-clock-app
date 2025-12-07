@@ -5,6 +5,7 @@ import {
   registerScrollWatcher,
 } from "../lib";
 import type { ScrollWatcherReturn, TimePickerController, TimePickerState } from "../types";
+import { getScrollIndex, setProxyRotationFromIndex } from "../utils";
 
 export default function useTimePickerAnimation() {
   const meridiemRef = useRef<HTMLUListElement>(null);
@@ -36,6 +37,9 @@ export default function useTimePickerAnimation() {
       { type: "minutes", element: minutesRef.current, wheel: minutesRef.current.nextElementSibling as HTMLElement, track: minutesRef.current.nextElementSibling!.nextElementSibling!.firstElementChild as HTMLElement },
     ];
 
+    // 드래그 대상이 될 중간자(proxy) 요소를 지정
+    const proxys: HTMLDivElement[] = Array.from({ length: controllers.length }, () => document.createElement("div"));
+
     // --------------------------------------------
     // TimePicker를 조작할 수 있는 로직을 구성한다.
     // - TimePicker의 스크롤 위치를 현재 시간을 기준으로 지정한다.
@@ -43,14 +47,23 @@ export default function useTimePickerAnimation() {
     // - TimePicker Controller를 마우스 휠로 스크롤을 하는 것이 아닌 드래그를 할 경우 GSAP 기반 애니메이션을 등록한다.
     // --------------------------------------------
 
-    setScrollPositionByCurrentTime(state, controllers); // 1. TimePicker의 스크롤 위치를 현재 시간을 기준으로 지정한다.
+    // 1. TimePicker의 스크롤 위치를 현재 시간을 기준으로 지정한다.
+    // - 스크롤 위치를 현재 시간을 기준으로 맞추게 되면, 드래그 대상이 될 Proxy 요소는 수정된 스크롤 위치와 회전 각도가 달라진다.
+    // - 이로 인해, setProxyRotationFromIndex 유틸 함수를 통해 Proxy 요소도 수정된 스크롤 위치와 동일한 회전 각도를 가지게 구성한다.
+    setScrollPositionByCurrentTime(state, controllers);
+    controllers.forEach((controller, idx) => {
+      setProxyRotationFromIndex(
+        proxys[idx],
+        getScrollIndex(controller.element, controller.type === "meridiem")
+      );
+    });
 
     // 2. 각 TimePicker Controller에 스크롤 추적 함수를 등록한다.
     // - scrollWatchers라는 배열을 두는 이유는 생성된 스크롤 추적 함수는 addEventListner와 같이 메모리를 점유하기 때문에,
     // - 컴포넌트가 언마운트가 되면 계속해서 메모리를 점유하는 것이 아닌 removeEventListener를 통해 메모리에서 해제하기
-    const scrollWatcher: ScrollWatcherReturn[] = [];
+    const scrollWatchers: ScrollWatcherReturn[] = [];
     controllers.forEach((controller) => {
-      scrollWatcher.push(
+      scrollWatchers.push(
         registerScrollWatcher(
           controller,
           controllers[0].element,
@@ -58,6 +71,17 @@ export default function useTimePickerAnimation() {
         )
       );
     });
+
+    // 3. 드래그를 위한 
+
+    // 클린업(clean-up) 함수 컴포넌트가 언마운트 됬을 때 불필요한 메모리를 제거하기 위한 용도
+    return () => {
+      scrollWatchers.forEach((scrollWatcher) => {
+        scrollWatcher.destroy();
+      });
+
+
+    }
 
   }, { dependencies: [] });
 
