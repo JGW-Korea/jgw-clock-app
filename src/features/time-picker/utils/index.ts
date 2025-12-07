@@ -8,13 +8,9 @@ import type { TimePickerState } from "../types";
  * @param {TimePickerState} state - 객체를 통해 전달받아 참조 주소 내부의 isPMState 값을 변경한다.
  * @param {boolean} updateIsPMState - 스크롤을 통해 변경된 시간을 기준의 AM / PM 상태
 */
-export function setMeridiem(state: TimePickerState, updateIsPMState: boolean) {
+export const setMeridiem = (state: TimePickerState, updateIsPMState: boolean) => {
   state["isPMState"] = !!updateIsPMState;
 }
-
-
-
-
 
 /**
  * TimePicker Controller 요소에서 스크롤 된 높이를 가지고 오는 유틸 함수
@@ -22,18 +18,15 @@ export function setMeridiem(state: TimePickerState, updateIsPMState: boolean) {
  * @param {HTMLElement} target - 스크롤 수행을 감지 대상이 될 실제 DOM 요소
  * @returns {number} target.scrollTop - 요소의 스크롤 된 높이
 */
-export const getScrollPosition = (target: HTMLElement) => target.scrollTop;
-
-
-
-
+export const getScrollPosition = (target: HTMLElement): number => target.scrollTop;
 
 /**
  * TimePicker Controller 스크롤이 수행될 때 어떤 li 자식의 가까운지 계산해 index 위치를 계산하는 유틸 함수
  * 
  * @param {HTMLElement} element - 스크롤 도중 Index를 계산할 실제 DOM 요소
+ * @param {boolean} straight - 무한 스크롤 여부에 따라 인덱스를 어떻게 반환할지 정하는 값
 */
-export function getScrollIndex(element: HTMLElement, straight = false) {
+export const getScrollIndex = (element: HTMLElement, straight: boolean = false) => {
   const itemHeight = element.offsetHeight;
 
   if(!itemHeight) {
@@ -54,14 +47,22 @@ export function getScrollIndex(element: HTMLElement, straight = false) {
   return idx;
 }
 
+/**
+ * TimePicker의 스크롤 위치가 끝단에 도달했는지 추적하여 반대편으로 이동시키는 유틸 함수
+ * 
+ * @param {HTMLElement} controller - 실제 스크롤이 되는 Contrller 요소
+*/
+export const maintainInfiniteLoop = (controller: HTMLElement) => {
+  if(controller.offsetHeight + controller.scrollTop > controller.scrollHeight - BUFFER) controller.scrollTop = BUFFER;
+  else if(controller.scrollTop < BUFFER) controller.scrollTop = controller.scrollHeight - BUFFER;
+}
 
 /**
+ * Controller의 위치를 음수･양수 상관없이 0~59 범위의 인덱스로 변환하는 유틸 함수
  * 
+ * @param {number} index - 현재 Controller의 위치
 */
-export function maintainInfiniteLoop(element: HTMLElement) {
-  if(element.offsetHeight + element.scrollTop > element.scrollHeight - BUFFER) element.scrollTop = BUFFER;
-  else if(element.scrollTop < BUFFER) element.scrollTop = element.scrollHeight - BUFFER;
-}
+export const mod60 = (index: number) => ((index % 60) + 60) % 60;
 
 /**
  * TimePicker의 드래그를 위한 중간자(proxy)의 위치를 현재 스크롤 된 높이와 동일하게 설정하기 위한 유틸 함수
@@ -69,9 +70,34 @@ export function maintainInfiniteLoop(element: HTMLElement) {
  * @param {HTMLDivElement} proxy - 중간자 요소
  * @param {number} index - 실제 TimePicker Controller 현재 위치
 */
-export function setProxyRotationFromIndex(proxy: HTMLDivElement, index: number) {
+export const setProxyRotationFromIndex = (proxy: HTMLDivElement, index: number) => {
   // gsap을 통해 Proxy 요소의 회전 값을 계산하여 Controller와 동일한 회전을 가지게 설정한다.
   gsap.set(proxy, {
     rotation: (TOTAL - index) * DEG_STEP,
   });
+}
+
+/**
+ * 드래그를 통해 변경된 Controller의 각도를 현재 위치를 계산하는 유틸 함수
+ * 
+ * @param {number} deg - 현재 회전 각도
+*/
+export const indexFromRotation = (deg: number) => {
+  return Math.round(deg < 0 ? Math.abs((deg % 360) / DEG_STEP) : TOTAL - (deg % 360) / DEG_STEP) % TOTAL;
+}
+
+/**
+ * GSAP Draggable을 통해 수정된 인라인 스타일(Inline-Style) 속성 값을 초기화하는 유틸 함수
+ * 
+ * @param {HTMLElement[]} elements - Controller의 형제 요소인 Wheel과 Track
+*/
+export const clearScrollPropsIfCSS = (elements: HTMLElement[]) => {
+  if(!CSS.supports("animation-timeline: scroll()")) return;
+
+  // 요소에 적용된 CSS 애니메이션 전체를 제거한다. 
+  for(const element of elements) {
+    gsap.set(element, { 
+      clearProps: "all" 
+    });
+  }
 }
