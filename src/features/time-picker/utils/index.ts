@@ -1,4 +1,5 @@
-import { BUFFER } from "../consts";
+import gsap from "gsap";
+import { BUFFER, DEG_STEP, TOTAL } from "../consts";
 import type { TimePickerState } from "../types";
 
 /**
@@ -60,4 +61,17 @@ export function getScrollIndex(element: HTMLElement, straight = false) {
 export function maintainInfiniteLoop(element: HTMLElement) {
   if(element.offsetHeight + element.scrollTop > element.scrollHeight - BUFFER) element.scrollTop = BUFFER;
   else if(element.scrollTop < BUFFER) element.scrollTop = element.scrollHeight - BUFFER;
+}
+
+/**
+ * TimePicker의 드래그를 위한 중간자(proxy)의 위치를 현재 스크롤 된 높이와 동일하게 설정하기 위한 유틸 함수
+ * 
+ * @param {HTMLDivElement} proxy - 중간자 요소
+ * @param {number} index - 실제 TimePicker Controller 현재 위치
+*/
+export function setProxyRotationFromIndex(proxy: HTMLDivElement, index: number) {
+  // gsap을 통해 Proxy 요소의 회전 값을 계산하여 Controller와 동일한 회전을 가지게 설정한다.
+  gsap.set(proxy, {
+    rotation: (TOTAL - index) * DEG_STEP,
+  });
 }
