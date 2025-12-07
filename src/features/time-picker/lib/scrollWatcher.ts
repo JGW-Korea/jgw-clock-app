@@ -1,5 +1,7 @@
-import type { ScrollWatcher, ScrollWatcherReturn } from "../types";
-import { getScrollPosition } from "../utils";
+import type { ScrollWatcher, ScrollWatcherReturn, TimePickerController, TimePickerState } from "../types";
+import { getScrollIndex, getScrollPosition, maintainInfiniteLoop } from "../utils";
+import { animationTimeLineFallback } from "./animationTimeLineFallback";
+import { syncMeridiem } from "./toggleMeridiem";
 
 /**
  * TimePicker > Controller의 스크롤 수행을 감지하는 보조 함수
@@ -7,7 +9,7 @@ import { getScrollPosition } from "../utils";
  * @param {HTMLElement} target - 스크롤 수행을 감지 대상이 될 실제 DOM 요소
  * @param {ScrollWatcher} ScrollWatcher - 스크롤 감지 중 발생시킬 함수
 */
-export function createScrollWatcher(target: HTMLElement, { frames = 20, onStart, onFrame, onStop }: ScrollWatcher): ScrollWatcherReturn {
+function createScrollWatcher(target: HTMLElement, { frames = 20, onStart, onFrame, onStop }: ScrollWatcher): ScrollWatcherReturn {
   let last: number | null = null;  // 마지막 프레임에서의 scrollTop의 값을 저장한다.
   let repeats: number = 0;         // 정지 상태가 얼마나 지속되는지 추적하기 위한 값을 저장한다.
   let raf: number | null = null;   // requestAnimationFrameID의 값을 저장한다.
@@ -62,4 +64,86 @@ export function createScrollWatcher(target: HTMLElement, { frames = 20, onStart,
       target.removeEventListener("scroll", handleScrollTrigger);
     }
   }
+}
+
+/**
+ * TimePicker Controller의 스크롤 추적 함수를 등록하는 보조 함수
+ * 
+ * @param {TimePickerController} controller - 스크롤 수행 감지 대상이 될 실제 DOM 요소
+ * @param {HTMLUListElement} meridiem - Hours 스크롤 변화로 인해 AM <-> PM 자동 전환이 될 실제 Meridiem DOM 요소
+ * @param {TimePickerState} state - 컴포넌트 내부에서 관리하는 스크롤 전체 상태
+*/
+export function registerScrollWatcher(controller: TimePickerController, meridiem: HTMLUListElement, state: TimePickerState): ScrollWatcherReturn {
+  return createScrollWatcher(controller.element, {
+    // 스크롤이 시작된 경우
+    onStart() {
+      switch(controller.type) {
+        case "meridiem": {
+          state.meridiemStart = getScrollIndex(controller.element, true);
+          return;
+        }
+        case "hours": {
+          state.meridiemGuard = true;
+          return;
+        }
+      }
+    },
+    // 스크롤이 수행되고 있는 경우
+    onFrame() {
+      // 스크롤 수행 과정에서 CSS의 animation-timeline을 지원하지 않으면 JavaScript를 통해 대체한다.
+      if(!CSS.supports("animation-timeline: scroll()")) { 
+        animationTimeLineFallback(controller);
+      }
+
+      // 스크롤 수행 과정에서 수행해야 할 로직 등록
+      // - hours, minutes는 스크롤을 멈추지 않게 하기 위해 무한 스크롤 보조 함수를 등록한다.
+      // - hours는 스크롤 과정에서 AM <-> PM을 자동으로 전환을 해줘야하기 때문에 현재 선택된 높이의 index를 계속 추적해서 AM <-> PM을 자동으로 전환시킨다.
+      switch(controller.type) {
+        case "hours": {
+          const currentHoursIndex = getScrollIndex(controller.element);
+          
+          maintainInfiniteLoop(controller.element);         // 무한 스크롤 유지
+          syncMeridiem(currentHoursIndex, state, meridiem); // AM <-> PM 자동 전환
+          return;
+        }
+        case "minutes": {
+          maintainInfiniteLoop(controller.element);         // 무한 스크롤 유지
+          return;
+        }
+      }
+    },
+    // 스크롤이 중단된 경우
+    onStop() {
+      switch(controller.type) {
+        case "meridiem": {
+          const currentMeridiemIndex = getScrollIndex(controller.element, true); // 스크롤 중단 시점의 현재 위치를 가지고 온다.
+
+          if(state.passiveTrigger) state.passiveTrigger = false;
+          else if(state.meridiemStart && currentMeridiemIndex !== state.meridiemStart && !state.meridiemGuard) {
+            state.isPMState = currentMeridiemIndex === 1;
+            state.meridiemOverride = !state.meridiemOverride;
+          }
+
+          state.meridiemStart = null;
+          // setProxyRotationFromIndex(proxyMeridiem, idx);
+          return;
+        }
+        case "hours": {
+          const currentHoursIndex = getScrollIndex(controller.element); // 스크롤 중단 시점의 현재 위치를 가지고 온다.
+
+          state.currentHours = currentHoursIndex;
+          state.meridiemGuard = false;
+          // setProxyRotationFromIndex(proxyHours, currentHoursIndex);
+          return;
+        }
+        case "minutes": {
+          const currentMinutesIndex = getScrollIndex(controller.element); // 스크롤 중단 시점의 현재 위치를 가지고 온다.
+          
+          state.currentMinutes = currentMinutesIndex;
+          // setProxyRotationFromIndex(proxyMinutes, currentMinutesIndex);
+          return;
+        }
+      }
+    }
+  });
 }
