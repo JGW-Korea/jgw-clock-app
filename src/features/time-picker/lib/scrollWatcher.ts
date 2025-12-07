@@ -1,4 +1,4 @@
-import type { ScrollWatcher } from "../types";
+import type { ScrollWatcher, ScrollWatcherReturn } from "../types";
 import { getScrollPosition } from "../utils";
 
 /**
@@ -7,7 +7,7 @@ import { getScrollPosition } from "../utils";
  * @param {HTMLElement} target - 스크롤 수행을 감지 대상이 될 실제 DOM 요소
  * @param {ScrollWatcher} ScrollWatcher - 스크롤 감지 중 발생시킬 함수
 */
-export function createScrollWatcher(target: HTMLElement, { frames = 20, onStart, onFrame, onStop }: ScrollWatcher) {
+export function createScrollWatcher(target: HTMLElement, { frames = 20, onStart, onFrame, onStop }: ScrollWatcher): ScrollWatcherReturn {
   let last: number | null = null;  // 마지막 프레임에서의 scrollTop의 값을 저장한다.
   let repeats: number = 0;         // 정지 상태가 얼마나 지속되는지 추적하기 위한 값을 저장한다.
   let raf: number | null = null;   // requestAnimationFrameID의 값을 저장한다.
