@@ -1,4 +1,7 @@
-const TOTAL = 60; // 가장 긴 데이터(시간/분)를 기준으로 휠의 전체 슬롯을 60개로 통일하여, 모든 열의 회전 각도를 일치시키기 위한 상수다.
+export const TOTAL = 60;               // 가장 긴 데이터(시간/분)를 기준으로 휠의 전체 슬롯을 60개로 통일하여, 모든 열의 회전 각도를 일치시키기 위한 상수다.
+export const DEG_STEP = 360 / TOTAL;   // 360도 원에서 한 번 회전할 값
+export const LINE_HEIGHT = 34;         // 각 휠의 높이 값
+export const BUFFER = 2;               // 끝단(최상단 / 최하단)을 감지하기 위한 값
 
 /*
   -------------------------------
@@ -20,10 +23,3 @@ export const HOURS_TRACK: ReadonlyArray<string> = Array.from({ length: TOTAL + 1
 export const MINUTES_LIST: ReadonlyArray<number> = Array.from({ length: TOTAL + 1 }, (_, idx) => idx === 60 ? 0 : idx);
 export const MINUTES_WHEEL: ReadonlyArray<string> = Array.from({ length: TOTAL }, (_, idx) => (idx === 60 ? "00" : idx.toString().padStart(2, "0")));
 export const MINUTES_TRACK: ReadonlyArray<string> = Array.from({ length: TOTAL + 1 }, (_, idx) => (idx === 60 ? "00" : idx.toString().padStart(2, "0")));
-
-/*
-  ---------------------------------
-  Scroll Watcher에 사용될 상수 정의
-  ---------------------------------
-*/
-export const BUFFER = 2; // 
