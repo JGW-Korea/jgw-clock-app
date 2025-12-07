@@ -1,3 +1,5 @@
-export { default as setScrollPositionByCurrentTime } from "./setScrollPositionByCurrentTime";
-export { createScrollWatcher } from "./scrollWatcher";
-export * from "./animationTimeLineFallback";
+export { setScrollPositionByCurrentTime } from "./setScrollPositionByCurrentTime";
+export { registerScrollWatcher } from "./scrollWatcher";
+export { syncMeridiem } from "./toggleMeridiem";
+export { registerDraggable } from "./draggable";
+export { animationTimeLineFallback } from "./animationTimeLineFallback";
