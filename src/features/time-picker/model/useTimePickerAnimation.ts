@@ -1,8 +1,10 @@
 import { useGSAP } from "@gsap/react";
 import { useRef } from "react"
-import { animationTimeLineFallback, createScrollWatcher, fallbackUpdateController, setScrollPositionByCurrentTime, syncMeridiem } from "../lib";
-import type { TimePickerController, TimePickerState } from "../types";
-import { getScrollIndex, maintainInfiniteLoop } from "../utils";
+import { 
+  setScrollPositionByCurrentTime,
+  registerScrollWatcher,
+} from "../lib";
+import type { ScrollWatcherReturn, TimePickerController, TimePickerState } from "../types";
 
 export default function useTimePickerAnimation() {
   const meridiemRef = useRef<HTMLUListElement>(null);
@@ -22,85 +24,39 @@ export default function useTimePickerAnimation() {
     meridiemGuard: false
   };
 
-  // useGSAP Hook -> useEffect와 동일하게 의존성(dependencies) 항목에 따른 렌더링･리렌더링 간에 부수효과(side-effect) 로직을 수행한다.
+  // useGSAP Hook -> useEffect와 동일하게 의존성(dependencies) 항목에 따른 컴포넌트 생명주기 간에 부수효과(side-effect) 로직을 수행한다.
   // 단순히 useEffect와 동일한 것이 아닌 GSAP을 통해 등록한 애니메이션을 "자동으로 해제"하여 메모리 낭비를 방지한다.
   useGSAP(() => {
     if(!meridiemRef.current || !hoursRef.current || !minutesRef.current) return;
 
     // 실제 DOM에 연결한 참조 객체를 배열로 관리한다.
-    // 단, 브라우저에서 animation-timeline을 지원하지 않는 경우 wheel과 track에도 실제 DOM을 연결해준다.
-    // 왜냐하면, animation-timeline을 지원하지 않으면 스크롤이 수행되지 않기 때문에 gsap을 통해 대체를 해줘야하기 때문이다.
     const controllers: TimePickerController[] = [
-      { type: "meridiem", element: meridiemRef.current, wheel: null, track: null },
-      { type: "hours", element: hoursRef.current, wheel: null, track: null },
-      { type: "minutes", element: minutesRef.current, wheel: null, track: null },
+      { type: "meridiem", element: meridiemRef.current, wheel: meridiemRef.current.nextElementSibling as HTMLElement, track: meridiemRef.current.nextElementSibling!.nextElementSibling!.firstElementChild as HTMLElement },
+      { type: "hours", element: hoursRef.current, wheel: hoursRef.current.nextElementSibling as HTMLElement, track: hoursRef.current.nextElementSibling!.nextElementSibling!.firstElementChild as HTMLElement },
+      { type: "minutes", element: minutesRef.current, wheel: minutesRef.current.nextElementSibling as HTMLElement, track: minutesRef.current.nextElementSibling!.nextElementSibling!.firstElementChild as HTMLElement },
     ];
-    if(!CSS.supports("animation-timeline: scroll()")) { 
-      fallbackUpdateController(controllers);
-    }
 
-    setScrollPositionByCurrentTime(state, controllers); // TimePicker의 스크롤 위치를 현재 시간을 기준으로 지정한다.
+    // --------------------------------------------
+    // TimePicker를 조작할 수 있는 로직을 구성한다.
+    // - TimePicker의 스크롤 위치를 현재 시간을 기준으로 지정한다.
+    // - 각 TimePicker Controller의 스크롤 시작･스크롤 수행 중･스크롤 중단을 추적하는 함수를 등록한다.
+    // - TimePicker Controller를 마우스 휠로 스크롤을 하는 것이 아닌 드래그를 할 경우 GSAP 기반 애니메이션을 등록한다.
+    // --------------------------------------------
 
-    // TimePicker Controller에 스크롤 추적을 위한 스크롤 추적 보조 함수를 등록한다.
+    setScrollPositionByCurrentTime(state, controllers); // 1. TimePicker의 스크롤 위치를 현재 시간을 기준으로 지정한다.
+
+    // 2. 각 TimePicker Controller에 스크롤 추적 함수를 등록한다.
+    // - scrollWatchers라는 배열을 두는 이유는 생성된 스크롤 추적 함수는 addEventListner와 같이 메모리를 점유하기 때문에,
+    // - 컴포넌트가 언마운트가 되면 계속해서 메모리를 점유하는 것이 아닌 removeEventListener를 통해 메모리에서 해제하기
+    const scrollWatcher: ScrollWatcherReturn[] = [];
     controllers.forEach((controller) => {
-      createScrollWatcher(controller.element, {
-        onStart: () => {
-          switch(controller.type) {
-            case "meridiem": {
-              state.meridiemStart = getScrollIndex(controller.element, true);
-              break;
-            }
-            case "hours": {
-              state.meridiemGuard = true;
-              break
-            }
-          }
-        },
-        onFrame(number) {
-          // animation-timeline을 지원하지 않는 브라우저인 경우 gsap을 통해 wheel과 track을 스크롤 가능하게 해준다.
-          if(!CSS.supports("animation-timeline: scroll()")) {
-            animationTimeLineFallback(controller);
-          }
-          
-          if(controller.type !== "meridiem") {
-            maintainInfiniteLoop(controller.element);           // 스크롤 수행 도중에 스크롤 위치의 끝단(최하단 / 최상단)에 도달했을 때 스크롤을 멈추지 않고 무한 스크롤을 해주는 보조 함수
-          }
-
-          const index = getScrollIndex(controller.element);   // 
-
-          switch(controller.type) {
-            case "hours": {
-              syncMeridiem(index, state, controllers);
-              state.currentHours = index;
-              break;
-            }
-            case "minutes": {
-              state.currentMinutes = index;
-              break;
-            }
-          }
-        },
-        onStop: () => {
-          switch(controller.type) {
-            case "meridiem": {
-              const idx = getScrollIndex(controller.element, true);
-
-              if(state.passiveTrigger) state.passiveTrigger = false;
-              else if(state.meridiemStart !== null && idx !== state.meridiemStart && !state.meridiemGuard) {
-                state.isPMState = idx === 1;
-                state.meridiemOverride = !state.meridiemOverride;
-              }
-
-              state.meridiemStart = null;
-              break;
-            }
-            case "hours": {
-              state.meridiemGuard = false;
-              break;
-            }
-          }
-        }
-      });
+      scrollWatcher.push(
+        registerScrollWatcher(
+          controller,
+          controllers[0].element,
+          state
+        )
+      );
     });
 
   }, { dependencies: [] });
