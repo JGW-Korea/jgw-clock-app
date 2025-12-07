@@ -1,5 +1,5 @@
 import type { ScrollWatcher, ScrollWatcherReturn, TimePickerController, TimePickerState } from "../types";
-import { getScrollIndex, getScrollPosition, maintainInfiniteLoop } from "../utils";
+import { getScrollIndex, getScrollPosition, maintainInfiniteLoop, setProxyRotationFromIndex } from "../utils";
 import { animationTimeLineFallback } from "./animationTimeLineFallback";
 import { syncMeridiem } from "./toggleMeridiem";
 
@@ -70,11 +70,12 @@ function createScrollWatcher(target: HTMLElement, { frames = 20, onStart, onFram
  * TimePicker Controller의 스크롤 추적 함수를 등록하는 보조 함수
  * 
  * @param {TimePickerController} controller - 스크롤 수행 감지 대상이 될 실제 DOM 요소
+ * @param {HTMLDivElement} proxy - Controller의 드래그 대상이 될 중간자(proxy) 요소
  * @param {HTMLUListElement} meridiem - Hours 스크롤 변화로 인해 AM <-> PM 자동 전환이 될 실제 Meridiem DOM 요소
  * @param {TimePickerState} state - 컴포넌트 내부에서 관리하는 스크롤 전체 상태
  * @returns {ScrollWatcher} - 등록한 ScrollWatcher
 */
-export function registerScrollWatcher(controller: TimePickerController, meridiem: HTMLUListElement, state: TimePickerState): ScrollWatcherReturn {
+export function registerScrollWatcher(controller: TimePickerController, proxy: HTMLDivElement, meridiem: HTMLUListElement, state: TimePickerState): ScrollWatcherReturn {
   return createScrollWatcher(controller.element, {
     // 스크롤이 시작된 경우
     onStart() {
@@ -126,7 +127,7 @@ export function registerScrollWatcher(controller: TimePickerController, meridiem
           }
 
           state.meridiemStart = null;
-          // setProxyRotationFromIndex(proxyMeridiem, idx);
+          setProxyRotationFromIndex(proxy, currentMeridiemIndex); // 스크롤이 중단 된 경우 Wheel의 드래그 대상이 될 중간자 요소의 높이도 현재 스크롤 높이와 동일하게 맞춰준다.
           return;
         }
         case "hours": {
@@ -134,14 +135,14 @@ export function registerScrollWatcher(controller: TimePickerController, meridiem
 
           state.currentHours = currentHoursIndex;
           state.meridiemGuard = false;
-          // setProxyRotationFromIndex(proxyHours, currentHoursIndex);
+          setProxyRotationFromIndex(proxy, currentHoursIndex); // 스크롤이 중단 된 경우 Wheel의 드래그 대상이 될 중간자 요소의 높이도 현재 스크롤 높이와 동일하게 맞춰준다.
           return;
         }
         case "minutes": {
           const currentMinutesIndex = getScrollIndex(controller.element); // 스크롤 중단 시점의 현재 위치를 가지고 온다.
           
           state.currentMinutes = currentMinutesIndex;
-          // setProxyRotationFromIndex(proxyMinutes, currentMinutesIndex);
+          setProxyRotationFromIndex(proxy, currentMinutesIndex); // 스크롤이 중단 된 경우 Wheel의 드래그 대상이 될 중간자 요소의 높이도 현재 스크롤 높이와 동일하게 맞춰준다.
           return;
         }
       }

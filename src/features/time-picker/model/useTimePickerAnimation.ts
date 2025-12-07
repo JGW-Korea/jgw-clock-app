@@ -62,10 +62,11 @@ export default function useTimePickerAnimation() {
     // - scrollWatchers라는 배열을 두는 이유는 생성된 스크롤 추적 함수는 addEventListner와 같이 메모리를 점유하기 때문에,
     // - 컴포넌트가 언마운트가 되면 계속해서 메모리를 점유하는 것이 아닌 removeEventListener를 통해 메모리에서 해제하기
     const scrollWatchers: ScrollWatcherReturn[] = [];
-    controllers.forEach((controller) => {
+    controllers.forEach((controller, idx) => {
       scrollWatchers.push(
         registerScrollWatcher(
           controller,
+          proxys[idx],
           controllers[0].element,
           state
         )
