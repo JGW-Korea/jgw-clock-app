@@ -7,7 +7,7 @@ import { setMeridiem } from "../utils";
  * @param {TimePickerState} state - TimePicker 내부에서 사용되는 상태
  * @param {HTMLUListElement[]} refs - 현재 시간
 */
-export default function setScrollPositionByCurrentTime(state: TimePickerState, [meridiem, hours, minutes]: TimePickerController[]) {
+export function setScrollPositionByCurrentTime(state: TimePickerState, [meridiem, hours, minutes]: TimePickerController[]) {
   const now = new Date();
   const [
     currentHours,
