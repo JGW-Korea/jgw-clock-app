@@ -82,11 +82,11 @@ export function registerScrollWatcher(controller: TimePickerController, proxy: H
       switch(controller.type) {
         case "meridiem": {
           state.meridiemStart = getScrollIndex(controller.element, true);
-          return;
+          break;
         }
         case "hours": {
           state.meridiemGuard = true;
-          return;
+          break;
         }
       }
     },
@@ -106,11 +106,11 @@ export function registerScrollWatcher(controller: TimePickerController, proxy: H
           
           maintainInfiniteLoop(controller.element);         // 무한 스크롤 유지
           syncMeridiem(currentHoursIndex, state, meridiem); // AM <-> PM 자동 전환
-          return;
+          break;
         }
         case "minutes": {
           maintainInfiniteLoop(controller.element);         // 무한 스크롤 유지
-          return;
+          break;
         }
       }
     },
@@ -128,7 +128,7 @@ export function registerScrollWatcher(controller: TimePickerController, proxy: H
 
           state.meridiemStart = null;
           setProxyRotationFromIndex(proxy, currentMeridiemIndex); // 스크롤이 중단 된 경우 Wheel의 드래그 대상이 될 중간자 요소의 높이도 현재 스크롤 높이와 동일하게 맞춰준다.
-          return;
+          break;
         }
         case "hours": {
           const currentHoursIndex = getScrollIndex(controller.element); // 스크롤 중단 시점의 현재 위치를 가지고 온다.
@@ -136,14 +136,14 @@ export function registerScrollWatcher(controller: TimePickerController, proxy: H
           state.currentHours = currentHoursIndex;
           state.meridiemGuard = false;
           setProxyRotationFromIndex(proxy, currentHoursIndex); // 스크롤이 중단 된 경우 Wheel의 드래그 대상이 될 중간자 요소의 높이도 현재 스크롤 높이와 동일하게 맞춰준다.
-          return;
+          break;
         }
         case "minutes": {
           const currentMinutesIndex = getScrollIndex(controller.element); // 스크롤 중단 시점의 현재 위치를 가지고 온다.
           
           state.currentMinutes = currentMinutesIndex;
           setProxyRotationFromIndex(proxy, currentMinutesIndex); // 스크롤이 중단 된 경우 Wheel의 드래그 대상이 될 중간자 요소의 높이도 현재 스크롤 높이와 동일하게 맞춰준다.
-          return;
+          break;
         }
       }
     }
