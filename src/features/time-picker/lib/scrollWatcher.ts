@@ -1,4 +1,4 @@
-import type { ScrollWatcher, ScrollWatcherReturn, TimePickerController, TimePickerState } from "../types";
+import type { RegisterScrollWatcherParameter, ScrollWatcher, ScrollWatcherReturn } from "../types";
 import { getScrollIndex, getScrollPosition, maintainInfiniteLoop, setProxyRotationFromIndex } from "../utils";
 import { animationTimeLineFallback } from "./animationTimeLineFallback";
 import { syncMeridiem } from "./toggleMeridiem";
@@ -6,10 +6,10 @@ import { syncMeridiem } from "./toggleMeridiem";
 /**
  * TimePicker > Controller의 스크롤 수행을 감지하는 보조 함수
  * 
- * @param {HTMLElement} target - 스크롤 수행을 감지 대상이 될 실제 DOM 요소
+ * @param {HTMLUListElement} target - 스크롤 수행을 감지 대상이 될 실제 DOM 요소
  * @param {ScrollWatcher} ScrollWatcher - 스크롤 감지 중 발생시킬 함수
 */
-function createScrollWatcher(target: HTMLElement, { frames = 20, onStart, onFrame, onStop }: ScrollWatcher): ScrollWatcherReturn {
+function createScrollWatcher(target: HTMLUListElement, { frames = 20, onStart, onFrame, onStop }: ScrollWatcher): ScrollWatcherReturn {
   let last: number | null = null;  // 마지막 프레임에서의 scrollTop의 값을 저장한다.
   let repeats: number = 0;         // 정지 상태가 얼마나 지속되는지 추적하기 위한 값을 저장한다.
   let raf: number | null = null;   // requestAnimationFrameID의 값을 저장한다.
@@ -69,13 +69,10 @@ function createScrollWatcher(target: HTMLElement, { frames = 20, onStart, onFram
 /**
  * TimePicker Controller의 스크롤 추적 함수를 등록하는 보조 함수
  * 
- * @param {TimePickerController} controller - 스크롤 수행 감지 대상이 될 실제 DOM 요소
- * @param {HTMLDivElement} proxy - Controller의 드래그 대상이 될 중간자(proxy) 요소
- * @param {HTMLUListElement} meridiem - Hours 스크롤 변화로 인해 AM <-> PM 자동 전환이 될 실제 Meridiem DOM 요소
- * @param {TimePickerState} state - 컴포넌트 내부에서 관리하는 스크롤 전체 상태
+ * @param {RegisterScrollWatcherParameter} - registerScrollWatcher 보조 함수에서 사용될 객체 구성
  * @returns {ScrollWatcher} - 등록한 ScrollWatcher
 */
-export function registerScrollWatcher(controller: TimePickerController, proxy: HTMLDivElement, meridiem: HTMLUListElement, state: TimePickerState): ScrollWatcherReturn {
+export function registerScrollWatcher({ controller, proxy, meridiem, state }: RegisterScrollWatcherParameter): ScrollWatcherReturn {
   return createScrollWatcher(controller.element, {
     // 스크롤이 시작된 경우
     onStart() {
