@@ -72,6 +72,7 @@ function createScrollWatcher(target: HTMLElement, { frames = 20, onStart, onFram
  * @param {TimePickerController} controller - 스크롤 수행 감지 대상이 될 실제 DOM 요소
  * @param {HTMLUListElement} meridiem - Hours 스크롤 변화로 인해 AM <-> PM 자동 전환이 될 실제 Meridiem DOM 요소
  * @param {TimePickerState} state - 컴포넌트 내부에서 관리하는 스크롤 전체 상태
+ * @returns {ScrollWatcher} - 등록한 ScrollWatcher
 */
 export function registerScrollWatcher(controller: TimePickerController, meridiem: HTMLUListElement, state: TimePickerState): ScrollWatcherReturn {
   return createScrollWatcher(controller.element, {
