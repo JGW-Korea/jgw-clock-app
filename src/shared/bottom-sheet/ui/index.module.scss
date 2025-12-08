@@ -1,0 +1,16 @@
+.bottom-sheet {
+  max-width: 436px;
+  margin: 0 auto;
+
+  &-container {
+    background-color: #353535 !important;
+    padding: 4rem;
+    box-sizing: border-box;
+    border-top-left-radius: 8rem !important;
+    border-top-right-radius: 8rem !important;
+  }
+
+  &-backdrop {
+    position: absolute !important;
+  }
+}
