@@ -4,12 +4,12 @@ import Cancel from "../../../assets/icons/plus.svg?react"
 import Check from "../../../assets/icons/check.svg?react"
 
 // BottomSheetHeader가 기본적으로 가져야 하는 Props 구성
-interface BaseProps {
+interface Props {
   sheetTitle: string;
   onClose: () => void;
+  showRightButton: boolean;
+  onRightButtonClick?: () => void;
 }
-
-type Props = BaseProps & ({ showRightButton: false } | { showRightButton: true; onRightButtonClick: () => void; });
 
 /**
  * 전역 Bottom Sheet 컴포넌트 내부에서 사용될 Bottom Sheet Header 컴포넌트
@@ -18,8 +18,7 @@ type Props = BaseProps & ({ showRightButton: false } | { showRightButton: true; 
  * 
  * @param {Props} props - BottomSheetHeader 컴포넌트에 전달할 데이터
 */
-export default function BottomSheetHeader(props: Props) {
-  const { sheetTitle, onClose, showRightButton } = props;
+export default function BottomSheetHeader({ sheetTitle, onClose, showRightButton, onRightButtonClick }: Props) {
   
   return (
     <Sheet.Header className={`${styles["bottom-sheet-header"]}`}>
@@ -33,7 +32,7 @@ export default function BottomSheetHeader(props: Props) {
       <button
         className={`${styles["bottom-sheet-header__button"]} ${styles["bottom-sheet-header__button-rightButton"]}`}
         style={{ visibility: showRightButton ? "visible" : "hidden" }}
-        onClick={showRightButton ? props.onRightButtonClick : undefined}
+        onClick={onRightButtonClick}
       >
         <Check width={24} height={24} className={`${styles["bottom-sheet-header__button-svg-fill"]}`} />
       </button>

@@ -4,7 +4,8 @@ import BottomSheetHeader from "./BottomSheetHeader";
 
 interface Props extends SheetProps {
   sheetTitle: string;
-
+  showRightButton?: boolean;
+  onRightButtonClick?: () => void;
 } 
 
 /**
@@ -13,11 +14,11 @@ interface Props extends SheetProps {
  * @param param0 
  * @returns 
  */
-export default function BottomSheet({ sheetTitle, children, ...props }: Props) {
+export default function BottomSheet({ children, sheetTitle, showRightButton = false, onRightButtonClick, ...props }: Props) {
   return (
     <Sheet {...props} className={`${styles["bottom-sheet"]}`}>
       <Sheet.Container className={`${styles["bottom-sheet-container"]}`}>
-        <BottomSheetHeader sheetTitle={sheetTitle} onClose={props.onClose}  />
+        <BottomSheetHeader sheetTitle={sheetTitle} showRightButton={showRightButton} onRightButtonClick={onRightButtonClick} onClose={props.onClose}  />
 
         <Sheet.Content>
           {children}
