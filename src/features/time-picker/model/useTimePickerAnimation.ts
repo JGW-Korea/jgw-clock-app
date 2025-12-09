@@ -19,7 +19,7 @@ export default function useTimePickerAnimation(updateTimePicker: (isPM: boolean,
   const hoursRef = useRef<HTMLUListElement>(null);
   const minutesRef = useRef<HTMLUListElement>(null);
 
-  // [] - TimePicker를 불러오는 Alarms Bottom Sheet가 설계되면 isPMState, currentHours, currentMinutes는 상위에서 관리해야 됨, 현재는 단순 TimePicker 자체의 기능 보존 용도
+  // TimePicker 내부 제어 상태
   const state: TimePickerState = {
     isPMState: false,
     currentHours: 0,
@@ -32,16 +32,6 @@ export default function useTimePickerAnimation(updateTimePicker: (isPM: boolean,
     meridiemStart: null,
     meridiemGuard: false
   };
-
-  // const meridiemState: TimePickerMeridiemState = {
-  //   prevWrapped: null,
-  //   prevUnwrapped: null,
-  //   meridiemOverride: false,
-  //   lastOverride: false,
-  //   passiveTrigger: false,
-  //   meridiemStart: null,
-  //   meridiemGuard: false
-  // };
 
   // useGSAP Hook -> useEffect와 동일하게 의존성(dependencies) 항목에 따른 컴포넌트 생명주기 간에 부수효과(side-effect) 로직을 수행한다.
   // 단순히 useEffect와 동일한 것이 아닌 GSAP을 통해 등록한 애니메이션을 "자동으로 해제"하여 메모리 낭비를 방지한다.
