@@ -13,6 +13,7 @@ export interface RegisterDraggableParameter {
   proxy: HTMLDivElement;
   controller: TimePickerController;
   controllers: TimePickerController[];
+  updateTimePicker: (isPM: boolean, hours: number, minutes: number) => void;
 }
 
 /**

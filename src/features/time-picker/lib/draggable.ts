@@ -48,7 +48,7 @@ function createDraggable({ proxy, controller, controllers, state, onStart, onCom
     // Proxy의 Rotation이 움직일 수 있는 최대 / 최소 범위를 지정한다.
     bounds:
       controller.type === "meridiem"
-        ? { minRotation: 0, maxRotation: -DEG_STEP }
+        ? { minRotation: -DEG_STEP, maxRotation: 0 }
         : undefined,
     
     // Drag 이벤트가 발생한 시점에 수행할 로직
@@ -125,7 +125,7 @@ export function registerDraggable(props: RegisterDraggableParameter): Draggable[
         // 각 Controller 타입에 맞게 드래그 휠의 위치를 계산한다.
         switch(props.controller.type) {
           case "meridiem": {
-            liElements[currentIndex === 60 ? 0 : currentIndex].scrollIntoView({ block: "nearest" });
+            liElements[currentIndex % 2].scrollIntoView({ block: "nearest" });
             break;
           }
           case "hours": {
@@ -148,6 +148,9 @@ export function registerDraggable(props: RegisterDraggableParameter): Draggable[
         clearScrollPropsIfCSS([props.controller.wheel, props.controller.track]);
         delete props.controller.element.dataset.noSnap;
         setProxyRotationFromIndex(props.proxy, getScrollIndex(props.controller.element, props.controller.type === "meridiem"));
+
+        // 드래그가 종료된 이후 현재 멈춘 시간을 상태에 반영한다.
+        props.updateTimePicker(props.state.isPMState, props.state.currentHours, props.state.currentMinutes);
       }
     }
   );
