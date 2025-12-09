@@ -1,5 +1,5 @@
 import gsap from "gsap";
-import { BUFFER, DEG_STEP, TOTAL } from "../consts";
+import { BUFFER, DEG_STEP, LINE_HEIGHT, TOTAL } from "../consts";
 import type { TimePickerState } from "../types";
 
 /**
@@ -13,21 +13,14 @@ export const setMeridiem = (state: TimePickerState, updateIsPMState: boolean) =>
 }
 
 /**
- * TimePicker Controller 요소에서 스크롤 된 높이를 가지고 오는 유틸 함수
- * 
- * @param {HTMLElement} target - 스크롤 수행을 감지 대상이 될 실제 DOM 요소
- * @returns {number} target.scrollTop - 요소의 스크롤 된 높이
-*/
-export const getScrollPosition = (target: HTMLElement): number => target.scrollTop;
-
-/**
  * TimePicker Controller 스크롤이 수행될 때 어떤 li 자식의 가까운지 계산해 index 위치를 계산하는 유틸 함수
  * 
  * @param {HTMLElement} element - 스크롤 도중 Index를 계산할 실제 DOM 요소
  * @param {boolean} straight - 무한 스크롤 여부에 따라 인덱스를 어떻게 반환할지 정하는 값
 */
 export const getScrollIndex = (element: HTMLElement, straight: boolean = false) => {
-  const itemHeight = element.offsetHeight;
+  // 실제 아이템 하나의 높이를 기준으로 인덱스를 계산한다.
+  const itemHeight = (element.firstElementChild as HTMLElement | null)?.offsetHeight || LINE_HEIGHT;
 
   if(!itemHeight) {
     return 0;
@@ -36,16 +29,41 @@ export const getScrollIndex = (element: HTMLElement, straight: boolean = false) 
   const raw = element.scrollTop / itemHeight;
   let idx = Math.round(raw);
 
-  if(Math.abs(raw - Math.round(raw)) < 1e-6) idx = Math.round(raw);
-
   if(straight) return idx;
   
   const count = Math.round(element.scrollHeight / itemHeight);
 
   if(idx < 0 || idx > count - 2) idx = 0;
 
-  return idx;
+  return idx % TOTAL;
 }
+
+// export const getScrollIndex = (element: HTMLElement, straight: boolean = false) => {
+//   // 1. 실제 아이템(li) 하나의 높이를 기준으로 인덱스 계산해야 한다.
+//   const firstItem = element.querySelector("li") as HTMLElement | null;
+//   const itemHeight = firstItem?.offsetHeight || LINE_HEIGHT;
+
+//   if (!itemHeight) return 0;
+
+//   // 2. 스크롤된 거리 / 아이템 높이 = 몇 번째 아이템인지
+//   const raw = element.scrollTop / itemHeight;
+
+//   let idx = Math.round(raw);
+
+//   // straight 모드는 "무한 스크롤 보정 없이" 있는 그대로 쓰는 용도
+//   if (straight) return idx;
+
+//   // 3. 전체 아이템 개수
+//   const count = Math.round(element.scrollHeight / itemHeight);
+
+//   // 4. 무한 스크롤용 범위 보정
+//   if (idx < 0 || idx > count - 2) {
+//     idx = 0;
+//   }
+
+//   // 5. 0~59 범위로 맞추기 (TOTAL = 60)
+//   return idx % TOTAL;
+// };
 
 /**
  * TimePicker의 스크롤 위치가 끝단에 도달했는지 추적하여 반대편으로 이동시키는 유틸 함수
