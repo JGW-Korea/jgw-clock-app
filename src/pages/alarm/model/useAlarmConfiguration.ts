@@ -50,7 +50,13 @@ export default function useAlarmConfiguration() {
   });
 
   // TimePicker의 선택된 시간이 변경되는 경우
-  function handleTimeChange(hours: number, minutes: number) {
+  function handleTimeChange(isPM: boolean, hours: number, minutes: number) {
+    // hours의 index는 0~59이기 때문에 12시간제로 변경 후, Date() 객체에 사용할 수 있는 24시간제로 변경한다.
+    // 단, Date() 객체의 hours는 0 부터 시작하기 때문에 24시간제는 0~23 범위를 가진다.
+    const hour12 = hours % 12 || 12;
+    hours = isPM ? (hour12 % 12) + 12 : (hour12 % 12);
+
+    // dispatch를 통해 수행시킬 액션을 리듀서에 전달하여 상태를 갱신한다.
     dispatch({
       type: "TIME_PICKER_CHANGED",
       payload: {
