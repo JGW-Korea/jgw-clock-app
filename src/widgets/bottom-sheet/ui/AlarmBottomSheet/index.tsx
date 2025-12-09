@@ -7,22 +7,23 @@ import { useTimePickerDraggable } from "../../model";
 
 interface Props {
   isOpen: boolean;
+  selectedWeekdays: number[];
   onClose: () => void;
+  onChangeTimePicker: (isPMState: boolean, hours: number, minutes: number) => void;
+  onToggleWeekday: (weekdayId: number) => void;
 }
 
-const selectedWeekdays = [1, 2, 5]; // 임시
-
-export default function AlarmBottomSheet({ isOpen, onClose }: Props) {
+export default function AlarmBottomSheet({ isOpen, selectedWeekdays, onClose, onChangeTimePicker, onToggleWeekday }: Props) {
   const { timePickerDraggable, handleTimePickerMouseLeave, handleTimePickerMouseOver } = useTimePickerDraggable();
 
   return (
     <BottomSheet disableDrag={timePickerDraggable} isOpen={isOpen} onClose={onClose} sheetTitle="Add Alarm" showRightButton={true} onRightButtonClick={() => console.log("Hello")} >
       <div className={`${styles["alarm-sheet-content"]}`}>
-        <TimePicker onMouseOver={handleTimePickerMouseOver} onMouseLeave={handleTimePickerMouseLeave} />
+        <TimePicker onMouseOver={handleTimePickerMouseOver} onMouseLeave={handleTimePickerMouseLeave} updateTimePicker={onChangeTimePicker} />
 
         <ul className={`${styles["alarm-sheet-content__list"]}`}>
           {ALARM_WEEKDAYS.map((weekday) => (
-            <li key={weekday.key}>
+            <li key={weekday.key} onClick={() => onToggleWeekday(weekday.id)}>
               {/* button 내부 자식 요소에 div 등의 */}
               <button>
                 {weekday.label}
