@@ -1,6 +1,7 @@
 .bottom-sheet {
   max-width: 436px;
   margin: 0 auto;
+  visibility: visible !important;
 
   &-container {
     background-color: #2c2c2f !important;
