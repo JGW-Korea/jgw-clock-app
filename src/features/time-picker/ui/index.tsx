@@ -3,8 +3,8 @@ import { HOURS_LIST, HOURS_WHEEL, HOURS_TRACK, MERIDIEM_ITEMS, MINUTES_LIST, MIN
 import useTimePickerAnimation from "../model/useTimePickerAnimation";
 
 interface Props {
-  onMouseOver: () => void;
-  onMouseLeave: () => void;
+  onMouseOver?: () => void;
+  onMouseLeave?: () => void;
   updateTimePicker: (isPM: boolean, hours: number, minutes: number) => void;
 }
 
