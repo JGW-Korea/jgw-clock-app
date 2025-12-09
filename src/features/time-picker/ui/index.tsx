@@ -5,13 +5,14 @@ import useTimePickerAnimation from "../model/useTimePickerAnimation";
 interface Props {
   onMouseOver: () => void;
   onMouseLeave: () => void;
+  updateTimePicker: (isPM: boolean, hours: number, minutes: number) => void;
 }
 
 /**
  * Picker를 재사용하여 Meridiem / Hours / Minutes 선택 가능한 TimePicker 컴포넌트
 */
-export default function TimePicker({ onMouseOver, onMouseLeave }: Props) {
-  const { meridiemRef, hoursRef, minutesRef } = useTimePickerAnimation();
+export default function TimePicker({ onMouseOver, onMouseLeave, updateTimePicker }: Props) {
+  const { meridiemRef, hoursRef, minutesRef } = useTimePickerAnimation(updateTimePicker);
 
   return (
     <Picker onMouseOver={onMouseOver} onMouseLeave={onMouseLeave}>

@@ -14,7 +14,7 @@ import InertiaPlugin from "gsap/InertiaPlugin";
 
 gsap.registerPlugin(Draggable, InertiaPlugin);
 
-export default function useTimePickerAnimation() {
+export default function useTimePickerAnimation(updateTimePicker: (isPM: boolean, hours: number, minutes: number) => void) {
   const meridiemRef = useRef<HTMLUListElement>(null);
   const hoursRef = useRef<HTMLUListElement>(null);
   const minutesRef = useRef<HTMLUListElement>(null);
@@ -68,7 +68,7 @@ export default function useTimePickerAnimation() {
     // 1. TimePicker의 스크롤 위치를 현재 시간을 기준으로 지정한다.
     // - 스크롤 위치를 현재 시간을 기준으로 맞추게 되면, 드래그 대상이 될 Proxy 요소는 수정된 스크롤 위치와 회전 각도가 달라진다.
     // - 이로 인해, setProxyRotationFromIndex 유틸 함수를 통해 Proxy 요소도 수정된 스크롤 위치와 동일한 회전 각도를 가지게 구성한다.
-    setScrollPositionByCurrentTime(state, controllers);
+    setScrollPositionByCurrentTime(state, controllers, updateTimePicker);
     controllers.forEach((controller, idx) => {
       setProxyRotationFromIndex(
         proxys[idx],
@@ -81,8 +81,8 @@ export default function useTimePickerAnimation() {
     const scrollWatchers: ScrollWatcherReturn[] = [];
     const draggable: (Draggable[])[] = [];
     controllers.forEach((controller, idx) => {
-      scrollWatchers.push(registerScrollWatcher({ controller, proxy: proxys[idx], meridiem: controllers[0].element, state }));
-      draggable.push(registerDraggable({ proxy: proxys[idx], controller, controllers, state }));
+      scrollWatchers.push(registerScrollWatcher({ controller, proxy: proxys[idx], meridiem: controllers[0].element, state, updateTimePicker }));
+      draggable.push(registerDraggable({ proxy: proxys[idx], controller, controllers, state, updateTimePicker }));
     });
 
     // 클린업(clean-up) 함수 컴포넌트가 언마운트 됬을 때 불필요한 메모리를 제거하기 위한 용도
