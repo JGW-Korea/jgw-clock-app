@@ -1,5 +1,5 @@
 import type { RegisterScrollWatcherParameter, ScrollWatcher, ScrollWatcherReturn } from "../types";
-import { getScrollIndex, getScrollPosition, maintainInfiniteLoop, setProxyRotationFromIndex } from "../utils";
+import { getScrollIndex, maintainInfiniteLoop, setProxyRotationFromIndex } from "../utils";
 import { animationTimeLineFallback } from "./animationTimeLineFallback";
 import { syncMeridiem } from "./toggleMeridiem";
 
@@ -16,9 +16,9 @@ function createScrollWatcher(target: HTMLUListElement, { frames = 20, onStart, o
 
   // TimePicker Controller의 스크롤이 수행되고 있는 경우
   const runFrame = () => {
-    const position = getScrollPosition(target);
-    onFrame?.(position);
-
+    onFrame?.();
+    const position = getScrollIndex(target);
+    
     const hasChanged = position !== last;
     repeats = hasChanged ? 1 : repeats + 1;
     last = position;
@@ -42,7 +42,7 @@ function createScrollWatcher(target: HTMLUListElement, { frames = 20, onStart, o
 
     // requestAnimationFrame이 등록되지 않은 경우
     if(!raf) {
-      last = getScrollPosition(target);       // <- 현재 스크롤 된 높이 값을 저장한다.
+      last = getScrollIndex(target);       // <- 현재 스크롤 된 높이 값을 저장한다.
       repeats = 1;                            // <- 정지 상태를 1로 지정한다.
       raf = requestAnimationFrame(runFrame);  // <- requestAnimationFrameID를 저장한다.
     }
@@ -72,7 +72,7 @@ function createScrollWatcher(target: HTMLUListElement, { frames = 20, onStart, o
  * @param {RegisterScrollWatcherParameter} - registerScrollWatcher 보조 함수에서 사용될 객체 구성
  * @returns {ScrollWatcher} - 등록한 ScrollWatcher
 */
-export function registerScrollWatcher({ controller, proxy, meridiem, state }: RegisterScrollWatcherParameter): ScrollWatcherReturn {
+export function registerScrollWatcher({ controller, proxy, meridiem, state, updateTimePicker }: RegisterScrollWatcherParameter): ScrollWatcherReturn {
   return createScrollWatcher(controller.element, {
     // 스크롤이 시작된 경우
     onStart() {
@@ -100,7 +100,7 @@ export function registerScrollWatcher({ controller, proxy, meridiem, state }: Re
       switch(controller.type) {
         case "hours": {
           const currentHoursIndex = getScrollIndex(controller.element);
-          
+
           maintainInfiniteLoop(controller.element);         // 무한 스크롤 유지
           syncMeridiem(currentHoursIndex, state, meridiem); // AM <-> PM 자동 전환
           break;
@@ -119,10 +119,10 @@ export function registerScrollWatcher({ controller, proxy, meridiem, state }: Re
 
           if(state.passiveTrigger) state.passiveTrigger = false;
           else if(state.meridiemStart && currentMeridiemIndex !== state.meridiemStart && !state.meridiemGuard) {
-            state.isPMState = currentMeridiemIndex === 1;
             state.meridiemOverride = !state.meridiemOverride;
           }
 
+          state.isPMState = currentMeridiemIndex === 1;
           state.meridiemStart = null;
           setProxyRotationFromIndex(proxy, currentMeridiemIndex); // 스크롤이 중단 된 경우 Wheel의 드래그 대상이 될 중간자 요소의 높이도 현재 스크롤 높이와 동일하게 맞춰준다.
           break;
@@ -143,6 +143,9 @@ export function registerScrollWatcher({ controller, proxy, meridiem, state }: Re
           break;
         }
       }
+
+      // 스크롤이 중단된 이후 현재 상태를 반영한다.
+      updateTimePicker(state.isPMState, state.currentHours, state.currentMinutes);
     }
   });
 }

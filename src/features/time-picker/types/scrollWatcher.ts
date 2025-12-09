@@ -13,7 +13,7 @@ export interface ScrollWatcher {
   frames?: number,
   onStart: () => void;
   onStop: () => void;
-  onFrame: (pos: number) => void;
+  onFrame: () => void;
 }
 
 /**
@@ -38,4 +38,5 @@ export interface RegisterScrollWatcherParameter {
   proxy: HTMLDivElement;
   meridiem: HTMLUListElement;
   state: TimePickerState;
+  updateTimePicker: (isPM: boolean, hours: number, minutes: number) => void;
 }
