@@ -15,7 +15,6 @@
     & > li {
       // border-bottom: 1px solid #424141;
       position: relative;
-      padding: 2rem 2.5rem;
       transition: background-color .1s ease;
 
       & > button {
@@ -26,7 +25,7 @@
         font-weight: 300;
         cursor: pointer;
         width: 100%;
-        padding: 0;
+        padding: 2rem 2.5rem;
         line-height: 8rem;
         display: flex;
         justify-content: space-between;
