@@ -21,7 +21,7 @@ export default function AlarmBottomSheet({ isOpen, selectedWeekdays, onClose, on
       <div className={`${styles["alarm-sheet-content"]}`}>
         <TimePicker onMouseOver={handleTimePickerMouseOver} onMouseLeave={handleTimePickerMouseLeave} updateTimePicker={onChangeTimePicker} />
 
-        <ul className={`${styles["alarm-sheet-content__list"]}`}>
+        <ul className={`${styles["alarm-sheet-content__weekdays"]}`}>
           {ALARM_WEEKDAYS.map((weekday) => (
             <li key={weekday.key} onClick={() => onToggleWeekday(weekday.id)}>
               {/* button 내부 자식 요소에 div 등의 */}
