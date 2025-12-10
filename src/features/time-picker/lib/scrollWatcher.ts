@@ -42,7 +42,7 @@ function createScrollWatcher(target: HTMLUListElement, { frames = 20, onStart, o
 
     // requestAnimationFrame이 등록되지 않은 경우
     if(!raf) {
-      last = getScrollIndex(target);       // <- 현재 스크롤 된 높이 값을 저장한다.
+      last = getScrollIndex(target);          // <- 현재 스크롤 된 높이 값을 저장한다.
       repeats = 1;                            // <- 정지 상태를 1로 지정한다.
       raf = requestAnimationFrame(runFrame);  // <- requestAnimationFrameID를 저장한다.
     }
