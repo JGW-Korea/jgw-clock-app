@@ -44,8 +44,36 @@ export const getScrollIndex = (element: HTMLElement, straight: boolean = false) 
  * @param {HTMLElement} controller - 실제 스크롤이 되는 Contrller 요소
 */
 export const maintainInfiniteLoop = (controller: HTMLElement) => {
-  if(controller.offsetHeight + controller.scrollTop > controller.scrollHeight - BUFFER) controller.scrollTop = BUFFER;
-  else if(controller.scrollTop < BUFFER) controller.scrollTop = controller.scrollHeight - BUFFER;
+  // HTML 속성의 변수 dataset의 isLooping이 "true" 설정되어 있다면 현재 프레임에서는 아래 로직을 무시하고 함수를 종료한다.
+  if(controller.dataset.isLooping === "true") {
+    controller.dataset.isLooping = "false";
+    return;
+  }
+  const { scrollTop, scrollHeight, offsetHeight } = controller;
+  const maxScroll = scrollHeight - offsetHeight; // 스크롤 전체 높이 - 요소의 높이(padding, border 포함)
+
+  // 현재 스크롤 된 높이가 최대 스크롤 높이보다 큰 경우 -> 스크롤 높이가 바닥에 닿은 경우 마지막 위치를 첫번째 위치로 옮긴다.
+  if(scrollTop > maxScroll - BUFFER) {
+    controller.dataset.isLooping = "true";
+    
+    // controller 스타일의 scroll-snap-type을 none으로 설정하여 스냅을 무시시킨다.
+    // 이는 기존 y 축의 가장 가까운 스냅 포인트로 강제 이동하여 BUFFER를 이용하지 못하고 무한 루프가 되는 것을 방지하기 위함이다.
+    controller.style.scrollSnapType = "none";
+
+    controller.scrollTop = BUFFER; // 스크롤의 위치를 무한 루프가 되지 않도록 시각적인 눈속임으로 정말 낮은 간격에 위치시킨다.
+    // console.log("Down -> Up:", { from: scrollTop, to: controller.scrollTop });
+  }
+
+  // 현재 스크롤 된 높이가 BUFFER보다 작은 경우 -> 스크롤 높이가 천장에 닿아 첫 번째 위치를 마지막 위치를 옮긴다.
+  if(scrollTop < BUFFER) {
+    controller.dataset.isLooping = "true";
+    controller.style.scrollSnapType = "none"; // 위와 동일한 이유
+    controller.scrollTop = maxScroll - BUFFER; // 스크롤 할 수 있는 가장 하단에 BUFFER를 뺀 만큼의 위치에 스크롤을 놓이게 한다.
+    // console.log("Up -> Down:", { from: scrollTop, to: controller.scrollTop });
+  }
+
+  // 위 조건으로 인해 HTML 요소 자체에 붙은 style 속성을 제거한다.
+  controller.style.removeProperty("scroll-snap-type");
 }
 
 /**
