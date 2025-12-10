@@ -52,7 +52,7 @@ export function syncMeridiem(currentIndex: number, state: TimePickerState, merid
   const before = Math.floor(state.prevUnwrapped / 12);
   const after = Math.floor((state.prevUnwrapped + delta) / 12);
 
-  if((after - before) & 1) {
+  if(Math.abs(after - before) & 1) {
     toggleMeridiem(state, meridiem);
   }
 
