@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { AlarmData } from "../../../shared/context/types";
+import type { AlarmData, HandleAddAlarmFunction } from "../../../shared/context/types";
 
 export default function useAlarmList() {
   const [alarmList, setAlarmList] = useState<AlarmData[]>([]);
@@ -15,8 +15,8 @@ export default function useAlarmList() {
   }, []);
 
   // 알림을 추가하는 함수
-  const handleAddAlarm = (hours: number, minutes: number, weekday: { numberValue: number, stringValue: string }[]) => {
-    const newAlarmData: AlarmData = { id: Date.now(), hours, minutes, weekday };
+  const handleAddAlarm: HandleAddAlarmFunction = ({ hours, minutes, weekdays }, sheetClose) => {
+    const newAlarmData: AlarmData = { id: Date.now(), hours, minutes, weekdays, active: true };
     
     // 1. AlarmList 상태를 갱신한다.
     setAlarmList((prev) => [...prev, { ...newAlarmData }]);
@@ -24,6 +24,9 @@ export default function useAlarmList() {
     // 2. 변경된 상태는 이전 가상 DOM과 새롭게 생성된 가상 DOM과 비교하여 최종적으로 반영되는 합성 가상 DOM에서
     // 새로운 상태로 갱신되기 때문에 alarmList를 바로 반영하면 사실상 이전 정보만 추가하기 때문에 동일한 로직을 구성해준다.
     localStorage.setItem("alarm", JSON.stringify([...alarmList, { ...newAlarmData }]));
+
+    // AlarmList를 추가하고, Bottom Sheet를 닫는다.
+    sheetClose()
   }
 
   // 알림을 삭제하는 함수
