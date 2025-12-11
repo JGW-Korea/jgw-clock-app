@@ -1,19 +1,11 @@
-import { useReducer } from "react";
-
-interface Weekdays {
-  id: number;
-  weekday: string;
-}
-
-interface AlarmState {
-  hours: number;
-  minutes: number;
-  weekdays: Weekdays[];
-}
+import { useContext, useReducer } from "react";
+import { ClockContext } from "../../../../shared/context";
+import type { AlarmState } from "../../../../shared/context/types";
 
 type AlarmStateUpdateAction = 
   | { type: "TIME_PICKER_CHANGED", payload: { hours: number; minutes: number } }
-  | { type: "TOGGLE_WEEKDAY", payload: { id: number, weekday: string } };
+  | { type: "TOGGLE_WEEKDAY", payload: { id: number, weekday: string } }
+  | { type: "ALRARM_STATE_INIT" };
 
 function reducer(state: AlarmState, action: AlarmStateUpdateAction): AlarmState {
   switch(action.type) {
@@ -35,10 +27,10 @@ function reducer(state: AlarmState, action: AlarmStateUpdateAction): AlarmState 
       // 선택한 요일을 다시 선택한 경우 -> 해당 요일 취소
       // 방법 1. 가독성은 좋지만 n^2 시간으로 인해 속도가 더 느린 로직
       for(const prev of state.weekdays) {
-        if(prev.id === id) {
+        if(prev.numberValue === id) {
           return {
             ...state,
-            weekdays: state.weekdays.filter(weekday => weekday.id !== id)
+            weekdays: state.weekdays.filter(weekday => weekday.numberValue !== id)
           }
         }
       }
@@ -66,10 +58,18 @@ function reducer(state: AlarmState, action: AlarmStateUpdateAction): AlarmState 
         weekdays: [
           ...state.weekdays,
           {
-            id,
-            weekday
+            numberValue: id,
+            stringValue: weekday
           }
         ]
+      }
+    }
+
+    case "ALRARM_STATE_INIT": {
+      return {
+        hours: 0,
+        minutes: 0,
+        weekdays: []
       }
     }
   }
@@ -77,11 +77,13 @@ function reducer(state: AlarmState, action: AlarmStateUpdateAction): AlarmState 
 
 export function useAlarmSchedule() {
   // hours, minutes, weekdays
-  const [state, dispatch] = useReducer(reducer, {
+  const [alarmState, dispatch] = useReducer(reducer, {
     hours: 0,
     minutes: 0,
     weekdays: []
   });
+
+  const { handleAddAlarm } = useContext(ClockContext)!;
 
   // TimePicker의 선택된 시간이 변경되는 경우
   function handleTimeChange(isPM: boolean, hours: number, minutes: number) {
@@ -112,15 +114,15 @@ export function useAlarmSchedule() {
   }
 
   // 최종적으로 알림을 추가한 경우 (관련 기능 미구현으로 인해 주석으로만 처리)
-  function handleConfirmAlarm() {
-    // 현재 최종적으로 반영된 상태를 알림 리스트 상태에 추가한다.
-    // - 별도의 알림 리스트 상태를 관리한다. -> 전역으로 관리해야 될 수 있음 -> 왜냐하면 각 리스트마다 시간을 정해서 알림이 울리도록 해야되기 때문에
-    //    -> 근데 현재 라우트 컴포넌트 마운트 시에 리스트를 관리하면 해당 라우트 진입 시에만 알림이 울릴 수 있도록 설정됨
-    //    -> and 다른 라우트에서는 사용자가 설정한 시간마다 알림이 울리지 않음
-    // - 알림 리스트 상태를 관리하는 로직에서 localStroage에 반영한다.
-    // - 출처가 동일한 경우 해당 알림을 울리기 위해 전역으로 관리해야 될 수도 있다.
-    // - Bottom Sheet를 close 시킨다.
-  }
+  // function handleConfirmAlarm() {
+  //   // 현재 최종적으로 반영된 상태를 알림 리스트 상태에 추가한다.
+  //   // - 별도의 알림 리스트 상태를 관리한다. -> 전역으로 관리해야 될 수 있음 -> 왜냐하면 각 리스트마다 시간을 정해서 알림이 울리도록 해야되기 때문에
+  //   //    -> 근데 현재 라우트 컴포넌트 마운트 시에 리스트를 관리하면 해당 라우트 진입 시에만 알림이 울릴 수 있도록 설정됨
+  //   //    -> and 다른 라우트에서는 사용자가 설정한 시간마다 알림이 울리지 않음
+  //   // - 알림 리스트 상태를 관리하는 로직에서 localStroage에 반영한다.
+  //   // - 출처가 동일한 경우 해당 알림을 울리기 위해 전역으로 관리해야 될 수도 있다.
+  //   // - Bottom Sheet를 close 시킨다.
+  // }
 
-  return { state, handleTimeChange, handleToggleWeekday, handleConfirmAlarm };
+  return { alarmState, dispatch, handleTimeChange, handleToggleWeekday, handleAddAlarm };
 }
