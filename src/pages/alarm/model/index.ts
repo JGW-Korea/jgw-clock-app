@@ -1,1 +1,1 @@
-export { default as useAlarmConfiguration } from "./useAlarmConfiguration";
+export { default as useAlarmBottomSheetControl } from "./useAlarmBottomSheetControl";
