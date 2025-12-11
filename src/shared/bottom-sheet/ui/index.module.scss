@@ -11,6 +11,16 @@
     border-top-right-radius: 8rem !important;
   }
 
+  // react-sheet-modal 스크롤바 영역 제거
+  &-content {
+    & > div[class*=scroller] {
+      scrollbar-width: none;
+      ::-webkit-scrollbar {
+        display: none;
+      }
+    }
+  }
+
   &-backdrop {
     position: absolute !important;
   }

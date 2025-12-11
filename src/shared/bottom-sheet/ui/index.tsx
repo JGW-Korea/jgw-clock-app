@@ -20,7 +20,7 @@ export default function BottomSheet({ children, sheetTitle, showRightButton = fa
       <Sheet.Container className={`${styles["bottom-sheet-container"]}`}>
         <BottomSheetHeader sheetTitle={sheetTitle} showRightButton={showRightButton} onRightButtonClick={onRightButtonClick} onClose={props.onClose}  />
 
-        <Sheet.Content>
+        <Sheet.Content className={`${styles["bottom-sheet-content"]}`}>
           {children}
         </Sheet.Content>
       </Sheet.Container>
