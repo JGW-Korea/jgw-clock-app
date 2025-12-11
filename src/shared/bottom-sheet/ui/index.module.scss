@@ -23,5 +23,6 @@
 
   &-backdrop {
     position: absolute !important;
+    pointer-events: all !important; // backdrop은 포인터의 타겟이 될 수 있는 상황으로 만들어서 bottom sheet 뒤의 콘텐츠를 선택하지 못하게 만든다.
   }
 }
