@@ -1,6 +1,6 @@
 import { Route, Routes } from "react-router";
 import { World, Alarm, Stopwatch, Timer } from "./pages";
-import { Layout } from "./app/index";
+import { Layout } from "./app/layout";
 import "./App.scss"
 
 
