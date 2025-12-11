@@ -14,6 +14,6 @@ export default function useAlarmBottomSheetControl() {
   return {
     open,
     handleOpenBottomSheet: () => setOpen(true),
-    handleCloseBottomSheet: () => setOpen(true),
+    handleCloseBottomSheet: () => setOpen(false),
   }
 }
