@@ -1,4 +1,4 @@
-div.layout {
+.layout {
   max-width: 436px;
   height: 100dvh;
   margin: 0 auto;
@@ -11,7 +11,7 @@ div.layout {
   position: relative;
   overflow: hidden;
 
-  & > .content {
+  &-content {
     flex: 1;
     overflow: hidden;
     display: flex;
