@@ -19,7 +19,7 @@ export default function AlarmBottomSheet({ isOpen, selectedWeekdays, onClose, on
   return (
     <BottomSheet disableDrag={timePickerDraggable} isOpen={isOpen} onClose={onClose} sheetTitle="Add Alarm" showRightButton={true} onRightButtonClick={() => console.log("Hello")} >
       <div className={`${styles["alarm-sheet-content"]}`}>
-        <TimePicker onMouseOver={handleTimePickerMouseOver} onMouseLeave={handleTimePickerMouseLeave} updateTimePicker={onChangeTimePicker} />
+        <TimePicker onPointerOver={handleTimePickerMouseOver} onPointerLeave={handleTimePickerMouseLeave} updateTimePicker={onChangeTimePicker} />
 
         <ul className={`${styles["alarm-sheet-content__weekdays"]}`}>
           {ALARM_WEEKDAYS.map((weekday) => (
