@@ -1,0 +1,14 @@
+/*
+  ----------------------------------------------
+  웹 폰트(Web Font) 폰트 지정 SCSS 파일
+  ----------------------------------------------
+  - @mixin을 통해 기존 @font-face 웹 폰트를 지정하는 웹 규칙을 함수화 시킨다.
+*/
+@mixin font-face($name, $path, $weight: normal, $style: normal) {
+  @font-face {
+    font-family: "#{$name}";
+    src: url("/src/shared/assets/fonts/#{$path}.woff2") format("woff2");
+    font-weight: $weight;
+    font-style: $style;
+  }
+}
