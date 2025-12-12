@@ -1,0 +1,23 @@
+.alarm-list-item {
+  color: #FFF;
+  padding: 2rem 0;
+  border-bottom: 1px solid #414040;
+
+  // 알림을 수행할 시간 + 활성화 여부 스타일 구성
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    line-height: 1.2;
+    font-weight: 400;
+    
+    & > time {
+      font-size: 6rem;
+
+      & > span {
+        font-size: 12rem;
+      }
+    }
+  }
+}
