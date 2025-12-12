@@ -7,6 +7,6 @@
   - @include를 @mixin을 호출해서 지정할 폰트의 값을 전달하여 웹 폰트를 지정시킨다.
   - 정상적으로 되었으면, Network 탭에서 폰트를 불러오는 것을 확인할 수 있다.
 */
-@include font-face("Noto Sans", "NotoSans-Regular", 300);
-@include font-face("Noto Sans", "NotoSans-Medium", 500);
-@include font-face("Noto Sans", "NotoSans-Bold", 700);
+@include font-face("SF Pro", "SF_Pro-Light", 300);
+@include font-face("SF Pro", "SF_Pro-Regular", 400);
+@include font-face("SF Pro", "SF_Pro-Bold", 700);
