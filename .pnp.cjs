@@ -48,7 +48,6 @@ const RAW_RUNTIME_STATE =
           ["react-dom", "virtual:accba200cd7a2f78f14a903425924ed2f297bd49692c890a4820282c2d50e4d08102e5cd72ad340fae02230ef602878cc036d79af13ed2de7e48a2e80388ca50#npm:19.2.0"],\
           ["react-modal-sheet", "virtual:accba200cd7a2f78f14a903425924ed2f297bd49692c890a4820282c2d50e4d08102e5cd72ad340fae02230ef602878cc036d79af13ed2de7e48a2e80388ca50#npm:5.2.1"],\
           ["react-router", "virtual:accba200cd7a2f78f14a903425924ed2f297bd49692c890a4820282c2d50e4d08102e5cd72ad340fae02230ef602878cc036d79af13ed2de7e48a2e80388ca50#npm:7.9.5"],\
-          ["react-swipe-to-delete-ios", "virtual:accba200cd7a2f78f14a903425924ed2f297bd49692c890a4820282c2d50e4d08102e5cd72ad340fae02230ef602878cc036d79af13ed2de7e48a2e80388ca50#npm:2.1.0"],\
           ["sass-embedded", "npm:1.93.3"],\
           ["swiper", "npm:12.0.3"],\
           ["typescript", "patch:typescript@npm%3A5.9.3#optional!builtin<compat/typescript>::version=5.9.3&hash=5786d5"],\
@@ -2269,7 +2268,6 @@ const RAW_RUNTIME_STATE =
           ["react-dom", "virtual:accba200cd7a2f78f14a903425924ed2f297bd49692c890a4820282c2d50e4d08102e5cd72ad340fae02230ef602878cc036d79af13ed2de7e48a2e80388ca50#npm:19.2.0"],\
           ["react-modal-sheet", "virtual:accba200cd7a2f78f14a903425924ed2f297bd49692c890a4820282c2d50e4d08102e5cd72ad340fae02230ef602878cc036d79af13ed2de7e48a2e80388ca50#npm:5.2.1"],\
           ["react-router", "virtual:accba200cd7a2f78f14a903425924ed2f297bd49692c890a4820282c2d50e4d08102e5cd72ad340fae02230ef602878cc036d79af13ed2de7e48a2e80388ca50#npm:7.9.5"],\
-          ["react-swipe-to-delete-ios", "virtual:accba200cd7a2f78f14a903425924ed2f297bd49692c890a4820282c2d50e4d08102e5cd72ad340fae02230ef602878cc036d79af13ed2de7e48a2e80388ca50#npm:2.1.0"],\
           ["sass-embedded", "npm:1.93.3"],\
           ["swiper", "npm:12.0.3"],\
           ["typescript", "patch:typescript@npm%3A5.9.3#optional!builtin<compat/typescript>::version=5.9.3&hash=5786d5"],\
@@ -4337,28 +4335,6 @@ const RAW_RUNTIME_STATE =
           "@types/react-dom",\
           "@types/react",\
           "react-dom",\
-          "react"\
-        ],\
-        "linkType": "HARD"\
-      }]\
-    ]],\
-    ["react-swipe-to-delete-ios", [\
-      ["npm:2.1.0", {\
-        "packageLocation": "../../../../.yarn/berry/cache/react-swipe-to-delete-ios-npm-2.1.0-89a0e3d5bb-10c0.zip/node_modules/react-swipe-to-delete-ios/",\
-        "packageDependencies": [\
-          ["react-swipe-to-delete-ios", "npm:2.1.0"]\
-        ],\
-        "linkType": "SOFT"\
-      }],\
-      ["virtual:accba200cd7a2f78f14a903425924ed2f297bd49692c890a4820282c2d50e4d08102e5cd72ad340fae02230ef602878cc036d79af13ed2de7e48a2e80388ca50#npm:2.1.0", {\
-        "packageLocation": "./.yarn/__virtual__/react-swipe-to-delete-ios-virtual-d64d78aadf/5/.yarn/berry/cache/react-swipe-to-delete-ios-npm-2.1.0-89a0e3d5bb-10c0.zip/node_modules/react-swipe-to-delete-ios/",\
-        "packageDependencies": [\
-          ["@types/react", "npm:19.2.2"],\
-          ["react", "npm:19.2.0"],\
-          ["react-swipe-to-delete-ios", "virtual:accba200cd7a2f78f14a903425924ed2f297bd49692c890a4820282c2d50e4d08102e5cd72ad340fae02230ef602878cc036d79af13ed2de7e48a2e80388ca50#npm:2.1.0"]\
-        ],\
-        "packagePeers": [\
-          "@types/react",\
           "react"\
         ],\
         "linkType": "HARD"\

@@ -1657,7 +1657,6 @@ __metadata:
     react-dom: "npm:^19.1.1"
     react-modal-sheet: "npm:^5.2.1"
     react-router: "npm:^7.9.5"
-    react-swipe-to-delete-ios: "npm:^2.1.0"
     sass-embedded: "npm:^1.93.3"
     swiper: "npm:^12.0.3"
     typescript: "npm:~5.9.3"
@@ -3433,15 +3432,6 @@ __metadata:
     react-dom:
       optional: true
   checksum: 10c0/e961816b4096a6ca97fc53626fc6532014c0de4c45bf6c234b8205eb4f94be8f357d67819e4f4f58507f79ef9bda4c3f70031a8dd13c7045e3ad0ecb12f819e3
-  languageName: node
-  linkType: hard
-
-"react-swipe-to-delete-ios@npm:^2.1.0":
-  version: 2.1.0
-  resolution: "react-swipe-to-delete-ios@npm:2.1.0"
-  peerDependencies:
-    react: ^16.18.0 || ^17 || ^18
-  checksum: 10c0/04f5ce6c66dd4c067360ace39901959bd78fb01b0d9ee47b1ee018f67183e185c5d50fb1ed863bf6560b7909ef51f34f82f8c3604d4b1c8820b338e2aeab58c8
   languageName: node
   linkType: hard
 
