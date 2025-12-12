@@ -52,17 +52,5 @@
     &::-webkit-scrollbar {
       display: none;
     }
-
-    & > .laps-item {
-      display: flex;
-      justify-content: space-between;
-      padding: 3rem 0;
-      font-size: 4rem;
-      border-bottom: 1px solid #4d4d4d;
-
-      & > .laps-item__time {
-        font-variant-numeric: tabular-nums;
-      }
-    }
   }
 }

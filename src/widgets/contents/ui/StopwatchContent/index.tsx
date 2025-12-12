@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import style from "./index.module.scss";
+import StopWatchListItem from "./StopWatchListItem";
 
 type Timer = { minutes: number, seconds: number, milliseconds: number };
 
@@ -93,20 +94,18 @@ export default function StopwatchContent() {
         <button className={style["stop"]} style={{ display: stopwatchMode ? "block" : "none" }} onClick={onStopStopwatch}>Stop</button>
       </div>
 
-      <div className={style["laps"]}>
+      <ul className={style["laps"]}>
         {laps.map(({ minutes, seconds, milliseconds, id }) => (
-          <div className={style["laps-item"]} key={id}>
-            <span>Lap {id}</span>
-            <p className={style["laps-item__time"]}>
-              <time>{id === laps.length ? String(currentTimer.minutes).padStart(2, "0") : String(minutes).padStart(2, "0")}</time>
-              :
-              <time>{id === laps.length ? String(currentTimer.seconds).padStart(2, "0") : String(seconds).padStart(2, "0")}</time>
-              .
-              <time>{id === laps.length ? String(currentTimer.milliseconds).padStart(2, "0") : String(milliseconds).padStart(2, "0")}</time>
-            </p>
-          </div>
+          <StopWatchListItem
+            key={id}
+            id={id}
+            hours={id === laps.length ? String(Math.floor(currentTimer.minutes / 60)).padStart(2, "0") : String(Math.floor(minutes / 60)).padStart(2, "0")}
+            minutes={id === laps.length ? String(currentTimer.minutes).padStart(2, "0") : String(minutes).padStart(2, "0")}
+            seconds={id === laps.length ? String(currentTimer.seconds).padStart(2, "0") : String(seconds).padStart(2, "0")}
+            milliseconds={id === laps.length ? String(currentTimer.milliseconds).padStart(2, "0") : String(milliseconds).padStart(2, "0")}
+          />
         ))}
-      </div>
+      </ul>
 
     </main>
   );
