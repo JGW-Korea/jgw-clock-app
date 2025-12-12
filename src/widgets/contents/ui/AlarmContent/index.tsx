@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { ClockContext } from "../../../../shared/context";
 import styles from "./index.module.scss"
-import { AlarmListItemContainer } from "../../../../entities/list-item-container";
+import AlarmListItem from "./AlarmListItem";
 
 export default function AlarmContent() {
   const { alarmList } = useContext(ClockContext)!;
@@ -14,7 +14,7 @@ export default function AlarmContent() {
           : (
             <ul className={styles["layout-list"]}>
               {alarmList.map((alarm) => (
-                <AlarmListItemContainer
+                <AlarmListItem
                   key={alarm.id}
                   {...alarm}
                 />
