@@ -1,7 +1,7 @@
 // Weekday 객체 구성
 // - numberValue: 실제 계산에 사용되는 요일
 // - stringValue: 화면에 노출하기 위해 사용되는 요일
-type Weekday = { numberValue: number, stringValue: string };
+export type Weekday = { numberValue: number, stringValue: string };
 
 export type AlarmState = {
   hours: number;
