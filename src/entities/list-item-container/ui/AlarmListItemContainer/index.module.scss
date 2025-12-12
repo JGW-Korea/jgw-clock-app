@@ -1,8 +1,4 @@
 .alarm-list-item {
-  color: #FFF;
-  padding: 2rem 0;
-  border-bottom: 1px solid #414040;
-
   // 알림을 수행할 시간 + 활성화 여부 스타일 구성
   &__header {
     display: flex;
@@ -19,5 +15,10 @@
         font-size: 12rem;
       }
     }
+  }
+
+  // 설정한 알림의 보조 정보(선택된 요일) 스타일 구성
+  &__meta {
+    font-weight: 300;
   }
 }

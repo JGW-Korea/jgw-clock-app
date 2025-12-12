@@ -7,7 +7,7 @@ export default function AlarmListItemContainer({ hours, minutes, weekdays }: Ala
     <article className={`${styles["alarm-list-item"]}`}>
       {/* 사용자가 설정한 시간과 활성화 상태를 보여주는 레이아웃 */}
       <div className={`${styles["alarm-list-item__header"]}`}>
-        <time dateTime={`${hours}:${minutes}`}>
+        <time dateTime={`${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`}>
           <span>{hours % 12 || 12}:{String(minutes).padStart(2, "0")}</span>
           {hours >= 12 ? "PM" : "AM"}
         </time>
