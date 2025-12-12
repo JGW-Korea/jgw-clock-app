@@ -1,9 +1,8 @@
 import { Route, Routes } from "react-router";
 import { World, Alarm, Stopwatch, Timer } from "./pages";
 import { Layout } from "./app/layout";
-import "./App.scss"
 import { ClockProvider } from "./app/provider";
-
+import "./app/styles/global.style.scss";
 
 export default function App() {
   return (

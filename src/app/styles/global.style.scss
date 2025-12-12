@@ -1,0 +1,25 @@
+@use "./font.scss";
+
+// HTML 문서 루트 태그(<html>)에 font-size를 지정하여 rem 단위를 지정한다.
+html {
+  font-size: 4px;
+}
+
+// HTML 문서의 실제 화면에 노출시킬 <body> 태그의 레이아웃 크기를 지정한다.
+body {
+  width: 100vw;
+  height: 100vh;
+}
+
+// 모든 Font 스타일을 통일 시킨다.
+span, p,
+h1, h2, h3, h4, h5, h6,
+button, a, time, div {
+  // -> font-family는 순차적으로 적용할 수 있는 폰트 구성을 찾으며, 적용할 수 있는 폰트 구성을 만난 경우 다음 폰트 구성은 무시한다.
+  font-family: "Noto Sans", "Malgun Gothic", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo",
+    Helvetica, sans-serif, system-ui;
+  font-size: 4rem;
+  font-weight: 300;
+  text-decoration: none;
+  color: #FFF;
+}
