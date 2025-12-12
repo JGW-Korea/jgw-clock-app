@@ -5,14 +5,24 @@
   justify-content: flex-start;
   align-items: center;
 
-  // 사용자가 등록한 세계 시간 정보가 없을 경우
+  overflow-y: auto;
+  scrollbar-width: none;
+  ::-webkit-scrollbar {
+    display: none;
+  }
+
+  // 사용자가 등록한 알림 정보가 없을 경우
   &-empty {
     justify-content: center;
     
-    // 세계 시간 정보가 없을 경우 Font 스타일 구성
+    // 알림 정보가 없을 경우 Font 스타일 구성
     & > span {
       font-size: 6rem;
       color: #a8a8a8;
     }
+  }
+
+  &-list {
+    width: 100%;
   }
 }
