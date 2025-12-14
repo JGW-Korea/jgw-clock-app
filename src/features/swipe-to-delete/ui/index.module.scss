@@ -1,0 +1,33 @@
+.swipe-to-delete {
+  position: relative;
+  transform: translateX(calc(var(--translate-x) * 1px));
+  transition: transform .256s ease-out;
+
+  &__actions {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    top: 50%;
+    filter: opacity(calc(abs(var(--translate-x)) / 48));
+    transform: translateY(-50%) scale(calc(abs(var(--translate-x)) / 48));
+    transition: transform 0.235s ease-out, filter 0.235s ease-out;
+    right: -12rem;
+
+    & > button {
+      background-color: #df3b32;
+      border: none;
+      display: flex;
+      padding: 3rem;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 0.8rem 3.2rem 0.4rem rgba(#000000, 0.3);
+    }
+  }
+
+  &__container {
+    touch-action: pan-y;
+    overscroll-behavior-x: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+}
