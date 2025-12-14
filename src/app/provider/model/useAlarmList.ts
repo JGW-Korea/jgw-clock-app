@@ -14,7 +14,7 @@ export default function useAlarmList() {
     }
   }, []);
 
-  // 알림을 추가하는 함수
+  // 알림을 추가하는 이벤트 리스너
   const handleAddAlarm: HandleAddAlarmFunction = ({ hours, minutes, weekdays }, sheetClose) => {
     const newAlarmData: AlarmData = { id: Date.now(), hours, minutes, weekdays, active: true };
     
@@ -29,7 +29,7 @@ export default function useAlarmList() {
     sheetClose()
   }
 
-  // 알림을 삭제하는 함수
+  // 알림을 삭제하는 이벤트 리스너
   const handleDeleteAlarm = (id: number, editModeActive?: () => void) => {
     const newAlarmData = alarmList.filter((alarm) => alarm.id !== id);
     setAlarmList(newAlarmData);
@@ -41,9 +41,23 @@ export default function useAlarmList() {
     }
   }
 
+  // 알림을 비활성화하는 이벤트 리스너
+  const handleToggleActiveAlarm = (id: number) => {
+    setAlarmList((prev) => {
+      return prev.map((alarm) => {
+        if(alarm.id === id) {
+          alarm.active = !alarm.active;
+        }
+        
+        return { ...alarm };
+      });
+    });
+  }
+
   return {
     alarmList,
     handleAddAlarm,
-    handleDeleteAlarm
+    handleDeleteAlarm,
+    handleToggleActiveAlarm
   }
 }

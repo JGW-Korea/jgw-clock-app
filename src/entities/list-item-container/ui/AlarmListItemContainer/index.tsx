@@ -1,4 +1,5 @@
 import type { AlarmData } from "../../../../shared/context/types";
+import { ToggleSwitch } from "../../../../shared/toggle-switch";
 import { formatSelectedWeekdays } from "../../model/AlarmListItem";
 import styles from "./index.module.scss";
 
@@ -6,9 +7,10 @@ interface Props extends AlarmData {
   editMode: boolean;
   onDeleteAlarm: (id: number, cb?: () => void) => void;
   onEditModeActive: () => void;
+  onToggleActiveAlarm: (id: number) => void;
 }
 
-export default function AlarmListItemContainer({ hours, minutes, weekdays, editMode, id, onDeleteAlarm, onEditModeActive }: Props) {
+export default function AlarmListItemContainer({ hours, minutes, weekdays, editMode, id, active, onDeleteAlarm, onEditModeActive, onToggleActiveAlarm }: Props) {
   return (
     <article className={`${styles["alarm-list-item"]} ${editMode ? styles["edit-mode"] : ""}`}>
       <button className={`${styles["alarm-list-item__delete-btn"]}`} onClick={() => onDeleteAlarm(id, onEditModeActive)} />
@@ -22,6 +24,7 @@ export default function AlarmListItemContainer({ hours, minutes, weekdays, editM
           </time>
 
           {/* 알림 활성화 Toggle Switch 컴포넌트 영역 */}
+          <ToggleSwitch id={id} active={active} onToggleActiveAlarm={onToggleActiveAlarm}  />
         </div>
 
         {/* 사용자가 선택한 요일을 표시하는 레이아웃 */}

@@ -7,15 +7,22 @@ interface Props extends AlarmData {
   editMode: boolean;
   onDeleteAlarm: (id: number) => void;
   onEditModeActive: () => void;
+  onToggleActiveAlarm: (id: number) => void;
 }
 
 /**
  * Alarm 내부에서만 사용될 ListItem 컴포넌트
 */
-export default function AlarmListItem({ activeRef, editMode, onDeleteAlarm, onEditModeActive, ...alarm }: Props) {
+export default function AlarmListItem({ activeRef, editMode, onDeleteAlarm, onEditModeActive, onToggleActiveAlarm, ...alarm }: Props) {
   return (
     <SwipeToDelete activeRef={activeRef} id={alarm.id} onDeleteAlarm={onDeleteAlarm}>
-      <AlarmListItemContainer editMode={editMode} onDeleteAlarm={onDeleteAlarm} onEditModeActive={onEditModeActive} {...alarm}  />
+      <AlarmListItemContainer
+        editMode={editMode}
+        onDeleteAlarm={onDeleteAlarm}
+        onEditModeActive={onEditModeActive}
+        onToggleActiveAlarm={onToggleActiveAlarm}
+        {...alarm}
+      />
     </SwipeToDelete>
   );
 }

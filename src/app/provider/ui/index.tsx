@@ -6,10 +6,10 @@ interface Props {
 }
 
 export default function ClockProvider({ children }: Props) {
-  const { alarmList, handleAddAlarm, handleDeleteAlarm } = useAlarmList();
+  const { alarmList, handleAddAlarm, handleDeleteAlarm, handleToggleActiveAlarm } = useAlarmList();
   
   return (
-    <ClockContext value={{ alarmList, handleAddAlarm, handleDeleteAlarm }}>
+    <ClockContext value={{ alarmList, handleAddAlarm, handleDeleteAlarm, handleToggleActiveAlarm }}>
       {children}
     </ClockContext>
   );

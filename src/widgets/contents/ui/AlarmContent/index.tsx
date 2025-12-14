@@ -9,7 +9,7 @@ interface Props {
 }
 
 export default function AlarmContent({ editMode, onEditModeActive }: Props) {
-  const { alarmList, handleDeleteAlarm } = useContext(ClockContext)!;
+  const { alarmList, handleDeleteAlarm, handleToggleActiveAlarm } = useContext(ClockContext)!;
   const activeRef = useRef<HTMLLIElement | null>(null);
 
   return (
@@ -26,6 +26,7 @@ export default function AlarmContent({ editMode, onEditModeActive }: Props) {
                   activeRef={activeRef}
                   onDeleteAlarm={handleDeleteAlarm}
                   onEditModeActive={onEditModeActive}
+                  onToggleActiveAlarm={handleToggleActiveAlarm}
                   {...alarm}
                 />
               ))}
