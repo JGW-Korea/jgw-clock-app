@@ -74,7 +74,7 @@ export default function useSwipeToDelete(activeRef: React.RefObject<HTMLLIElemen
       // Toggle Switch 투명도 올림
       const toggleSwitchEl = listItemRef.current.querySelector("div[class*=content-toggle]") as HTMLDivElement;
       if(toggleSwitchEl) {
-        toggleSwitchEl.style.filter = "opacity(1)";
+        toggleSwitchEl.style.removeProperty("filter");
       }
     }
 
