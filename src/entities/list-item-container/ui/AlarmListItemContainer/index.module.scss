@@ -41,6 +41,8 @@
   }
 
   &__content {
+    width: 100%;
+
     // 알림을 수행할 시간 + 활성화 여부 스타일 구성
     &-header {
       display: flex;
@@ -56,6 +58,16 @@
         & > span {
           font-size: 12rem;
         }
+      }
+    }
+
+    &-toggle {
+      transform: translateX(10rem);
+      transition: transform .23s ease-out, filter .23s ease-in;
+
+      &.hidden {
+        filter: opacity(0);
+        transform: translateX(-10rem);
       }
     }
 

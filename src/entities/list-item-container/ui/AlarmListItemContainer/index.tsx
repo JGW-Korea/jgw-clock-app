@@ -24,7 +24,9 @@ export default function AlarmListItemContainer({ hours, minutes, weekdays, editM
           </time>
 
           {/* 알림 활성화 Toggle Switch 컴포넌트 영역 */}
-          <ToggleSwitch id={id} active={active} onToggleActiveAlarm={onToggleActiveAlarm}  />
+          <div className={`${styles["alarm-list-item__content-toggle"]} ${editMode ? styles["hidden"] : ""}`}>
+            <ToggleSwitch id={id} active={active} onToggleActiveAlarm={onToggleActiveAlarm}  />
+          </div>
         </div>
 
         {/* 사용자가 선택한 요일을 표시하는 레이아웃 */}
