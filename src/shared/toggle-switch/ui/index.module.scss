@@ -7,11 +7,12 @@
   background-color: #434343;
   padding: 0.5rem;
   box-sizing: border-box;
+  cursor: pointer;
 
   &::before {
     content: "";
     display: block;
-    width: calc(#{$width} / 2);
+    width: calc((#{$width} + 10px) / 2);
     height: 100%;
     background-color: #fff;
     border-radius: 9999px;
@@ -23,7 +24,7 @@
     background-color: #30b61e;
     
     &::before {
-      transform: translateX(calc(100% - 1rem));
+      transform: translateX(calc(100% - (1rem + 10px)));
     }
   }
 }
