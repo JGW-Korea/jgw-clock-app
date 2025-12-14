@@ -1,0 +1,66 @@
+.audio {
+  position: fixed;
+  top: 3rem;
+  transition: top 0.234s ease-in;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 412px;
+  padding: 4.8rem 6rem;
+  border-radius: 9999px;
+  box-sizing: border-box;
+  background-color: #2c2c2f;
+  box-shadow: 0 2px 4px rgba(86, 84, 84, 0.5);
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  &.hidden {
+    top: -20rem;
+  }
+
+  & > h3 {
+    color: #ff7f00;
+    font-size: 5.8rem;
+    font-weight: 700;
+    letter-spacing: 0.7rem;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  & > button {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    position: relative;
+    border: none;
+    background-color: #ff7f00;
+    border-radius: 50%;
+    cursor: pointer;
+    
+    &::before {
+      content: "";
+      display: block;
+      position: absolute;
+      width: 5.4rem;
+      height: 0.63rem;
+      background-color: #fff;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(45deg);
+      border-radius: 9999px;
+    }
+    &::after {
+      content: "";
+      display: block;
+      position: absolute;
+      width: 5.4rem;
+      height: 0.63rem;
+      background-color: #fff;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-45deg);
+      border-radius: 9999px;
+    }
+  }
+}
