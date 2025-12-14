@@ -1,24 +1,67 @@
 .alarm-list-item {
-  // 알림을 수행할 시간 + 활성화 여부 스타일 구성
-  &__header {
+  display: flex;
+  align-items: center;
+  gap: 4rem;
+
+  transform: translateX(calc(-6rem - 4rem));
+  transition: transform 0.235s ease-out;
+  &.edit-mode {
+    transform: translateX(0);
+  }
+  
+  &__delete-btn {
+    background-color: #df3b32;
+    border: none;
     display: flex;
-    justify-content: space-between;
+    width: 6rem;
+    height: 6rem;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    cursor: pointer;
+
+    display: flex;
     align-items: center;
+    justify-content: center;
 
-    line-height: 1.2;
+    filter: opacity(0);
+    transition: filter 0.14s ease;
     
-    & > time {
-      font-size: 6rem;
-      font-weight: 400;
-
-      & > span {
-        font-size: 12rem;
-      }
+    &::before {
+      content: "";
+      display: block;
+      width: 3rem;
+      height: 0.5rem;
+      background-color: #fff;
+      border-radius: 9999px;
     }
   }
 
-  // 설정한 알림의 보조 정보(선택된 요일) 스타일 구성
-  &__meta {
-    font-weight: 300;
+  &.edit-mode &__delete-btn {
+    filter: opacity(1);
+  }
+
+  &__content {
+    // 알림을 수행할 시간 + 활성화 여부 스타일 구성
+    &-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      line-height: 1.2;
+      
+      & > time {
+        font-size: 6rem;
+        font-weight: 400;
+
+        & > span {
+          font-size: 12rem;
+        }
+      }
+    }
+
+    // 설정한 알림의 보조 정보(선택된 요일) 스타일 구성
+    &-meta {
+      font-weight: 300;
+    }
   }
 }
