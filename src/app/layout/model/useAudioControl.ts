@@ -5,7 +5,7 @@ import { getNextAlarmDelayMs, playAlarm } from "../lib";
 export default function useAudioControl() {
   const { alarmList } = useContext(ClockContext)!; // 사용자가 설정한 Alarm or Timer 종류를 가지고 온다.
   const audioRef = useRef<HTMLAudioElement>(null);
-  const timerIdRef = useRef<{ [key: string]: number }[]>([]);
+  const timerIdRef = useRef<{ id: number }[]>([]);
   const [audioType, setAlarmType] = useState<"alarm" | "timer">("alarm");
   
   useEffect(() => {
@@ -21,7 +21,7 @@ export default function useAudioControl() {
             alarm.minutes,
             alarm.weekdays.map(el => el.numberValue)
           )
-        )
+        );
       }
     }
 
@@ -37,11 +37,11 @@ export default function useAudioControl() {
         playAlarm(audioRef.current); // 알림을 울리게 만든다.
       }, millisecond);
 
-      timerIdRef.current.push({ [millisecond]: timerId });
+      timerIdRef.current.push({ id: timerId });
     });
 
     return () => {
-      timerIdRef.current.forEach(({ key }, idx) => clearInterval(timerIdRef.current[idx][key])); // 모든 타이머 이벤트를 비활성화 시킨다.
+      timerIdRef.current.forEach((timer) => clearTimeout(timer.id)); // 모든 타이머 이벤트를 비활성화 시킨다.
       timerIdRef.current = []; // 리렌더링이 발생하면서 타이머 아이디가 추가되는데 이때 기존 값이 남아있으면 누적이 될 수 있기 때문에 빈배열로 초기화해준다.
     }
   }, [alarmList]);

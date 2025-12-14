@@ -43,15 +43,13 @@ export default function useAlarmList() {
 
   // 알림을 비활성화하는 이벤트 리스너
   const handleToggleActiveAlarm = (id: number) => {
-    setAlarmList((prev) => {
-      return prev.map((alarm) => {
-        if(alarm.id === id) {
-          alarm.active = !alarm.active;
-        }
-        
-        return { ...alarm };
-      });
+    const newAlarmData = alarmList.map((alarm) => {
+      if(alarm.id === id) alarm.active = !alarm.active;
+      return { ...alarm };
     });
+
+    setAlarmList(newAlarmData);
+    localStorage.setItem("alarm", JSON.stringify(newAlarmData));
   }
 
   return {
