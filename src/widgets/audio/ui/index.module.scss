@@ -1,6 +1,6 @@
 .audio {
   position: fixed;
-  top: 3rem;
+  top: -20rem;
   transition: top 0.234s ease-in;
   left: 50%;
   transform: translateX(-50%);
@@ -14,10 +14,6 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-
-  &.hidden {
-    top: -20rem;
-  }
 
   & > h3 {
     color: #ff7f00;

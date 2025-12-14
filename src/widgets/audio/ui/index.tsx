@@ -3,22 +3,15 @@ import styles from "./index.module.scss";
 interface Props {
   ref: React.RefObject<HTMLAudioElement | null>;
   type: "alarm" | "timer";
-  visible: boolean;
+  onClick: () => void;
 }
 
-export default function Audio({ ref, type, visible }: Props) {
+export default function Audio({ ref, type, onClick }: Props) {
   return (
-    <div className={`${styles["audio"]} ${visible ? styles["hidden"] : ""}`}>
+    <div className={`${styles["audio"]}`}>
       <h3>{type === "alarm" ? "Alarm" : "Timer"}</h3>
       <audio ref={ref} src="/audio/alarm.mp3" muted loop style={{ display: "none" }} />
-      <button
-        // onClick={() => {
-        //   if(!audioRef.current) return;
-        //   audioRef.current.pause();
-        // }}
-      />
+      <button onClick={onClick} />
     </div>
   );
 }
-
-// ${!alarmState && styles["hidden"]}`}
