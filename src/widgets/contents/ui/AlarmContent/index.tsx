@@ -3,7 +3,12 @@ import { ClockContext } from "../../../../shared/context";
 import styles from "./index.module.scss"
 import AlarmListItem from "./AlarmListItem";
 
-export default function AlarmContent() {
+interface Props {
+  editMode: boolean;
+  onEditModeActive: () => void;
+}
+
+export default function AlarmContent({ editMode, onEditModeActive }: Props) {
   const { alarmList, handleDeleteAlarm } = useContext(ClockContext)!;
   const activeRef = useRef<HTMLLIElement | null>(null);
 
@@ -17,8 +22,10 @@ export default function AlarmContent() {
               {alarmList.map((alarm) => (
                 <AlarmListItem
                   key={alarm.id}
+                  editMode={editMode}
                   activeRef={activeRef}
                   onDeleteAlarm={handleDeleteAlarm}
+                  onEditModeActive={onEditModeActive}
                   {...alarm}
                 />
               ))}
