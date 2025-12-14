@@ -51,6 +51,12 @@ export default function useSwipeToDelete(activeRef: React.RefObject<HTMLLIElemen
     }
 
     listItemRef.current.style.setProperty("--translate-x", `${translate}`);
+
+    // Toggle Switch 투명도 낮춤
+    const toggleSwitchEl = listItemRef.current.querySelector("div[class*=content-toggle]") as HTMLDivElement;
+    if(toggleSwitchEl) {
+      toggleSwitchEl.style.filter = "opacity(0)";
+    }
   }
 
   /** 인풋 장치가 List Item을 벗어나거나 눌렀다 땠을 경우 초기화 작업을 진행하는 보조 함수 */
@@ -64,6 +70,12 @@ export default function useSwipeToDelete(activeRef: React.RefObject<HTMLLIElemen
     if(currentTranslate <= -(SWIPE_OPEN_LIMIT / 2)) listItemRef.current.style.setProperty("--translate-x", `${-SWIPE_OPEN_LIMIT}`);
     else {
       listItemRef.current.style.setProperty("--translate-x", "0");
+      
+      // Toggle Switch 투명도 올림
+      const toggleSwitchEl = listItemRef.current.querySelector("div[class*=content-toggle]") as HTMLDivElement;
+      if(toggleSwitchEl) {
+        toggleSwitchEl.style.filter = "opacity(1)";
+      }
     }
 
     delete listItemRef.current.dataset.pressStartX;
