@@ -13,6 +13,7 @@ export type AlarmState = {
 export interface ClockContextType {
   alarmList: AlarmData[];
   handleAddAlarm: HandleAddAlarmFunction;
+  handleDeleteAlarm: (id: number) => void;
 }
 
 // LocalStorage에 저장되는 AlarmData 타입

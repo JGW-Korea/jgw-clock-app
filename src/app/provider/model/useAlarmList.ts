@@ -30,9 +30,15 @@ export default function useAlarmList() {
   }
 
   // 알림을 삭제하는 함수
+  const handleDeleteAlarm = (id: number) => {
+    const newAlarmData = alarmList.filter((alarm) => alarm.id !== id);
+    setAlarmList(newAlarmData);
+    localStorage.setItem("alarm", JSON.stringify(newAlarmData));
+  }
 
   return {
     alarmList,
-    handleAddAlarm
+    handleAddAlarm,
+    handleDeleteAlarm
   }
 }

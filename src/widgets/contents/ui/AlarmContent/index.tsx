@@ -1,10 +1,11 @@
-import { useContext } from "react";
+import { useContext, useRef } from "react";
 import { ClockContext } from "../../../../shared/context";
 import styles from "./index.module.scss"
 import AlarmListItem from "./AlarmListItem";
 
 export default function AlarmContent() {
-  const { alarmList } = useContext(ClockContext)!;
+  const { alarmList, handleDeleteAlarm } = useContext(ClockContext)!;
+  const activeRef = useRef<HTMLLIElement | null>(null);
 
   return (
     <main className={`${styles["layout"]} ${alarmList.length === 0 ? styles["layout-empty"] : ""}`}>
@@ -16,6 +17,8 @@ export default function AlarmContent() {
               {alarmList.map((alarm) => (
                 <AlarmListItem
                   key={alarm.id}
+                  activeRef={activeRef}
+                  onDeleteAlarm={handleDeleteAlarm}
                   {...alarm}
                 />
               ))}
