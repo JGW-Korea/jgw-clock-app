@@ -24,7 +24,7 @@ function reducer(state: ControlState, action: Action): ControlState {
  * @property {controls.handleOpenBottomSheet} - Alarm Bottom Sheet를 활성화 시키는 메서드
  * @property {controls.handleCloseBottomSheet} - Alarm Bottom Sheet를 비활성화 시키는 메서드
 */
-export default function useAlarmBottomSheetControl() {
+export default function useAlarmControls() {
   const [controlState, dispatch] = useReducer(reducer, { 
     sheetOpen: false,
     editMode: false 
