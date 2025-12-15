@@ -70,8 +70,8 @@ export default function ListItem({ item, editMode, onDelete }: Props) {
 
         {!editMode && (
           <p className={style["list-item__time"]}>
-            {target}
             <time>{time}</time>
+            {target}
           </p>
         )}
       </article>
