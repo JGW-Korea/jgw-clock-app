@@ -78,13 +78,13 @@ export default function StopwatchContent() {
   return (
     <main className={style["conatinaer"]}>
       <div className={style["timer-wrapper"]}>
-        <p>
-          <time>{String(timer.minutes).padStart(2, "0")}</time>
+        <time dateTime={`${String(Math.floor(timer.minutes / 60)).padStart(2, "0")}:${String(timer.minutes % 60).padStart(2, "0")}:${String(timer.seconds).padStart(2, "0")}.${String(timer.milliseconds).padStart(2, "0")}`}>
+          <span>{String(timer.minutes).padStart(2, "0")}</span>
           :
-          <time>{String(timer.seconds).padStart(2, "0")}</time>
+          <span>{String(timer.seconds).padStart(2, "0")}</span>
           .
-          <time>{String(timer.milliseconds).padStart(2, "0")}</time>
-        </p>
+          <span>{String(timer.milliseconds).padStart(2, "0")}</span>
+        </time>
       </div>
 
       <div className={style["button-group"]}>
