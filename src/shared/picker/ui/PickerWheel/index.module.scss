@@ -91,12 +91,12 @@ $rotation: calc(360deg / $total);
     position: absolute;
     width: 100%;
     height: $line-height;
-    font-size: 5.6rem;
     pointer-events: none;
     transform: translate3d(0, 0, calc(($radius * 1) - 4px));
     transform-style: preserve-3d;
 
     div {
+      font-size: 5.4rem;
       backface-visibility: hidden;
       position: absolute;
       inset: 0;

@@ -94,7 +94,8 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    font-size: 3rem;
+    font-size: 3.8rem;
+    font-weight: 300;
     gap: 1.5rem;
     cursor: default;
 
@@ -131,6 +132,10 @@
           font-weight: 700
         }
       }
+    }
+
+    &[aria-current="page"] > span{
+      font-weight: 400;
     }
   }
 }

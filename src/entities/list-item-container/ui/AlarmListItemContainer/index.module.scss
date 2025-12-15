@@ -8,6 +8,8 @@
   &.edit-mode {
     transform: translateX(0);
   }
+
+  font-size: 4rem;
   
   &__delete-btn {
     background-color: #df3b32;
@@ -53,10 +55,9 @@
       
       & > time {
         font-size: 6rem;
-        font-weight: 400;
 
         & > span {
-          font-size: 12rem;
+          font-size: 10rem;
         }
       }
     }
@@ -69,11 +70,6 @@
         filter: opacity(0);
         transform: translateX(-10rem);
       }
-    }
-
-    // 설정한 알림의 보조 정보(선택된 요일) 스타일 구성
-    &-meta {
-      font-weight: 300;
     }
   }
 }

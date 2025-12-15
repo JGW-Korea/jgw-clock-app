@@ -31,16 +31,25 @@
         }
       }
 
-      & > div > p {
-        font-size: 2.8rem;
-        color: #aca6a6;
-        margin-bottom: 1.5rem;
+      & > div {
+        font-size: 3.6rem;
+
+        & > p {
+          color: #aca6a6;
+          margin-bottom: 1.5rem;
+        }
+
+        & > h3 {
+          font-size: 6rem;
+        }
       }
     }
 
     & > .list-item__time {
+      font-size: 6rem;
+      
       & > time {
-        font-size: 7rem; margin-left: 1.5rem;
+        font-size: 10rem;
       }
     }
   }
