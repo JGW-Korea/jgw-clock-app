@@ -1,4 +1,4 @@
-import style from "./index.module.scss";
+import { ListItem } from "../../../../../shared/list-item";
 
 interface Props {
   countryName: string;
@@ -6,14 +6,14 @@ interface Props {
   onAppendTimeList: (name: string, to: string) => void;
 }
 
-export default function ListItem({ countryName, zoneName, onAppendTimeList }: Props) {
+export default function WorldSheetListItem({ countryName, zoneName, onAppendTimeList }: Props) {
   const name = zoneName.split("/").at(-1)?.replaceAll("_", " ") + ", " + countryName;
   
   return (
-    <li className={style["list-item"]}>
+    <ListItem padding={0}>
       <button onClick={() => onAppendTimeList(name, zoneName)}>
         {name}
       </button>
-    </li>
+    </ListItem>
   );
 }
