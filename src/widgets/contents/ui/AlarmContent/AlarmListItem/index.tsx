@@ -5,7 +5,7 @@ import type { AlarmData } from "../../../../../shared/context/types";
 interface Props extends AlarmData {
   activeRef: React.RefObject<HTMLLIElement | null>;
   editMode: { click: boolean; swipe: boolean };
-  onDeleteAlarm: (id: number) => void;
+  onDeleteListItem: (id: number) => void;
   onEditModeActive: (type?: "click" | "swipe") => void;
   onToggleActiveAlarm: (id: number) => void;
 }
@@ -13,12 +13,12 @@ interface Props extends AlarmData {
 /**
  * Alarm 내부에서만 사용될 ListItem 컴포넌트
 */
-export default function AlarmListItem({ activeRef, editMode, onDeleteAlarm, onEditModeActive, onToggleActiveAlarm, ...alarm }: Props) {
+export default function AlarmListItem({ activeRef, editMode, onDeleteListItem, onEditModeActive, onToggleActiveAlarm, ...alarm }: Props) {
   return (
-    <SwipeToDelete activeRef={activeRef} id={alarm.id} editMode={editMode} onEditModeActive={onEditModeActive} onDeleteAlarm={onDeleteAlarm}>
+    <SwipeToDelete activeRef={activeRef} id={alarm.id} editMode={editMode} onEditModeActive={onEditModeActive} onDeleteListItem={onDeleteListItem}>
       <AlarmListItemContainer
         editMode={editMode}
-        onDeleteAlarm={onDeleteAlarm}
+        onDeleteListItem={onDeleteListItem}
         onEditModeActive={onEditModeActive}
         onToggleActiveAlarm={onToggleActiveAlarm}
         {...alarm}

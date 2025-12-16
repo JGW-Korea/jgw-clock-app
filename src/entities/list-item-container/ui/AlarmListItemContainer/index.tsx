@@ -5,15 +5,15 @@ import styles from "./index.module.scss";
 
 interface Props extends AlarmData {
   editMode: { click: boolean; swipe: boolean };
-  onDeleteAlarm: (id: number, cb?: () => void) => void;
+  onDeleteListItem: (id: number, cb?: () => void) => void;
   onEditModeActive: (type?: "click" | "swipe") => void;
   onToggleActiveAlarm: (id: number) => void;
 }
 
-export default function AlarmListItemContainer({ hours, minutes, weekdays, editMode, id, active, onDeleteAlarm, onEditModeActive, onToggleActiveAlarm }: Props) {
+export default function AlarmListItemContainer({ hours, minutes, weekdays, editMode, id, active, onDeleteListItem, onEditModeActive, onToggleActiveAlarm }: Props) {
   return (
     <article className={`${styles["alarm-list-item"]} ${editMode.click ? styles["edit-mode"] : ""}`}>
-      <button className={`${styles["alarm-list-item__delete-btn"]}`} onClick={() => onDeleteAlarm(id, onEditModeActive)} />
+      <button className={`${styles["alarm-list-item__delete-btn"]}`} onClick={() => onDeleteListItem(id, onEditModeActive)} />
       
       <div className={`${styles["alarm-list-item__content"]}`}>
         {/* 사용자가 설정한 시간과 활성화 상태를 보여주는 레이아웃 */}

@@ -24,7 +24,7 @@ export default function AlarmContent({ editMode, onEditModeActive }: Props) {
                   key={alarm.id}
                   editMode={editMode}
                   activeRef={activeRef}
-                  onDeleteAlarm={handleDeleteAlarm}
+                  onDeleteListItem={handleDeleteAlarm}
                   onEditModeActive={onEditModeActive}
                   onToggleActiveAlarm={handleToggleActiveAlarm}
                   {...alarm}
