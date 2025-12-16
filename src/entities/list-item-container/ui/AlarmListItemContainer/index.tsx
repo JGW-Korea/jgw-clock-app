@@ -23,16 +23,16 @@ export default function AlarmListItemContainer({ hours, minutes, weekdays, editM
             {hours >= 12 ? "PM" : "AM"}
           </time>
 
-          {/* 알림 활성화 Toggle Switch 컴포넌트 영역 */}
-          <div className={`${styles["alarm-list-item__content-toggle"]} ${editMode.click ? styles["hidden"] : ""}`}>
-            <ToggleSwitch id={id} active={active} onToggleActiveAlarm={onToggleActiveAlarm}  />
-          </div>
+          {/* 사용자가 선택한 요일을 표시하는 레이아웃 */}
+          <p className={`${styles["alarm-list-item__content-meta"]}`}>
+            {weekdays.length ? formatSelectedWeekdays(weekdays) : "None"}
+          </p>
         </div>
 
-        {/* 사용자가 선택한 요일을 표시하는 레이아웃 */}
-        <p className={`${styles["alarm-list-item__content-meta"]}`}>
-          {weekdays.length ? formatSelectedWeekdays(weekdays) : "None"}
-        </p>
+        {/* 알림 활성화 Toggle Switch 컴포넌트 영역 */}
+        <div className={`${styles["alarm-list-item__content-toggle"]} ${editMode.click ? styles["hidden"] : ""}`}>
+          <ToggleSwitch id={id} active={active} onToggleActiveAlarm={onToggleActiveAlarm}  />
+        </div>
       </div>
     </article>
   );
