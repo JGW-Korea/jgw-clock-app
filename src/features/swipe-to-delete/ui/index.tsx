@@ -8,18 +8,20 @@ interface Props {
   activeRef: React.RefObject<HTMLLIElement | null>;
   children: React.ReactElement;
   id: number;
-  onDeleteAlarm: (id: number) => void;
+  editMode: { click: boolean; swipe: boolean };
+  onDeleteAlarm: (id: number, cb?: () => void) => void;
+  onEditModeActive: (type?: "click" | "swipe") => void;
 }
 
 /**
  * Swipe 기능을 통해 삭제가 가능한 ListItem 컴포넌트
 */
-export default function SwipeToDelete({ activeRef, children, id, onDeleteAlarm }: Props) {
-  const { listItemRef, handlePointerDown, handlePointerMove, handlePointerEnd } = useSwipeToDelete(activeRef);
+export default function SwipeToDelete({ activeRef, children, id, editMode, onEditModeActive, onDeleteAlarm }: Props) {
+  const { listItemRef, handlePointerDown, handlePointerMove, handlePointerEnd } = useSwipeToDelete(activeRef, editMode, onEditModeActive);
 
   return (
     <ListItem ref={listItemRef} className={`${styles["swipe-to-delete"]}`} style={{ "--translate-x": "0" } as React.CSSProperties}>
-      <SwipeToDeleteActions className={`${styles["swipe-to-delete__actions"]}`} id={id} onDeleteAlarm={onDeleteAlarm} />
+      <SwipeToDeleteActions className={`${styles["swipe-to-delete__actions"]}`} id={id} onDeleteAlarm={() => onDeleteAlarm(id, onEditModeActive)} />
       <SwipeToDeleteContainer
         className={`${styles["swipe-to-delete__container"]}`}
         onPointerDown={handlePointerDown}

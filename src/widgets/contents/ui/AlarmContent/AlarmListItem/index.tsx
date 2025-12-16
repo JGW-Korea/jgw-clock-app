@@ -4,9 +4,9 @@ import type { AlarmData } from "../../../../../shared/context/types";
 
 interface Props extends AlarmData {
   activeRef: React.RefObject<HTMLLIElement | null>;
-  editMode: boolean;
+  editMode: { click: boolean; swipe: boolean };
   onDeleteAlarm: (id: number) => void;
-  onEditModeActive: () => void;
+  onEditModeActive: (type?: "click" | "swipe") => void;
   onToggleActiveAlarm: (id: number) => void;
 }
 
@@ -15,7 +15,7 @@ interface Props extends AlarmData {
 */
 export default function AlarmListItem({ activeRef, editMode, onDeleteAlarm, onEditModeActive, onToggleActiveAlarm, ...alarm }: Props) {
   return (
-    <SwipeToDelete activeRef={activeRef} id={alarm.id} onDeleteAlarm={onDeleteAlarm}>
+    <SwipeToDelete activeRef={activeRef} id={alarm.id} editMode={editMode} onEditModeActive={onEditModeActive} onDeleteAlarm={onDeleteAlarm}>
       <AlarmListItemContainer
         editMode={editMode}
         onDeleteAlarm={onDeleteAlarm}

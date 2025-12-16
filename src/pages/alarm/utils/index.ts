@@ -7,7 +7,7 @@ import type { ControlState } from "../types";
  * @param {keyof ControlState} key - Control State 중 변경할 상태의 키 값
  * @param {boolean} value - 변경할 상태 값
 */
-export function applyControlAction(state: ControlState, key: keyof ControlState, value: boolean): ControlState {
+export function applyControlAction(state: ControlState, key: keyof ControlState, value: unknown): ControlState {
   return {
     ...state,
     [key]: value

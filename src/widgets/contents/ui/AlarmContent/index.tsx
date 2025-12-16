@@ -4,8 +4,8 @@ import styles from "./index.module.scss"
 import AlarmListItem from "./AlarmListItem";
 
 interface Props {
-  editMode: boolean;
-  onEditModeActive: () => void;
+  editMode: { click: boolean; swipe: boolean };
+  onEditModeActive: (type?: "click" | "swipe") => void;
 }
 
 export default function AlarmContent({ editMode, onEditModeActive }: Props) {

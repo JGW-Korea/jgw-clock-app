@@ -4,15 +4,15 @@ import { formatSelectedWeekdays } from "../../model/AlarmListItem";
 import styles from "./index.module.scss";
 
 interface Props extends AlarmData {
-  editMode: boolean;
+  editMode: { click: boolean; swipe: boolean };
   onDeleteAlarm: (id: number, cb?: () => void) => void;
-  onEditModeActive: () => void;
+  onEditModeActive: (type?: "click" | "swipe") => void;
   onToggleActiveAlarm: (id: number) => void;
 }
 
 export default function AlarmListItemContainer({ hours, minutes, weekdays, editMode, id, active, onDeleteAlarm, onEditModeActive, onToggleActiveAlarm }: Props) {
   return (
-    <article className={`${styles["alarm-list-item"]} ${editMode ? styles["edit-mode"] : ""}`}>
+    <article className={`${styles["alarm-list-item"]} ${editMode.click ? styles["edit-mode"] : ""}`}>
       <button className={`${styles["alarm-list-item__delete-btn"]}`} onClick={() => onDeleteAlarm(id, onEditModeActive)} />
       
       <div className={`${styles["alarm-list-item__content"]}`}>
@@ -24,7 +24,7 @@ export default function AlarmListItemContainer({ hours, minutes, weekdays, editM
           </time>
 
           {/* 알림 활성화 Toggle Switch 컴포넌트 영역 */}
-          <div className={`${styles["alarm-list-item__content-toggle"]} ${editMode ? styles["hidden"] : ""}`}>
+          <div className={`${styles["alarm-list-item__content-toggle"]} ${editMode.click ? styles["hidden"] : ""}`}>
             <ToggleSwitch id={id} active={active} onToggleActiveAlarm={onToggleActiveAlarm}  />
           </div>
         </div>

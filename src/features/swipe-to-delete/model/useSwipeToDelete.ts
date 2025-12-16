@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { SWIPE_OPEN_LIMIT, SWIPE_THRESHOLD } from "../consts";
 
 /**
@@ -6,8 +6,21 @@ import { SWIPE_OPEN_LIMIT, SWIPE_THRESHOLD } from "../consts";
  * 
  * @param {React.RefObject<HTMLLinkElement | null>} activeRef - 이전 Pointer 발생으로 등록된 List Item
 */
-export default function useSwipeToDelete(activeRef: React.RefObject<HTMLLIElement | null>) {
+export default function useSwipeToDelete(activeRef: React.RefObject<HTMLLIElement | null>, editMode: { click: boolean; swipe: boolean }, onEditModeActive: (type?: "click" | "swipe") => void) {
   const listItemRef = useRef<HTMLLIElement>(null);
+
+  useEffect(() => {
+    if(!editMode.swipe && activeRef.current) {
+      activeRef.current.style.setProperty("--translate-x", "0");
+      const toggleSwitchEl = activeRef.current.querySelector("div[class*=content-toggle]") as HTMLDivElement;
+      if(toggleSwitchEl) {
+        toggleSwitchEl.style.removeProperty("filter");
+        toggleSwitchEl.style.removeProperty("pointer-events");
+      }
+      
+      activeRef.current = null;
+    }
+  }, [editMode]);
 
   /** 인풋 장치(마우스, 펜, 터치 등)를 통해 ListItem을 클릭한 좌표를 저장한다. */
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
@@ -26,7 +39,7 @@ export default function useSwipeToDelete(activeRef: React.RefObject<HTMLLIElemen
 
   /** 인풋 장치를 통해 누른 위치에서 얼마만큼의 이동이 발생했는지 영역을 계산하여 translateX 값을 이동시킨다. */
   const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
-    if(!listItemRef.current || !listItemRef.current.dataset.pressStartX) {
+    if(!listItemRef.current || !listItemRef.current.dataset.pressStartX || editMode.click) {
       return;
     }
 
@@ -45,29 +58,33 @@ export default function useSwipeToDelete(activeRef: React.RefObject<HTMLLIElemen
 
     // 기준점을 넘겼을 경우 실제 TranslateX를 이동시킨다.
     let translate;
-    if(moveValue <= SWIPE_OPEN_LIMIT) translate = -SWIPE_OPEN_LIMIT;
+    if(moveValue > SWIPE_OPEN_LIMIT) translate = 0;
     else {
-      translate = 0;
+      translate = -SWIPE_OPEN_LIMIT;
+      
+      // Toggle Switch 투명도 낮춤
+      const toggleSwitchEl = listItemRef.current.querySelector("div[class*=content-toggle]") as HTMLDivElement;
+      if(toggleSwitchEl) {
+        toggleSwitchEl.style.filter = "opacity(0)";
+        toggleSwitchEl.style.pointerEvents = "none";
+      }
     }
 
     listItemRef.current.style.setProperty("--translate-x", `${translate}`);
-
-    // Toggle Switch 투명도 낮춤
-    const toggleSwitchEl = listItemRef.current.querySelector("div[class*=content-toggle]") as HTMLDivElement;
-    if(toggleSwitchEl) {
-      toggleSwitchEl.style.filter = "opacity(0)";
-    }
   }
 
   /** 인풋 장치가 List Item을 벗어나거나 눌렀다 땠을 경우 초기화 작업을 진행하는 보조 함수 */
   const handlePointerEnd = () => {
-    if(!listItemRef.current) return;
+    if(!listItemRef.current || !listItemRef.current.dataset.pressStartX) return;
 
     // Pointer Event가 종료되었을 때 CSS 변수로 저장된 translate 이동 좌표 값을 가지고온다.
     const currentTranslate = Number(listItemRef.current.style.getPropertyValue("--translate-x")) || 0;
 
     // 이동된 좌표 값이 Swipe가 활성화 될 절반 이상이 이동되었으면, 완전히 활성화 시키고 그렇지 않으면 비활성화 시킨다.
-    if(currentTranslate <= -(SWIPE_OPEN_LIMIT / 2)) listItemRef.current.style.setProperty("--translate-x", `${-SWIPE_OPEN_LIMIT}`);
+    if(currentTranslate <= -(SWIPE_OPEN_LIMIT / 2)) {
+      listItemRef.current.style.setProperty("--translate-x", `${-SWIPE_OPEN_LIMIT}`);
+      onEditModeActive("swipe");
+    }
     else {
       listItemRef.current.style.setProperty("--translate-x", "0");
       
@@ -75,7 +92,10 @@ export default function useSwipeToDelete(activeRef: React.RefObject<HTMLLIElemen
       const toggleSwitchEl = listItemRef.current.querySelector("div[class*=content-toggle]") as HTMLDivElement;
       if(toggleSwitchEl) {
         toggleSwitchEl.style.removeProperty("filter");
+        toggleSwitchEl.style.removeProperty("pointer-events");
       }
+
+      if(editMode.swipe) onEditModeActive();
     }
 
     delete listItemRef.current.dataset.pressStartX;
