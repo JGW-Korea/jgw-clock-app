@@ -9,7 +9,7 @@ interface Props {
   children: React.ReactElement;
   id: number;
   editMode: { click: boolean; swipe: boolean };
-  onDeleteListItem: (id: number, cb?: () => void) => void;
+  onDeleteListItem: (id: number, type?: "swipe", cb?: () => void) => void;
   onEditModeActive: (type?: "click" | "swipe") => void;
 }
 
@@ -21,7 +21,7 @@ export default function SwipeToDelete({ activeRef, children, id, editMode, onEdi
 
   return (
     <ListItem ref={listItemRef} className={`${styles["swipe-to-delete"]}`} style={{ "--translate-x": "0" } as React.CSSProperties}>
-      <SwipeToDeleteActions className={`${styles["swipe-to-delete__actions"]}`} id={id} onDeleteListItem={() => onDeleteListItem(id, onEditModeActive)} />
+      <SwipeToDeleteActions className={`${styles["swipe-to-delete__actions"]}`} id={id} onDeleteListItem={() => onDeleteListItem(id, "swipe", onEditModeActive)} />
       <SwipeToDeleteContainer
         className={`${styles["swipe-to-delete__container"]}`}
         onPointerDown={handlePointerDown}

@@ -30,13 +30,13 @@ export default function useAlarmList() {
   }
 
   // 알림을 삭제하는 이벤트 리스너
-  const handleDeleteAlarm = (id: number, editModeActive?: () => void) => {
+  const handleDeleteAlarm = (id: number, type?: "swipe", editModeActive?: () => void) => {
     const newAlarmData = alarmList.filter((alarm) => alarm.id !== id);
     setAlarmList(newAlarmData);
     localStorage.setItem("alarm", JSON.stringify(newAlarmData));
 
     // 모든 알림이 제거된 경우 editMode를 비활성화 시킨다.
-    if(!newAlarmData.length && editModeActive) {
+    if((!newAlarmData.length || type === "swipe") && editModeActive) {
       editModeActive();
     }
   }
