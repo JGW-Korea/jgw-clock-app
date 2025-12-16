@@ -1,0 +1,24 @@
+.world-sheet-content {
+  margin-top: 4rem;
+
+  & > li {
+    &:first-child {
+      border-top: 1px solid #414040;
+    }
+
+    & > button {
+      width: 100%;
+      padding: 3rem 0;
+      text-align: start;
+      background-color: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 4rem;
+      transition: background-color .235s ease-out;
+
+      &:active {
+        background-color: #414040;
+      }
+    }
+  }
+}

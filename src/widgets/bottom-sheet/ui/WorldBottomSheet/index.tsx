@@ -1,12 +1,19 @@
 import { useEffect, useState } from "react";
+import { BottomSheet } from "../../../../shared/bottom-sheet";
 import axios from "axios";
-import BottomSheet, { type Props } from "../../../../shared/bottom-sheet";
 import type { TimeZoneListDataType, TimeZoneListType } from "../../types/timeZone";
-import ListItem from "./ListItem";
+import WorldSheetListItem from "./WorldSheetListItem";
+import styles from "./index.module.scss";
 
-export default function WorldBottomSheet({ show, onClick, onAppendTimeList }: Omit<Props, "children"> & { onAppendTimeList: (name: string, to: string) => void; }) {
+interface Props {
+  isOpen: boolean;
+  onClose: () => void;
+  onAppendTimeList: (name: string, to: string) => void;
+}
+
+export default function WorldBottomSheet({ isOpen, onClose, onAppendTimeList }: Props) {
   const [worldTimeListData, setWorldTimeListData] = useState<TimeZoneListDataType[]>([]);
-
+    
   useEffect(() => {
     const fetchTimeZoneDbList = async () => {
       try {
@@ -30,11 +37,11 @@ export default function WorldBottomSheet({ show, onClick, onAppendTimeList }: Om
   }, []);
   
   return (
-    <BottomSheet show={show} onClick={onClick}>
-      <ul>
+    <BottomSheet isOpen={isOpen} onClose={onClose} sheetTitle="Choose a City">
+      <ul className={`${styles["world-sheet-content"]}`}>
         {worldTimeListData.map(({ countryName, zoneName }) => {
           return (
-            <ListItem
+            <WorldSheetListItem
               key={zoneName}
               countryName={countryName}
               zoneName={zoneName}
@@ -44,5 +51,5 @@ export default function WorldBottomSheet({ show, onClick, onAppendTimeList }: Om
         })}
       </ul>
     </BottomSheet>
-  );
+  )
 }

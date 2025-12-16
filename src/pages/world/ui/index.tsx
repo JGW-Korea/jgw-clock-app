@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { WorldHeader } from "../../../widgets/headers";
-import WorldBottomSheet from "../../../widgets/bottom-sheet/ui/WorldBottomSheet";
 import axios from "axios";
 import { WorldContent } from "../../../widgets/contents";
 import type { ConvertTimeZoneType } from "../../../widgets/bottom-sheet/types/timeZone";
+import { WorldBottomSheet } from "../../../widgets/bottom-sheet";
 
 type WordTimeListType = {
   name: string;
@@ -89,8 +89,8 @@ export default function World() {
       />
 
       <WorldBottomSheet
-        show={worldTimeBottomSheetOpen}
-        onClick={() => setWorldTimeBottomSheetOpen(false)}
+        isOpen={worldTimeBottomSheetOpen}
+        onClose={() => setWorldTimeBottomSheetOpen(false)}
         onAppendTimeList={onAppendWorldTimeListener}
       />
     </>
