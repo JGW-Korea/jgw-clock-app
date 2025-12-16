@@ -1,3 +1,4 @@
+import { WorldSheetListItemContainer } from "../../../../../entities/list-item-container/ui";
 import { ListItem } from "../../../../../shared/list-item";
 
 interface Props {
@@ -11,9 +12,11 @@ export default function WorldSheetListItem({ countryName, zoneName, onAppendTime
   
   return (
     <ListItem padding={0}>
-      <button onClick={() => onAppendTimeList(name, zoneName)}>
-        {name}
-      </button>
+      <WorldSheetListItemContainer
+        label={name}
+        zoneName={zoneName}
+        onAppendTimeList={onAppendTimeList}
+      />
     </ListItem>
   );
 }
