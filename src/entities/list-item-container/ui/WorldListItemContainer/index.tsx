@@ -25,8 +25,8 @@ export default function WorldListItemContainer({ editMode, id, day, offset, city
           <h3>{city}</h3>
         </div>
 
-        <time dateTime={`${hour}:${minutes}`} className={`${styles["world-list-item__content-time"]} ${editMode.click ? styles["hidden"] : ""}`}>
-          <span>{`${hour}:${minutes}`}</span>
+        <time dateTime={`${String(hour).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`} className={`${styles["world-list-item__content-time"]} ${editMode.click ? styles["hidden"] : ""}`}>
+          <span>{`${hour}:${String(minutes).padStart(2, "0")}`}</span>
           {meridiem}
         </time>
       </div>
