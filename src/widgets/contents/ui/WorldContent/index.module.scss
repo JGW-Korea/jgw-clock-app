@@ -15,4 +15,8 @@
       color: #a8a8a8;
     }
   }
+
+  &-list > li:first-child {
+    border-top: 1px solid #414040;
+  }
 }
