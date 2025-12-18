@@ -1,7 +1,7 @@
 import { useReducer } from "react";
-import { patchState } from "../../lib/patchState";
+import { patchState } from "../../utils";
 
-type EditMode = { 
+export type EditMode = { 
   click: boolean;
   swipe: boolean;
 }
