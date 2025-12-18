@@ -37,20 +37,41 @@ export default function WorldListItem({ activeRef, world, editMode, onDeleteList
       }
     }
 
-    const [from, to] = [getLocalDateString(world.from), getLocalDateString(world.to)];
-    setDay(compare(from, to));
+    const updateTime = () => {
+      const now = new Date();
+      // 1. 해당 지역 시간 계산 (기존 로직)
+      const utc = now.getTime() + now.getTimezoneOffset() * 60 * 1000;
+      const targetDate = new Date(utc + world.offset * 1000);
+      
+      // 2. AM/PM 및 시간 업데이트
+      const hours = targetDate.getHours();
+      const minutes = targetDate.getMinutes();
+      setTarget(hours >= 12 ? "PM" : "AM");
+      setTime(`${hours % 12 || 12}:${String(minutes).padStart(2, "0")}`);
+
+      // 3. 날짜 비교 업데이트 (기존 compare 로직 재사용)
+      const fromDateStr = getLocalDateString(world.from);
+      const toDateStr = getLocalDateString(world.to);
+      setDay(compare(fromDateStr, toDateStr));
+    };
+
+    updateTime(); // 초기 실행
 
     const now = new Date();
-    const utc = now.getTime() + now.getTimezoneOffset() * 60 * 1000;
-    const target = new Date(utc + world.offset * 1000);
+    const delay = (60 - now.getSeconds()) * 1000;
     
-    const hours = target.getHours();
-    const minutes = target.getMinutes();
+    const timeoutId = setTimeout(() => {
+      updateTime();
+      const intervalId = setInterval(updateTime, 1000 * 60);
+      (window as any)._worldTimeInterval = intervalId;
+    }, delay);
 
-    const isPM = hours >= 12;
-    setTarget(isPM ? "PM" : "AM");
-
-    setTime(`${hours % 12 || 12}:${String(minutes).padStart(2, "0")}`);
+    return () => {
+      clearTimeout(timeoutId);
+      if((window as any)._worldTimeInterval) {
+        clearInterval((window as any)._worldTimeInterval);
+      }
+    }
   }, []);
 
   return (
