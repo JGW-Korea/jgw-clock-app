@@ -1,11 +1,13 @@
 import style from "./style.module.scss";
 import Header from "../../../../shared/header";
 import PlusIcon from "../../../../shared/assets/icons/plus.svg?react";
+import Check from "../../../../shared/assets/icons/check.svg?react";
 
 interface Props {
   worldTimeList: object[];
-  onToggleEditMode: () => void;
-  onOpenAddCitySheet: () => void;
+  editMode: { click: boolean; swipe: boolean };
+  onClickEditModeActive: (type?: "click" | "swipe") => void;
+  onClickOpenSheet: () => void;
 }
 
 /**
@@ -14,20 +16,23 @@ interface Props {
  * -------------------------------------
  * - 사용자가 등록한 세계 시계 유무에 따라 `편집` 버튼의 보여짐이 결정된다.
  */
-export default function WorldHeader({ worldTimeList, onToggleEditMode, onOpenAddCitySheet }: Props) {
+export default function WorldHeader({ worldTimeList, editMode, onClickOpenSheet, onClickEditModeActive }: Props) {
   return (
     <Header title="World Clock">
       <div style={{ display: "flex", justifyContent: "space-between" }}>
+        {/* Edit Button 활성화 버튼 */}
         <button
           className={`
-              ${style["glass-button"]}
-              ${style["glass-button__text"]} ${worldTimeList.length === 0 && style["glass-button__hidden"]}
-            `}
-          onClick={onToggleEditMode}
+            ${style["glass-button"]}
+            ${style["glass-button__text"]} ${worldTimeList.length === 0 && style["glass-button__hidden"]}
+          `}
+          onClick={() => onClickEditModeActive("click")}
         >
-          Edit
+          {(editMode.click || editMode.swipe) ? <Check /> : "Edit" }
         </button>
-        <button className={`${style["glass-button"]} ${style["glass-button__icon"]}`} onClick={onOpenAddCitySheet}>
+        
+        {/* Bottom Sheet 활성화 버튼 */}
+        <button className={`${style["glass-button"]} ${style["glass-button__icon"]}`} onClick={onClickOpenSheet}>
           <PlusIcon />
         </button>
       </div>
