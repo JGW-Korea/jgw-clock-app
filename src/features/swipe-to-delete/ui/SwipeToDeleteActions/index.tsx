@@ -2,8 +2,8 @@ import Delete from "../../../../shared/assets/icons/delete.svg?react";
 
 interface Props {
   className: string;
-  id: number;
-  onDeleteListItem: (id: number) => void;
+  id: number | string;
+  onDeleteListItem: (id: number | string) => void;
 }
 
 /**
