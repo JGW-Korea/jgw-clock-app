@@ -1,5 +1,1 @@
-export {
-  AlarmHeader,
-  TimerHeader,
-  WorldHeader
-} from "./ui";
+export { AlarmHeader, WorldHeader } from "./ui";
