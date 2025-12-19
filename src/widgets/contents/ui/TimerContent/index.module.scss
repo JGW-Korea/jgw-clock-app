@@ -37,4 +37,32 @@
       transform: translate(-50%, -50%);
     }
   }
+
+  & > .button-group {
+    margin: 2.5rem 0;
+    padding-bottom: 6rem;
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #333;
+
+    & > button {
+      cursor: pointer;
+      width: 20rem;
+      height: 20rem;
+      border-radius: 50%;
+      font-size: 4rem;
+      padding: .7rem;
+      background-clip: content-box;
+      border: 2px solid transparent;
+      transition: .3s ease;
+
+      &.reset, &.lap { $bgColor: #4d4d4d; border-color: $bgColor; background-color: $bgColor; }
+      &.start { $bgColor: #1b3d27; border-color: $bgColor; background-color: $bgColor; color: #2ed157 }
+      &.stop { $bgColor: #3d1616; border-color: $bgColor; background-color: $bgColor; color: #df3b32 }
+
+      &:hover {
+        filter: opacity(0.8);
+      }
+    }
+  }
 }
