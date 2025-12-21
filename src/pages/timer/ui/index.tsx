@@ -1,17 +1,9 @@
-import { TimerHeader } from "../../../widgets/headers";
+import TimerContent from "../../../widgets/contents/ui/TimerContent";
 
 export default function Timer() {
-  // const [timerList, setTimerList] = useState<object[]>([]);
-  // console.log()
-    
-  // useEffect(() => {
-  //   const list = localStorage.getItem("worldTime");
-  //   if(list) {
-  //     setTimerList(JSON.parse(list));
-  //   }
-  // }, []);
-
   return (
-    <TimerHeader />
+    <>
+      <TimerContent />
+    </>
   );
 }
