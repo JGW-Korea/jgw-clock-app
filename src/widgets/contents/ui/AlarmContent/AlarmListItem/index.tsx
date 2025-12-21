@@ -5,7 +5,7 @@ import type { AlarmData } from "../../../../../shared/context/types";
 interface Props extends AlarmData {
   activeRef: React.RefObject<HTMLLIElement | null>;
   editMode: { click: boolean; swipe: boolean };
-  onDeleteListItem: (id: number) => void;
+  onDeleteListItem: (id: string | number, type?: "swipe" | undefined, cb?: (() => void) | undefined) => void;
   onEditModeActive: (type?: "click" | "swipe") => void;
   onToggleActiveAlarm: (id: number) => void;
 }
