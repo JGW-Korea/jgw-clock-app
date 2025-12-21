@@ -1,14 +1,20 @@
+import type { TimerState } from "../useTimer";
+
 interface Props {
   styles: CSSModuleClasses;
+  timerState: TimerState;
+  progress: number;
 }
 
-export default function CountDown({ styles }: Props) {
+export default function CountDown({ styles, timerState, progress }: Props) {
+  const activeTicks = Math.ceil(60 * progress);
+  
   return (
     <div className={`${styles["time-wrapper"]}`}>
       <div className={`${styles["time-count-down"]}`}>
         <svg viewBox="0 0 100 100" style={{ width: '100%', height: '100%', overflow: 'visible' }}>
           {Array.from({ length: 60 }).map((_, i) => {
-            const isActive = i < 60 * 0;
+            const isActive = i < activeTicks;
             return (
               <line
                 key={i}
@@ -27,11 +33,11 @@ export default function CountDown({ styles }: Props) {
       </div>
       
       <time dateTime="" >
-        <span>00</span>
+        <span>{String(timerState.hours.value).padStart(2, "0")}</span>
         :
-        <span>00</span>
+        <span>{String(timerState.minutes.value).padStart(2, "0")}</span>
         :
-        <span>00</span>
+        <span>{String(timerState.seconds.value).padStart(2, "0")}</span>
       </time>
     </div>
   );
