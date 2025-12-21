@@ -13,7 +13,7 @@ export type AlarmState = {
 export interface ClockContextType {
   alarmList: AlarmData[];
   handleAddAlarm: HandleAddAlarmFunction;
-  handleDeleteAlarm: (id: number, type?: "swipe", editModeActive?: () => void) => void;
+  handleDeleteAlarm: (id: number | string, type?: "swipe", editModeActive?: () => void) => void;
   handleToggleActiveAlarm: (id: number) => void;
 }
 

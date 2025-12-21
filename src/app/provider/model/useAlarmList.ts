@@ -30,7 +30,7 @@ export default function useAlarmList() {
   }
 
   // 알림을 삭제하는 이벤트 리스너
-  const handleDeleteAlarm = (id: number, type?: "swipe", editModeActive?: () => void) => {
+  const handleDeleteAlarm = (id: number | string, type?: "swipe", editModeActive?: () => void) => {
     const newAlarmData = alarmList.filter((alarm) => alarm.id !== id);
     setAlarmList(newAlarmData);
     localStorage.setItem("alarm", JSON.stringify(newAlarmData));
