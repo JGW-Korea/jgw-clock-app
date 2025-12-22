@@ -29,10 +29,15 @@
     "baseUrl": ".",
     "paths": {
       "@app/*": ["src/app/*"],
+      "@pages": ["src/pages/index.ts"],
       "@pages/*": ["src/pages/*"],
+      "@widgets": ["src/widgets/index.ts"],
       "@widgets/*": ["src/widgets/*"],
+      "@features": ["src/features/index.ts"],
       "@features/*": ["src/features/*"],
+      "@entites": ["src/entites/index.ts"],
       "@entites/*": ["src/entites/*"],
+      "@shared": ["src/shared/index.ts"],
       "@shared/*": ["src/shared/*"],
     }
   }
