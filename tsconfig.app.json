@@ -35,8 +35,8 @@
       "@widgets/*": ["src/widgets/*"],
       "@features": ["src/features/index.ts"],
       "@features/*": ["src/features/*"],
-      "@entites": ["src/entites/index.ts"],
-      "@entites/*": ["src/entites/*"],
+      "@entities": ["src/entities/index.ts"],
+      "@entities/*": ["src/entities/*"],
       "@shared": ["src/shared/index.ts"],
       "@shared/*": ["src/shared/*"],
     }
