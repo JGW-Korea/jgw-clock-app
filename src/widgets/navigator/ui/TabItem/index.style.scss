@@ -21,8 +21,6 @@
   @include glass-shadow(); // Liquid Glass 효과를 나타내기 위한 Box-Shadow 스타일 구성
   transition: background-color $transition, box-shadow $transition; // Liquid Glass 효과를 위한 전환 상태(Transition)의 애니메이션 지정
   
-  $tab-width: calc((100% / 4) - 3rem); // 탭 개수만큼 백분율 단위를 나눈 후 오른쪽 패딩 값을 뺀 width 값을 구한다.
-
   // Tab Lsit -> Tab Item을 구성하는 전체 리스트 레이아웃 스타일 구성
   &__list {
     width: 100%;
@@ -31,11 +29,13 @@
     gap: 2rem;
     align-items: center;
 
+    $tab-width: calc(100% / 4); // 탭 개수만큼 백분율 단위를 나눈 width 값을 구한다.
+
     &::after {
       content: "";
       display: block;
       position: absolute;
-      width: calc($tab-width);
+      width: #{$tab-width};
       // width: calc((100% / 4) - 3rem);
       top: 1.2rem;
       height: calc(100% - 2.5rem);
@@ -54,26 +54,20 @@
       
       transition:
         box-shadow 400ms cubic-bezier(1, 0, 0.4, 1),
-        translate 400ms cubic-bezier(1, 0, 0.4, 1);
+        transform 400ms cubic-bezier(1, 0, 0.4, 1);
     }
 
     &:has(a[href="/"][aria-current="page"])::after {
-      translate: 0 0;
-      transform-origin: right;
-      animation: scaleToggleStart 440ms ease;
+      transform: translateX(-1.5rem);
     }
-    &:has(a[href="/world"][aria-current="page"])::after {
-      translate: calc(77px + 4rem) 0;
-      animation: scaleToggle2 440ms ease;
+    &:has(a[href="/alarm"][aria-current="page"])::after {
+      transform: translateX(calc((100% - 2rem) - 0.5rem)); 
     }
     &:has(a[href="/stopwatch"][aria-current="page"])::after {
-      translate: calc((100% * 2) + (2rem * 2)) 0;
-      animation: scaleToggle3 440ms ease;
+      transform: translateX(calc((100% * 2) - (2rem * 2) + 0.5rem));
     }
     &:has(a[href="/timer"][aria-current="page"])::after {
-      translate: calc((100% * 3) + (2rem * 3)) 0;
-      transform-origin: left;
-      animation: scaleToggleEnd 440ms ease;
+      transform: translateX(calc((100% * 3) - (2rem * 3) + 1.5rem));
     }
   }
 
@@ -94,8 +88,8 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    font-size: 3.8rem;
-    font-weight: 300;
+    font-size: 3rem;
+    font-weight: 400;
     gap: 1.5rem;
     cursor: default;
 
@@ -135,55 +129,7 @@
     }
 
     &[aria-current="page"] > span{
-      font-weight: 400;
+      font-weight: 700;
     }
-  }
-}
-
-@keyframes scaleToggleStart {
-  0% {
-    scale: 1 1;
-  }
-  50% {
-    scale: 1.1 1;
-  }
-  100% {
-    scale: 1 1;
-  }
-}
-
-@keyframes scaleToggle2 {
-  0% {
-    scale: 1 1;
-  }
-  50% {
-    scale: 1.2 1;
-  }
-  100% {
-    scale: 1 1;
-  }
-}
-
-@keyframes scaleToggle3 {
-  0% {
-    scale: 1 1;
-  }
-  50% {
-    scale: 1.2 1;
-  }
-  100% {
-    scale: 1 1;
-  }
-}
-
-@keyframes scaleToggleEnd {
-  0% {
-    scale: 1 1;
-  }
-  50% {
-    scale: 1.1 1;
-  }
-  100% {
-    scale: 1 1;
   }
 }
