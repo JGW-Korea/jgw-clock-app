@@ -1,1 +1,1 @@
-export { default as ClockProvider } from "./ui";
+export { default as ClockProvider } from "./ClockProvider";
