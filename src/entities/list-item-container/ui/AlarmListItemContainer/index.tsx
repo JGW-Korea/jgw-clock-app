@@ -1,5 +1,5 @@
+import { ToggleSwitch } from "@shared/ui";
 import type { AlarmData } from "../../../../shared/context/types";
-import { ToggleSwitch } from "../../../../shared/toggle-switch";
 import { formatSelectedWeekdays } from "../../model/AlarmListItem";
 import styles from "./index.module.scss";
 

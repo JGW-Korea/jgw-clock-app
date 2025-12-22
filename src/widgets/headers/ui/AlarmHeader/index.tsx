@@ -1,10 +1,10 @@
 import style from "./style.module.scss";
-import Header from "../../../../shared/header";
 import Check from "../../../../shared/assets/icons/check.svg?react";
 import PlusIcon from "../../../../shared/assets/icons/plus.svg?react";
 import { useContext } from "react";
 import type { ClockContextType } from "../../../../shared/context/types";
 import { AlarmContext } from "@entities/alarm";
+import { Header } from "@shared/ui";
 
 interface Props {
   editMode: { click: boolean; swipe: boolean };

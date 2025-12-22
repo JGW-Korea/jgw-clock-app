@@ -1,9 +1,9 @@
 import { TimePicker } from "../../../../features/time-picker";
-import { BottomSheet } from "../../../../shared/bottom-sheet";
 import { ALARM_WEEKDAYS } from "../../consts";
 import Check from "../../../../shared/assets/icons/check.svg?react";
 import styles from "./index.module.scss";
 import { useAlarmSchedule, useTimePickerDraggable } from "../../model";
+import { BottomSheet } from "@shared/ui";
 
 interface Props {
   isOpen: boolean;

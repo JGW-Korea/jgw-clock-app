@@ -1,7 +1,7 @@
 import style from "./style.module.scss";
-import Header from "../../../../shared/header";
 import PlusIcon from "../../../../shared/assets/icons/plus.svg?react";
 import Check from "../../../../shared/assets/icons/check.svg?react";
+import { Header } from "@shared/ui";
 
 interface Props {
   worldTimeList: object[];

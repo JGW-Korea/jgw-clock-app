@@ -1,4 +1,4 @@
-import { ListItem } from "../../../shared/list-item";
+import { ListItem } from "@shared/ui";
 import { useSwipeToDelete } from "../model";
 import styles from "./index.module.scss";
 import SwipeToDeleteActions from "./SwipeToDeleteActions";

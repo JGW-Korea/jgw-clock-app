@@ -1,5 +1,5 @@
+import { ListItem } from "@shared/ui";
 import { WorldSheetListItemContainer } from "../../../../../entities/list-item-container/ui";
-import { ListItem } from "../../../../../shared/list-item";
 
 interface Props {
   countryName: string;

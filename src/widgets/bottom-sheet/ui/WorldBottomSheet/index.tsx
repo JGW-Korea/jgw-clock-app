@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { BottomSheet } from "../../../../shared/bottom-sheet";
 import axios from "axios";
 import type { TimeZoneListDataType, TimeZoneListType } from "../../types/timeZone";
 import WorldSheetListItem from "./WorldSheetListItem";
 import styles from "./index.module.scss";
+import { BottomSheet } from "@shared/ui";
 
 interface Props {
   isOpen: boolean;
