@@ -1,7 +1,7 @@
 import { useContext, useRef } from "react";
-import { ClockContext } from "../../../../shared/context";
 import styles from "./index.module.scss"
 import AlarmListItem from "./AlarmListItem";
+import { AlarmContext } from "@entities/alarm";
 
 interface Props {
   editMode: { click: boolean; swipe: boolean };
@@ -9,7 +9,7 @@ interface Props {
 }
 
 export default function AlarmContent({ editMode, onEditModeActive }: Props) {
-  const { alarmList, handleDeleteAlarm, handleToggleActiveAlarm } = useContext(ClockContext)!;
+  const { alarmList, handleDeleteAlarm, handleToggleActiveAlarm } = useContext(AlarmContext)!;
   const activeRef = useRef<HTMLLIElement | null>(null);
 
   return (

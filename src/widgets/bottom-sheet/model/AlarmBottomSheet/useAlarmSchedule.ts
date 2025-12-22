@@ -1,6 +1,6 @@
 import { useContext, useReducer } from "react";
-import { ClockContext } from "../../../../shared/context";
 import type { AlarmState } from "../../../../shared/context/types";
+import { AlarmContext } from "@entities/alarm";
 
 type AlarmStateUpdateAction = 
   | { type: "TIME_PICKER_CHANGED", payload: { hours: number; minutes: number } }
@@ -83,7 +83,7 @@ export function useAlarmSchedule() {
     weekdays: []
   });
 
-  const { handleAddAlarm } = useContext(ClockContext)!;
+  const { handleAddAlarm } = useContext(AlarmContext)!;
 
   // TimePicker의 선택된 시간이 변경되는 경우
   function handleTimeChange(isPM: boolean, hours: number, minutes: number) {

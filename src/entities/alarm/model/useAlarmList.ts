@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
-import type { AlarmData, HandleAddAlarmFunction } from "../../../shared/context/types";
+import type { AlarmData, HandleAddAlarmFunction } from "./alarm.types";
 
+/**
+ * Alarm 도메인 데이터를 관리하는 커스텀 훅
+*/
 export default function useAlarmList() {
   const [alarmList, setAlarmList] = useState<AlarmData[]>([]);
 

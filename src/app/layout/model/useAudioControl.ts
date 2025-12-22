@@ -1,9 +1,9 @@
 import { useContext, useEffect, useRef, useState } from "react";
-import { ClockContext } from "../../../shared/context";
 import { getNextAlarmDelayMs, playAlarm } from "../lib";
+import { AlarmContext } from "@entities/alarm";
 
 export default function useAudioControl() {
-  const { alarmList } = useContext(ClockContext)!; // 사용자가 설정한 Alarm or Timer 종류를 가지고 온다.
+  const { alarmList } = useContext(AlarmContext)!; // 사용자가 설정한 Alarm or Timer 종류를 가지고 온다.
   const audioRef = useRef<HTMLAudioElement>(null);
   const timerIdRef = useRef<{ id: number }[]>([]);
   const [audioType, setAlarmType] = useState<"alarm" | "timer">("alarm");

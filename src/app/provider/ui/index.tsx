@@ -1,16 +1,9 @@
-import { ClockContext } from "../../../shared/context";
-import { useAlarmList } from "../model";
+import { AlarmProvider } from "@entities/alarm";
 
-interface Props {
-  children: React.ReactElement;
-}
-
-export default function ClockProvider({ children }: Props) {
-  const { alarmList, handleAddAlarm, handleDeleteAlarm, handleToggleActiveAlarm } = useAlarmList();
-  
+export default function ClockProvider({ children }: { children: React.ReactElement }) {
   return (
-    <ClockContext value={{ alarmList, handleAddAlarm, handleDeleteAlarm, handleToggleActiveAlarm }}>
+    <AlarmProvider>
       {children}
-    </ClockContext>
+    </AlarmProvider>
   );
 }
