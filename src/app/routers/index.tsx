@@ -1,4 +1,4 @@
-import { Layout } from "@app/layout";
+import Layout from "@app/layout";
 import { Alarm, Stopwatch, Timer, World } from "@pages";
 import { Route, Routes } from "react-router";
 

@@ -1,3 +1,4 @@
+import { Audio } from "@widgets/audio";
 import AppProvider from "./provider";
 import AppRouter from "./routers";
 import "./styles/global.style.scss";
@@ -8,6 +9,7 @@ import "./styles/global.style.scss";
 export default function App() {
   return (
     <AppProvider>
+      <Audio />
       <AppRouter />
     </AppProvider>
   );

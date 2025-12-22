@@ -1,17 +1,14 @@
+import { useAudioControl } from "../model";
 import styles from "./index.module.scss";
 
-interface Props {
-  ref: React.RefObject<HTMLAudioElement | null>;
-  type: "alarm" | "timer";
-  onClick: () => void;
-}
-
-export default function Audio({ ref, type, onClick }: Props) {
+export default function Audio() {
+  const { audioRef, audioType, handleAudioHidden } = useAudioControl();
+  
   return (
     <div className={`${styles["audio"]}`}>
-      <h3>{type === "alarm" ? "Alarm" : "Timer"}</h3>
-      <audio ref={ref} src="/audio/alarm.mp3" muted loop style={{ display: "none" }} />
-      <button onClick={onClick} />
+      <h3>{audioType === "alarm" ? "Alarm" : "Timer"}</h3>
+      <audio ref={audioRef} src="/audio/alarm.mp3" muted loop style={{ display: "none" }} />
+      <button onClick={handleAudioHidden} />
     </div>
   );
 }
