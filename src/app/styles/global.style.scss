@@ -1,8 +1,16 @@
 @use "./font.scss";
 
 // HTML 문서 루트 태그(<html>)에 font-size를 지정하여 rem 단위를 지정한다.
-html {
+html, body {
   font-size: 4px;
+  overscroll-behavior: none;
+}
+
+// Safari 모바일 환경에서 안전 영역의 배경색을 Layout과 동일한 배경색으로 지정한다.
+@media screen and (max-width: 436px) {
+  body {
+    background-color: #000;
+  }
 }
 
 // 모든 Font 스타일을 통일 시킨다.
