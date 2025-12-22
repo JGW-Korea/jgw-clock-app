@@ -1,4 +1,4 @@
-import { ClockProvider } from "./provider";
+import { AppProvider } from "./provider";
 import { AppRouter } from "./routers";
 import "./styles/global.style.scss";
 
@@ -8,8 +8,8 @@ import "./styles/global.style.scss";
 */
 export default function App() {
   return (
-    <ClockProvider>
+    <AppProvider>
       <AppRouter />
-    </ClockProvider>
+    </AppProvider>
   );
 }

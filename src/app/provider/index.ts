@@ -1,1 +1,1 @@
-export { default as ClockProvider } from "./ClockProvider";
+export { default as AppProvider } from "./AppProvider";
