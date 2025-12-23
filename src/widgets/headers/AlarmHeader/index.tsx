@@ -1,9 +1,8 @@
 import style from "./style.module.scss";
-import Check from "../../../../shared/assets/icons/check.svg?react";
-import PlusIcon from "../../../../shared/assets/icons/plus.svg?react";
+import Check from "@shared/assets/icons/check.svg?react";
+import PlusIcon from "@shared/assets/icons/plus.svg?react";
 import { useContext } from "react";
-import type { ClockContextType } from "../../../../shared/context/types";
-import { AlarmContext } from "@entities/alarm";
+import { AlarmContext, type AlarmContextType } from "@entities/alarm";
 import { Header } from "@shared/ui";
 
 interface Props {
@@ -13,7 +12,7 @@ interface Props {
 }
 
 export default function AlarmHeader({ editMode, onClickEditModeActive, onClickOpenSheet }: Props) {
-  const { alarmList } = useContext<ClockContextType | null>(AlarmContext)!;
+  const { alarmList } = useContext<AlarmContextType | null>(AlarmContext)!;
   
   return (
     <Header title="Alarms">

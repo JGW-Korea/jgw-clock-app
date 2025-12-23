@@ -2,7 +2,7 @@ import { createContext } from "react";
 import type { AlarmData, HandleAddAlarmFunction } from "./alarm.types";
 
 // Context Value 타입 구성
-interface AlarmContext {
+export interface AlarmContextType {
   alarmList: AlarmData[];
   handleAddAlarm: HandleAddAlarmFunction;
   handleDeleteAlarm: (id: number | string, type?: "swipe", editModeActive?: () => void) => void;
@@ -10,4 +10,4 @@ interface AlarmContext {
 }
 
 /** Alarm 전역 상태를 관리하기 위한 Context 객체 */
-export const AlarmContext = createContext<AlarmContext | null>(null);
+export const AlarmContext = createContext<AlarmContextType | null>(null);
