@@ -1,8 +1,8 @@
 import { WorldHeader } from "../../../widgets/headers";
-import { WorldContent } from "../../../widgets/contents";
 import { useHeaderEditSheetControls } from "../../../shared/model";
 import { useWorldTimeList } from "../../../entities/world";
 import { WorldBottomSheet } from "@widgets/bottom-sheet";
+import { WorldContent } from "@widgets/contents";
 
 export default function World() {
   const { controlState, handleOpenBottomSheet, handleCloseBottomSheet, handleEditModeActive } = useHeaderEditSheetControls();

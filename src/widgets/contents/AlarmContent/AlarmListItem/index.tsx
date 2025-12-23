@@ -1,5 +1,5 @@
-import { AlarmListItemContainer } from "../../../../../entities/list-item-container";
-import { SwipeToDelete } from "../../../../../features/swipe-to-delete";
+import { AlarmListItemContainer } from "../../../../entities/list-item-container";
+import { SwipeToDelete } from "../../../../features/swipe-to-delete";
 import type { AlarmData } from "../../../../../shared/context/types";
 
 interface Props extends AlarmData {

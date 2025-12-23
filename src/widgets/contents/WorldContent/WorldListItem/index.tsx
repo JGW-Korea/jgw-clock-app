@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { SwipeToDelete } from "../../../../../features/swipe-to-delete";
+import { SwipeToDelete } from "../../../../features/swipe-to-delete";
 import styles from "./index.module.scss";
-import type { WordTimeListType } from "../../../../../entities/world";
+import type { WordTimeListType } from "../../../../entities/world";
 
 interface Props {
   activeRef: React.RefObject<HTMLLIElement | null>;

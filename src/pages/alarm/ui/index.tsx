@@ -1,7 +1,7 @@
 import { AlarmHeader } from "../../../widgets/headers";
 import { useHeaderEditSheetControls } from "../../../shared/model";
-import AlarmContent from "../../../widgets/contents/ui/AlarmContent";
 import { AlarmBottomSheet } from "@widgets/bottom-sheet";
+import { AlarmContent } from "@widgets/contents";
 
 export default function Alarm() {
   const { controlState, handleOpenBottomSheet, handleCloseBottomSheet, handleEditModeActive } = useHeaderEditSheetControls();

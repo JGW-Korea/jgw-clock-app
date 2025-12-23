@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import WorldListItem from "./WorldListItem";
 import style from "./index.module.scss";
-import type { WordTimeListType } from "../../../../entities/world";
+import type { WordTimeListType } from "../../../entities/world";
 
 interface Props {
   worldTimeList: WordTimeListType[];
