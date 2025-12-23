@@ -1,7 +1,7 @@
 import { ToggleSwitch } from "@shared/ui";
-import type { AlarmData } from "../../../../shared/context/types";
 import { formatSelectedWeekdays } from "../../model/AlarmListItem";
 import styles from "./index.module.scss";
+import type { AlarmData } from "@entities/alarm";
 
 interface Props extends AlarmData {
   editMode: { click: boolean; swipe: boolean };

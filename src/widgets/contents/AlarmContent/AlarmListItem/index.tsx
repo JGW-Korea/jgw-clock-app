@@ -1,6 +1,6 @@
-import { AlarmListItemContainer } from "../../../../entities/list-item-container";
-import { SwipeToDelete } from "../../../../features/swipe-to-delete";
-import type { AlarmData } from "../../../../../shared/context/types";
+import type { AlarmData } from "@entities/alarm";
+import { AlarmListItemContainer } from "@entities/list-item-container";
+import { SwipeToDelete } from "@features/swipe-to-delete";
 
 interface Props extends AlarmData {
   activeRef: React.RefObject<HTMLLIElement | null>;
