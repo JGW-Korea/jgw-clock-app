@@ -1,8 +1,8 @@
 import Layout from "@app/layout";
-import { Alarm } from "@pages/alarm";
-import { Stopwatch } from "@pages/stopwatch";
-import { Timer } from "@pages/timer";
-import { World } from "@pages/world";
+import { AlarmPage } from "@pages/alarm";
+import { StopwatchPage } from "@pages/stopwatch";
+import { TimerPage } from "@pages/timer";
+import { WorldPage } from "@pages/world";
 import { Route, Routes } from "react-router";
 
 /**
@@ -12,10 +12,10 @@ export default function AppRouter() {
   return (
     <Routes>
       <Route element={<Layout />}>
-        <Route index element={<World />}  />
-        <Route path="/alarm" element={<Alarm />}  />
-        <Route path="/stopwatch" element={<Stopwatch />}  />
-        <Route path="/timer" element={<Timer />}  />  
+        <Route index element={<WorldPage />}  />
+        <Route path="/alarm" element={<AlarmPage />}  />
+        <Route path="/stopwatch" element={<StopwatchPage />}  />
+        <Route path="/timer" element={<TimerPage />}  />  
       </Route>
     </Routes>
   );

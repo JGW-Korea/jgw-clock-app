@@ -1,1 +1,1 @@
-export { default as Alarm } from "./ui";
+export { default as AlarmPage } from "./ui";

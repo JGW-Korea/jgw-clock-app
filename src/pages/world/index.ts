@@ -1,1 +1,1 @@
-export { default as World } from "./ui"
+export { default as WorldPage } from "./ui"

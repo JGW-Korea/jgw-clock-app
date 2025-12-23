@@ -1,6 +1,6 @@
 import { TimerContent } from "@widgets/contents";
 
-export default function Timer() {
+export default function TimerPage() {
   return (
     <>
       <TimerContent />

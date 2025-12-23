@@ -4,7 +4,7 @@ import { WorldBottomSheet } from "@widgets/bottom-sheet";
 import { WorldContent } from "@widgets/contents";
 import { WorldHeader } from "@widgets/headers";
 
-export default function World() {
+export default function WorldPage() {
   const { controlState, handleOpenBottomSheet, handleCloseBottomSheet, handleEditModeActive } = useHeaderEditSheetControls();
   const { worldTimeList, handleAppendWorldTime, handleDelete } = useWorldTimeList(handleCloseBottomSheet, handleEditModeActive);
 

@@ -3,7 +3,7 @@ import { AlarmBottomSheet } from "@widgets/bottom-sheet";
 import { AlarmContent } from "@widgets/contents";
 import { AlarmHeader } from "@widgets/headers";
 
-export default function Alarm() {
+export default function AlarmPage() {
   const { controlState, handleOpenBottomSheet, handleCloseBottomSheet, handleEditModeActive } = useHeaderEditSheetControls();
 
   return (

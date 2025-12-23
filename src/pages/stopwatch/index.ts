@@ -1,1 +1,1 @@
-export { default as Stopwatch } from "./ui"
+export { default as StopwatchPage } from "./ui"
