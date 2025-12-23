@@ -1,5 +1,8 @@
 import Layout from "@app/layout";
-import { Alarm, Stopwatch, Timer, World } from "@pages";
+import { Alarm } from "@pages/alarm";
+import { Stopwatch } from "@pages/stopwatch";
+import { Timer } from "@pages/timer";
+import { World } from "@pages/world";
 import { Route, Routes } from "react-router";
 
 /**
