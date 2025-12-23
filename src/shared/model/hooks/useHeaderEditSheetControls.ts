@@ -1,5 +1,5 @@
+import { patchState } from "@shared/utils";
 import { useReducer } from "react";
-import { patchState } from "../../utils";
 
 export type EditMode = { 
   click: boolean;

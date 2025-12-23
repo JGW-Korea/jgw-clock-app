@@ -1,4 +1,4 @@
-import type { Weekday } from "../../../../shared/context/types";
+import type { Weekday } from "@entities/alarm";
 import { capitalizeFirstChars } from "../../utils";
 
 /**

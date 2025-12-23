@@ -1,4 +1,4 @@
-import Delete from "../../../../shared/assets/icons/delete.svg?react";
+import Delete from "@shared/assets/icons/delete.svg?react";
 
 interface Props {
   className: string;

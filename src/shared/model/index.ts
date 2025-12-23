@@ -1,1 +1,1 @@
-export { default as useHeaderEditSheetControls } from "../model/hooks/useHeaderEditSheetControls";
+export { default as useHeaderEditSheetControls } from "./hooks/useHeaderEditSheetControls";
