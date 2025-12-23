@@ -1,6 +1,5 @@
 import { useContext, useReducer } from "react";
-import type { AlarmState } from "../../../../shared/context/types";
-import { AlarmContext } from "@entities/alarm";
+import { AlarmContext, type AlarmState } from "@entities/alarm";
 
 type AlarmStateUpdateAction = 
   | { type: "TIME_PICKER_CHANGED", payload: { hours: number; minutes: number } }
@@ -75,7 +74,7 @@ function reducer(state: AlarmState, action: AlarmStateUpdateAction): AlarmState 
   }
 }
 
-export function useAlarmSchedule() {
+export default function useAlarmSchedule() {
   // hours, minutes, weekdays
   const [alarmState, dispatch] = useReducer(reducer, {
     hours: 0,
