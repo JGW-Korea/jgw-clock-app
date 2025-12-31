@@ -1,15 +1,14 @@
-import { ListItem } from "@shared/ui";
+import { ListItem, type ListItemProps } from "@shared/ui";
 import { useSwipeToDelete } from "../model";
 import styles from "./index.module.scss";
 import SwipeToDeleteActions from "./SwipeToDeleteActions";
 import SwipeToDeleteContainer from "./SwipeToDeleteContainer";
 
-interface Props {
+interface Props extends ListItemProps {
   activeRef: React.RefObject<HTMLLIElement | null>;
   children: React.ReactElement;
   id: number | string;
   editMode: { click: boolean; swipe: boolean };
-  padding?: number;
   onDeleteListItem: (id: number | string, type?: "swipe", cb?: () => void) => void;
   onEditModeActive: (type?: "click" | "swipe") => void;
 }
