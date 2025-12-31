@@ -1,3 +1,2 @@
 export { default as AlarmListItemContainer } from "./AlarmListItemContainer";
 export { default as StopWatchListItemContainer, type Props as StopWatchListItemContainerType } from "./StopWatchListItemContainer";
-export { default as WorldListItemContainer } from "./WorldListItemContainer";
