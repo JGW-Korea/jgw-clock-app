@@ -1,0 +1,1 @@
+export type { WorldAppendHandler } from "./props.type";

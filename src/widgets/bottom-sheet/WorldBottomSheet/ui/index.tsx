@@ -4,14 +4,15 @@ import styles from "./index.module.scss";
 import { BottomSheet } from "@shared/ui";
 import WorldSheetListItem from "./WorldBottomSheetListItem";
 import type { TimeZoneListDataType, TimeZoneListType } from "../types/timeZone";
+import type { WorldAppendHandler } from "../model";
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  onAppendTimeList: (name: string, to: string) => void;
+  onClickAppendWorld: WorldAppendHandler;
 }
 
-export default function WorldBottomSheet({ isOpen, onClose, onAppendTimeList }: Props) {
+export default function WorldBottomSheet({ isOpen, onClose, onClickAppendWorld }: Props) {
   const [worldTimeListData, setWorldTimeListData] = useState<TimeZoneListDataType[]>([]);
     
   useEffect(() => {
@@ -45,7 +46,7 @@ export default function WorldBottomSheet({ isOpen, onClose, onAppendTimeList }: 
               key={zoneName}
               countryName={countryName}
               zoneName={zoneName}
-              onAppendTimeList={onAppendTimeList}
+              onClickAppendWorld={onClickAppendWorld}
             />
           );
         })}

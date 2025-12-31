@@ -28,7 +28,7 @@ export default function WorldPage() {
       <WorldBottomSheet
         isOpen={controlState.sheetOpen}
         onClose={handleCloseBottomSheet}
-        onAppendTimeList={handleAppendWorldTime}
+        onClickAppendWorld={handleAppendWorldTime}
       />
     </>
   );

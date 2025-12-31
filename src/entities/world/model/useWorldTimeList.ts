@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import type { ConvertTimeZoneType, WordTimeListType } from "./index.type";
+import type { WorldAppendHandler } from "@widgets/bottom-sheet";
 
 export default function useWorldTimeList(handleCloseBottomSheet: () => void, handleEditModeActive:(type?: "click" | "swipe") => void) {
   const [worldTimeList, setWorldTimeList] = useState<WordTimeListType[]>([]);
@@ -14,11 +15,11 @@ export default function useWorldTimeList(handleCloseBottomSheet: () => void, han
   }, []);
 
   // 세계 시계 추가 이벤트 리스너 
-  const handleAppendWorldTime = async (selectName: string, to: string) => {
+  const handleAppendWorldTime: WorldAppendHandler = async (from, to) => {
     const { data } = await axios.get(`http://api.timezonedb.com/v2.1/convert-time-zone?key=${import.meta.env.VITE_TIME_ZONE_API}&format=json&from=${Intl.DateTimeFormat().resolvedOptions().timeZone}&to=${to}`) as ConvertTimeZoneType;
     
     const newData: WordTimeListType = {
-      name: selectName,
+      name: from,
       from: data.fromZoneName,
       to: data.toZoneName,
       offset: data.offset

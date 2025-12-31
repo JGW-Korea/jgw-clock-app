@@ -1,17 +1,18 @@
 import { ListItem } from "@shared/ui";
+import type { WorldAppendHandler } from "../../model";
 
 interface Props {
   countryName: string;
   zoneName: string;
-  onAppendTimeList: (from: string, to: string) => void;
+  onClickAppendWorld: WorldAppendHandler;
 }
 
-export default function WorldBottomSheetListItem({ countryName, zoneName, onAppendTimeList }: Props) {
+export default function WorldBottomSheetListItem({ countryName, zoneName, onClickAppendWorld }: Props) {
   const name = zoneName.split("/").at(-1)?.replaceAll("_", " ") + ", " + countryName;
   
   return (
     <ListItem padding={0}>
-      <button onClick={() => onAppendTimeList(name, zoneName)}>
+      <button onClick={() => onClickAppendWorld(name, zoneName)}>
         {name}
       </button>
     </ListItem>
