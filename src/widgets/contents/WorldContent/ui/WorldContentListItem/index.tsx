@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { SwipeToDelete } from "../../../../features/swipe-to-delete";
 import styles from "./index.module.scss";
-import type { WordTimeListType } from "../../../../entities/world";
+import type { WordTimeListType } from "@entities/world";
+import { SwipeToDelete } from "@features/swipe-to-delete";
 
 interface Props {
   activeRef: React.RefObject<HTMLLIElement | null>;
@@ -11,7 +11,7 @@ interface Props {
   onEditModeActive: (type?: "click" | "swipe") => void;
 }
 
-export default function WorldListItem({ activeRef, world, editMode, onDeleteListItem, onEditModeActive }: Props) {
+export default function WorldContentListItem({ activeRef, world, editMode, onDeleteListItem, onEditModeActive }: Props) {
   const [day, setDay] = useState<string>("");
   const [target, setTarget] = useState<"PM" | "AM">("PM");
   const [time, setTime] = useState<string>("");

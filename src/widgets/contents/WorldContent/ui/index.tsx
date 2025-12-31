@@ -1,7 +1,7 @@
 import { useRef } from "react";
-import WorldListItem from "./WorldListItem";
 import style from "./index.module.scss";
-import type { WordTimeListType } from "../../../entities/world";
+import WorldContentListItem from "./WorldContentListItem";
+import type { WordTimeListType } from "@entities/world";
 
 interface Props {
   worldTimeList: WordTimeListType[];
@@ -21,7 +21,7 @@ export default function WorldContent({ worldTimeList, editMode, onDelete, onEdit
           : (
               <ul className={`${style["layout-list"]}`} style={{ width: "100%" }}>
                 {worldTimeList.map((world) => (
-                  <WorldListItem
+                  <WorldContentListItem
                     key={world.to}
                     activeRef={activeRef}
                     world={world}
