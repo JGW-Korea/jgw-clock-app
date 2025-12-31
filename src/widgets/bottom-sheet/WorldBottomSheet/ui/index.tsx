@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import styles from "./index.module.scss";
 import { BottomSheet } from "@shared/ui";
-import WorldSheetListItem from "./WorldSheetListItem";
+import WorldSheetListItem from "./WorldBottomSheetListItem";
 import type { TimeZoneListDataType, TimeZoneListType } from "../types/timeZone";
 
 interface Props {
