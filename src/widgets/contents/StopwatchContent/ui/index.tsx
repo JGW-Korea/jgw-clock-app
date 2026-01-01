@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
-import style from "./index.module.scss";
+import styles from "./index.module.scss";
 import StopWatchListItem from "./StopWatchListItem";
+import StopWatchButtonGroup from "./StopWatchButtonGroup";
 
 type Timer = { minutes: number, seconds: number, milliseconds: number };
 
@@ -76,8 +77,8 @@ export default function StopwatchContent() {
   }
 
   return (
-    <main className={style["conatinaer"]}>
-      <div className={style["timer-wrapper"]}>
+    <main className={styles["conatinaer"]}>
+      <div className={styles["timer-wrapper"]}>
         <time dateTime={`${String(Math.floor(timer.minutes / 60)).padStart(2, "0")}:${String(timer.minutes % 60).padStart(2, "0")}:${String(timer.seconds).padStart(2, "0")}.${String(timer.milliseconds).padStart(2, "0")}`}>
           <span>{String(timer.minutes).padStart(2, "0")}</span>
           :
@@ -87,14 +88,16 @@ export default function StopwatchContent() {
         </time>
       </div>
 
-      <div className={style["button-group"]}>
-        <button className={style["reset"]} style={{ display: !stopwatchMode ? "block" : "none" }} onClick={onResetStopwatch}>Reset</button>
-        <button className={style["start"]} style={{ display: !stopwatchMode ? "block" : "none" }} onClick={onStartStopwatch}>Start</button>
-        <button className={style["lap"]} style={{ display: stopwatchMode ? "block" : "none" }} onClick={addLap}>Lap</button>
-        <button className={style["stop"]} style={{ display: stopwatchMode ? "block" : "none" }} onClick={onStopStopwatch}>Stop</button>
-      </div>
+      <StopWatchButtonGroup
+        mode={stopwatchMode}
+        styles={styles}
+        onResetStopwatch={onResetStopwatch}
+        onStartStopwatch={onStartStopwatch}
+        onAppendLabStopwatch={addLap}
+        onStopStopwatch={onStopStopwatch}
+      />
 
-      <ul className={style["laps"]}>
+      <ul className={styles["laps"]}>
         {laps.map(({ minutes, seconds, milliseconds, id }) => (
           <StopWatchListItem
             key={id}
@@ -106,7 +109,6 @@ export default function StopwatchContent() {
           />
         ))}
       </ul>
-
     </main>
   );
 }
