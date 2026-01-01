@@ -78,6 +78,7 @@ export default function StopwatchContent() {
 
   return (
     <main className={styles["conatinaer"]}>
+      {/* Stopwatch가 지난 시간 */}
       <div className={styles["timer-wrapper"]}>
         <time dateTime={`${String(Math.floor(timer.minutes / 60)).padStart(2, "0")}:${String(timer.minutes % 60).padStart(2, "0")}:${String(timer.seconds).padStart(2, "0")}.${String(timer.milliseconds).padStart(2, "0")}`}>
           <span>{String(timer.minutes).padStart(2, "0")}</span>
@@ -88,6 +89,7 @@ export default function StopwatchContent() {
         </time>
       </div>
 
+      {/* Stopwatch의 실행을 제어할 버튼 그룹 컴포넌트 */}
       <StopWatchButtonGroup
         mode={stopwatchMode}
         styles={styles}
@@ -97,10 +99,12 @@ export default function StopwatchContent() {
         onStopStopwatch={onStopStopwatch}
       />
 
+      {/* Stopwatch의 기록을 나타내는 컴포넌트 */}
       <ul className={styles["laps"]}>
         {laps.map(({ minutes, seconds, milliseconds, id }) => (
           <StopWatchListItem
             key={id}
+            styles={styles}
             id={id}
             hours={id === laps.length ? String(Math.floor(currentTimer.minutes / 60)).padStart(2, "0") : String(Math.floor(minutes / 60)).padStart(2, "0")}
             minutes={id === laps.length ? String(currentTimer.minutes).padStart(2, "0") : String(minutes).padStart(2, "0")}
