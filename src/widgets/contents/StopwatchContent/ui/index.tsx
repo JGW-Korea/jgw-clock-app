@@ -2,6 +2,7 @@ import styles from "./index.module.scss";
 import StopWatchListItem from "./StopWatchListItem";
 import StopWatchButtonGroup from "./StopWatchButtonGroup";
 import { useStopwatch } from "../model";
+import StopwatchDisplay from "./StopwatchDisplay";
 
 export default function StopwatchContent() {
   const {
@@ -16,15 +17,12 @@ export default function StopwatchContent() {
   return (
     <main className={styles["conatinaer"]}>
       {/* Stopwatch가 지난 시간 */}
-      <div className={styles["timer-wrapper"]}>
-        <time dateTime={`${String(Math.floor(totalTime.minutes / 60)).padStart(2, "0")}:${String(totalTime.minutes % 60).padStart(2, "0")}:${String(totalTime.seconds).padStart(2, "0")}.${String(totalTime.milliseconds).padStart(2, "0")}`}>
-          <span>{String(totalTime.minutes).padStart(2, "0")}</span>
-          :
-          <span>{String(totalTime.seconds).padStart(2, "0")}</span>
-          .
-          <span>{String(totalTime.milliseconds).padStart(2, "0")}</span>
-        </time>
-      </div>
+      <StopwatchDisplay
+        styles={styles}
+        minutes={totalTime.minutes}
+        seconds={totalTime.seconds}
+        milliseconds={totalTime.milliseconds}
+      />
 
       {/* Stopwatch의 실행을 제어할 버튼 그룹 컴포넌트 */}
       <StopWatchButtonGroup
