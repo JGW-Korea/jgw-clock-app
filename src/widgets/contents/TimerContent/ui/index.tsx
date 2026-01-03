@@ -19,7 +19,7 @@ export default function TimerContent() {
   
   return (
     <main className={`${styles["container"]}`}>
-      <TimerDisplay styles={styles} timerState={timerState} progress={progress} />
+      <TimerDisplay styles={styles} hours={String(timerState.hours.value)} minutes={String(timerState.minutes.value)} seconds={String(timerState.seconds.value)} progress={progress} />
 
       <TimerButtonGroup
         styles={styles}
