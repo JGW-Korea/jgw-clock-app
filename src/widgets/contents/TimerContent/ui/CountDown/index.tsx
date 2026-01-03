@@ -1,4 +1,4 @@
-import type { TimerState } from "../useTimer";
+import type { TimerState } from "../../useTimer";
 
 interface Props {
   styles: CSSModuleClasses;

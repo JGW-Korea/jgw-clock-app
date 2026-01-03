@@ -1,4 +1,4 @@
-import type { TimerState } from "../useTimer";
+import type { TimerState } from "../../model/useTimer";
 
 interface Props {
   label: keyof TimerState;

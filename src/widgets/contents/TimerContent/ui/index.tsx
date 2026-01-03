@@ -1,7 +1,7 @@
+import { useTimer } from "../model/useTimer";
 import CountDown from "./CountDown";
 import styles from "./index.module.scss";
 import SelectTime from "./SelectTime";
-import { useTimer } from "./useTimer";
 
 export default function TimerContent() {
   const { 
