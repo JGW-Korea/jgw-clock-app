@@ -1,4 +1,4 @@
-import type { TimerState } from "../../useTimer";
+import type { TimerState } from "../../model";
 
 interface Props {
   styles: CSSModuleClasses;
@@ -6,7 +6,7 @@ interface Props {
   progress: number;
 }
 
-export default function CountDown({ styles, timerState, progress }: Props) {
+export default function TimerDisplay({ styles, timerState, progress }: Props) {
   const activeTicks = Math.ceil(60 * progress);
   
   return (

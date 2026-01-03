@@ -93,7 +93,7 @@ function reducer(state: TimerState, action: ActionType): TimerState {
   }
 }
 
-export function useTimer() {
+export default function useTimer() {
   const [timerState, dispatch] = useReducer(reducer, initalState);
   
   const [totalSeconds, setTotalSeconds] = useState<number>(0);

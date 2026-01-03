@@ -2,6 +2,7 @@ interface Props {
   className?: string;
   style?: React.CSSProperties;
   children?: React.ReactNode;
+  disabled?: boolean;
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
 }
 

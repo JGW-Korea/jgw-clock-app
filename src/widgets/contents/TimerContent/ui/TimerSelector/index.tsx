@@ -1,4 +1,4 @@
-import type { TimerState } from "../../model/useTimer";
+import type { TimerState } from "../../model";
 
 interface Props {
   label: keyof TimerState;
@@ -9,7 +9,7 @@ interface Props {
   decrement: (type: keyof TimerState) => void;
 }
 
-export default function SelectTime({ label, styles, decrementDisabled, incrementDisabled, increment, decrement }: Props) {
+export default function TimerSelector({ label, styles, decrementDisabled, incrementDisabled, increment, decrement }: Props) {
   return (
     <div className={`${styles["time-group__selector"]}`}>
       <button className={`${styles["decrement"]}`} disabled={decrementDisabled} onClick={() => decrement(label)} />
