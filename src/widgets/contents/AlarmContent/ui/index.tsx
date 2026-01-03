@@ -22,6 +22,7 @@ export default function AlarmContent({ editMode, onEditModeActive }: Props) {
               {alarmList.map((alarm) => (
                 <AlarmListItem
                   key={alarm.id}
+                  styles={styles}
                   editMode={editMode}
                   activeRef={activeRef}
                   onDeleteListItem={handleDeleteAlarm}
