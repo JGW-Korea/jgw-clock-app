@@ -1,4 +1,4 @@
-@use "../styles/variables" as *;
+@use "../variables" as *;
 
 $total: 60;
 $inner-angle: calc((360 / $total) * 1deg);

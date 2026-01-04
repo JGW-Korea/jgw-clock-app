@@ -1,6 +1,7 @@
-import { Picker, PickerWheel } from "@shared/picker";
-import { HOURS_LIST, HOURS_WHEEL, HOURS_TRACK, MERIDIEM_ITEMS, MINUTES_LIST, MINUTES_TRACK, MINUTES_WHEEL } from "../consts";
+import Picker from "./Picker";
+import PickerWheel from "./PickerWheel";
 import useTimePickerAnimation from "../model/useTimePickerAnimation";
+import { HOURS_LIST, HOURS_WHEEL, HOURS_TRACK, MERIDIEM_ITEMS, MINUTES_LIST, MINUTES_TRACK, MINUTES_WHEEL } from "../consts";
 
 interface Props {
   onPointerOver?: () => void;
