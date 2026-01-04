@@ -1,1 +1,1 @@
-export { default as useTimer, type TimerState } from "./useTimer";
+export { default as useTimer, type TimerState, type TimeUnit } from "./useTimer";

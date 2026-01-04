@@ -1,12 +1,12 @@
-import type { TimerState } from "../../model";
+import type { TimeUnit } from "../../model";
 
 interface Props {
-  label: keyof TimerState;
+  label: TimeUnit;
   styles: CSSModuleClasses;
   decrementDisabled: boolean;
   incrementDisabled: boolean;
-  increment: (type: keyof TimerState) => void;
-  decrement: (type: keyof TimerState) => void;
+  increment: (type: TimeUnit) => void;
+  decrement: (type: TimeUnit) => void;
 }
 
 export default function TimerSelector({ label, styles, decrementDisabled, incrementDisabled, increment, decrement }: Props) {

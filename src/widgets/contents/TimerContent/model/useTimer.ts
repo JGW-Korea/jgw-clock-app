@@ -1,164 +1,128 @@
-import { useEffect, useReducer, useState } from "react";
-
-type DummyType = { value: number, increment: boolean, decrement: boolean };
+import { useEffect, useRef, useState } from "react";
+import { timerNextTick } from "../lib";
 
 export interface TimerState {
-  hours: DummyType;
-  minutes: DummyType;
-  seconds: DummyType;
+  isActive: boolean;
+  isPaused: boolean;
+  hours: number;
+  minutes: number;
+  seconds: number;
 }
 
-type ActionType =
-  | { type: "RESET" }
-  | { type: "INCREMENT", payload: { type: keyof TimerState, value: number } }
-  | { type: "DECREMENT", payload: { type: keyof TimerState, value: number } }
-  | { type: "TICK" };
+export type TimeUnit = keyof Omit<TimerState, "isActive" | "isPaused">; // TimerState의 isActive | isPaused를 제외한 객체의 키를 타입으로 가지는 타입
 
-const initalState = { 
-  hours: { value: 0, increment: true, decrement: false },
-  minutes: { value: 0, increment: true, decrement: false },
-  seconds: { value: 0, increment: true, decrement: false },
+const timerInitalState: TimerState = {
+  isActive: false,
+  isPaused: false,
+  hours: 0,
+  minutes: 0,
+  seconds: 0,
 };
 
-function reducer(state: TimerState, action: ActionType): TimerState {
-  switch(action.type) {
-    case "RESET": {
-      return initalState;
-    }
+export default function useTimer() {
+  const totalSeconds = useRef<number>(0); // 전체 진행률을 계산하기 위한 참조 객체
+  const [timerState, setTimerState] = useState<TimerState>(timerInitalState);
 
-    case "INCREMENT": {
-      if(action.payload.type === "hours" && (action.payload.value >= 0 && action.payload.value < 23)) {
-        return {
-          ...state,
-          hours: { value: state.hours.value + 1, decrement: true, increment: !(state.hours.value + 1 === 23) }
-        }
-      } else if(action.payload.type === "minutes" && (action.payload.value >= 0 && action.payload.value < 59)) {
-        return {
-          ...state,
-          minutes: { value: state.minutes.value + 1, decrement: true, increment: !(state.minutes.value + 1 === 59) }
-        }
-      } else if(action.payload.type === "seconds" && (action.payload.value >= 0 && action.payload.value < 59)) {
-        return {
-          ...state,
-          seconds: { value: state.seconds.value + 1, decrement: true, increment: !(state.seconds.value + 1 === 59) }
-        }
-      }
-      
-      return state;
-    }
-    case "DECREMENT": {
-      if(action.payload.type === "hours" && (action.payload.value > 0 && action.payload.value <= 24)) {
-        return {
-          ...state,
-          hours: { value: state.hours.value - 1, decrement: !(state.hours.value - 1 === 0), increment: true }
-        }
-      } else if(action.payload.type === "minutes" && (action.payload.value > 0 && action.payload.value <= 60)) {
-        return {
-          ...state,
-          minutes: { value: state.minutes.value - 1, decrement: !(state.minutes.value - 1 === 0), increment: true }
-        }
-      } else if(action.payload.type === "seconds" && (action.payload.value > 0 && action.payload.value <= 60)) {
-        return {
-          ...state,
-          seconds: { value: state.seconds.value - 1, decrement: !(state.seconds.value - 1 === 0), increment: true }
-        }
-      }
-      
-      return state;
-    }
+  const currentTotal = (timerState.hours * 3600) + (timerState.minutes * 60) + timerState.seconds;
+  const progress = totalSeconds.current > 0 ? currentTotal / totalSeconds.current : 0;
 
-    case "TICK": {
-      let [hours, minutes, seconds] = [state.hours.value, state.minutes.value, state.seconds.value];
-
-      if(hours === 0 && minutes === 0 && seconds === 0) return state; // 시간을 설정하지 않은 경우 종료
-
-      if(seconds > 0) seconds -= 1;
-      else {
-        if(minutes > 0) {
-          minutes -= 1;
-          seconds = 59;
-        } else if(hours > 0) {
-          hours -= 1;
-          minutes = 59;
-          seconds = 59;
-        }
-      }
-
-      return {
-        hours: { ...state.hours, value: hours },
-        minutes: { ...state.minutes, value: minutes },
-        seconds: { ...state.seconds, value: seconds },
-      }
+  /**
+   * Timer가 활성화 되지 않은 상태에서 시간을 증가시키는 로직
+   * @param {TimeUnit} type - 상태의 값을 증가시킬 시간
+  */
+  const timerIncrement = (type: TimeUnit) => {
+    if(!timerState.isActive) {
+      setTimerState((prev) => ({
+        ...prev,
+        [type]: prev[type] + 1
+      }));
     }
   }
-}
 
-export default function useTimer() {
-  const [timerState, dispatch] = useReducer(reducer, initalState);
-  
-  const [totalSeconds, setTotalSeconds] = useState<number>(0);
-  const [timerStart, setTimerStart] = useState<boolean>(false);
+  /**
+   * Timer가 활성화 되지 않은 상태에서 시간을 감소시키는 로직
+   * @param {TimeUnit} type - 상태의 값을 증가시킬 시간
+  */
+  const timerDecrement = (type: TimeUnit) => {
+    if(!timerState.isActive) {
+      setTimerState((prev) => ({
+        ...prev,
+        [type]: prev[type] - 1
+      }));
+    }
+  }
 
-  const [isPaused, setIsPaused] = useState<boolean>(false);
+  /** Timer를 실행시키는 이벤트 핸들러 */
+  const handleStartTimer = () => {
+    if(currentTotal > 0) {
+      if(totalSeconds.current === 0) {
+        totalSeconds.current = currentTotal;
+      }
 
-  const currentTotal = (timerState.hours.value * 3600) + (timerState.minutes.value * 60) + timerState.seconds.value;
-  const progress = totalSeconds > 0 ? currentTotal / totalSeconds : 0;
+      setTimerState((prev) => ({
+        ...prev,
+        isActive: true,
+        isPaused: false,
+      }));
+    }
+  }
 
+  /** Timer를 중지시키는 이벤트 핸들러 */
+  const handleStopTimer = () => {
+    setTimerState((prev) => ({
+      ...prev,
+      isActive: false,
+      isPaused: true
+    }));
+  }
+
+  /** Timer를 초기화시키는 이벤트 핸들러 */
+  const handleResetTimer = () => {
+    setTimerState(timerInitalState);
+    totalSeconds.current = 0;
+  }
+
+  // 컴포넌트 마운트 + 의존성 배열 내용 변경 시 발생할 사이드 이펙트(side-effect)
   useEffect(() => {
     let intervalId: ReturnType<typeof setInterval>;
 
-    if(timerStart) {
+    // Timer를 실행시킨 이후에만 동작
+    if(timerState.isActive) {
+      let { hours, minutes, seconds } = timerState;
+      
       intervalId = setInterval(() => {
-        if(timerState.hours.value === 0 && timerState.minutes.value === 0 && timerState.seconds.value === 0) {
-          setTimerStart(false);
-          setTotalSeconds(0);
-          dispatch({ type: "RESET" });
+        if(hours === 0 && minutes === 0 && seconds === 0) {
+          setTimerState(timerInitalState);
+          totalSeconds.current = 0;
           return;
         }
 
-        dispatch({ type: "TICK" });
+        const nextTick = timerNextTick(hours, minutes, seconds);
+        hours = nextTick.hours;
+        minutes = nextTick.minutes;
+        seconds = nextTick.seconds;
+
+        setTimerState((prev) => ({
+          ...prev,
+          hours,
+          minutes,
+          seconds
+        }));
       }, 1000);
     }
 
     return () => {
       clearInterval(intervalId);
     }
-  }, [timerStart, timerState]);
+  }, [timerState.isActive]);
 
   return {
     timerState,
-    timerStart,
-    isPaused,
     progress,
-    increment(type: keyof TimerState) {
-      if(!timerStart) {
-        dispatch({ type: "INCREMENT", payload: { type, value: timerState[type].value } })
-      }
-    },
-    decrement(type: keyof TimerState) {
-      if(!timerStart) {
-        dispatch({ type: "DECREMENT", payload: { type, value: timerState[type].value } });
-      }
-    },
-    handleStart() {
-      if(currentTotal > 0) {
-        if(totalSeconds === 0) {
-          setTotalSeconds(currentTotal);
-        }
-
-        setTimerStart(true);
-        setIsPaused(false);
-      }
-    },
-    handleStop() {
-      setTimerStart(false);
-      setIsPaused(true);
-    },
-    handleReset() {
-      setTimerStart(false);
-      setIsPaused(false);
-      setTotalSeconds(0);
-      dispatch({ type: "RESET" });
-    }
-  }
+    timerIncrement,
+    timerDecrement,
+    handleStartTimer,
+    handleStopTimer,
+    handleResetTimer
+  };
 }
