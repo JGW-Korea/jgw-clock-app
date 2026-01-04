@@ -1,2 +1,2 @@
 export { default as useWorldTimeList } from "./useWorldTimeList";
-export type * from "./index.type";
+export type { ConvertTimeZoneType, TimeZoneListDataType, TimeZoneListType, WordTimeListType } from "./index.type";

@@ -1,2 +1,2 @@
-export * from "./model";
+export { AlarmContext, useAlarmList, type Weekday, type AlarmState, type AlarmData, type HandleAddAlarmFunction, type AlarmContextType } from "./model";
 export { default as AlarmProvider } from "./ui";
