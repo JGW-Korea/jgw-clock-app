@@ -1,15 +1,19 @@
-# ⏰ JGW Clock App
+## ⏰ JGW Clock App
 
 JGW Clock App은 iPhone 시계 앱을 모바일 화면 크기를 기준으로 제작된 웹앱 형태로 클론 코딩한 프로젝트입니다.
 
-# ⚙️ JGW Clock App - FE Skills
+<br />
+
+## ⚙️ JGW Clock App - FE Skills
 
 ||||||
 |--|--|--|--|--|
 |![React](/public/images/react.svg)|![TypeScript](/public/images/typescript.svg)|![SCSS](/public/images/sass.svg)|![Vite](/public/images/vite.svg)|![Vercel](/public/images/vercel.svg)|
 |React|TypeScript|SCSS|Vite|Vercel|
 
-# 📝 JGW Clock App - Documents
+<br />
+
+## 📝 JGW Clock App - Documents
 
 |문서|설명|
 |--|--|
