@@ -150,6 +150,7 @@ export default function AlarmContentListItem() {
 그래서 당연히 모든 레이어는 Slice -> Segment 구조를 가진다고 생각하고 개발을 진행했습니다. 그러나 현재 개발 중인 기능을 어느 레이어에 두어야 하는지 기준이 모호할 때마다 ChatGPT에 레이어 배치를 질문하고 했습니다. 그 과정에서 `App`, `Shared` 레이어에 위치해야 한다는 답변을 받는 경우 Slice를 생략한 채 곧바로 Segment 하위에 배치했습니다. 처음에는 단순히 요약 과정에서 누락되었거나 잘못 안내된 것이라 생각해서 다음과 같이 디렉토리 구조를 구성했습니다.
 
 ```md
+# 기존에 잘못 이해하고 진행한 FSD 아키텍처 구조
 src/
 ├─ app/
 │  └─ app-slice-a/
@@ -176,6 +177,7 @@ src/
 이후 프로젝트의 기능을 마무리 후 FSD 아키텍처 구조에 대해 추가로 구글링하던 중, [Feature-Sliced Deisgn 공식 문서](https://feature-sliced.design/kr/docs/get-started/overview#layers)를 확인하게 되었습니다. 공식 문서의 설명과 예시를 살펴본 결과 App과 Shared 레이어는 Slice를 사용하지 않고 Segment 단위로만 구성된다는 점을 확인할 수 있었습니다. 이에 따라, 불필요하게 깊어진 디렉토리 구조를 개선하기 위해 공식 문서에서 제시하는 방식에 맞춰 리팩토링을 진행했습니다.
 
 ```md
+# 리팩토링을 통해 개선된 FSD 아키텍처 구조
 src/
 ├─ app/
 │  ├─ layout/
@@ -201,9 +203,51 @@ src/
 
 <br />
 
-## II. 기존 코드 스타일과 FSD 규칙 사이의 간극
+## II. FSD 레이어 원칙 적용 시 상태 소유권 분리에 대한 고민
 
-## III. FSD 레이어 원칙 적용 시 상태 소유권 분리에 대한 고민
+Stopwatch의 시작, 중단, 기록, 초기화 기능을 제어하는 버튼들은 초기 구현 단계에서 Stopwatch 컴포넌트 내부 로직에 함께 구현했습니다. 그러나 프로젝트를 완성한 이후 리팩토링을 진행하면서, Stopwatch를 제어하는 이 버튼들의 책임과 상태를 어떤 레이어에서 소유하는 것이 적절한지에 대한 고민을 하게 되었습니다.
+
+이는 상태를 `widgets/content/StopwatchContent` 슬라이스 그룹에서 소유하고 있었기 때문입니다. 따라서 처음에는 다음 코드와 같이, FSD 아키텍처의 각 레이어 의미에 맞추어 리팩토링을 진행했습니다.
+
+```md
+src/
+├─ entities/
+│  └─ stopwatch/
+│     └─ model/
+│        ├─ index.ts
+│        └─ stopwatch.type.ts            # Stopwatch 도메인에서 사용하는 상태 및 데이터 타입 정의
+│
+├─ features/
+│  └─ stopwatch-contorls/                # Stopwatch를 제어하는 사용자 인터랙션(시작, 중단, 기록, 초기화) UI 컴포넌트
+│     └─ ui/
+│        ├─ StartStopwatchButton.tsx
+│        ├─ StopStopwatchButton.tsx
+│        ├─ RecordStopwatchButton.tsx
+│        ├─ ResetStopwatchButton.tsx
+│        └─ index.ts
+│
+├─ widgets/
+│  └─ contents/
+│     └─ StopwatchContent/
+│        ├─ model/
+│        │  ├─ index.ts
+│        │  └─ useStopwatch.ts           # Stopwatch 화면에서 사용되는 상태와 제어 로직을 관리하는 훅
+│        └─ ui/
+│           └─ index.tsx
+```
+
+```tsx
+```
+
+```tsx
+```
+
+```tsx
+```
+
+
+
+Stopwatch의 시작, 중단, 기록, 초기화 기능을 제어하는 버튼들을 처음에는 StopwatchContent 컴포넌트 로직에 기능을 구현했습니다. 이후, 프로젝트를 완성하고 난 뒤 리팩토링을 진행을 할 때 이 Stopwatch를 제어하는 버튼들을 어떻게 관리할 지 고민을 했습니다.
 
 - stopwatch를 제어하는 컴포넌트 설계를 featuers에다가 해야될 지 widgets에 해야될 지 모르는 상황
 - 왜냐하면 featuers 레이어 자체는 사용자의 인터랙션을 통해 기능이 변경되는 로직이 있고, widgets에는 상태를 정의하는 로직이 있기 때문에
