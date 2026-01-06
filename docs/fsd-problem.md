@@ -237,23 +237,166 @@ src/
 ```
 
 ```tsx
+// entities/stopwatch/model/stopwatch.type.ts
+export interface StopwatchTimer {
+  minutes: number;
+  seconds: number;
+  milliseconds: number;
+}
+
+export type Lap = { id: number } & StopwatchTimer;
+
+export interface StopwatchState {
+  mode: boolean;                // Stopwatch 활성화 여부
+  totalTime: StopwatchTimer;    // Stopwatch Display에 출력되는 전체 시간 상태
+  currentTime: StopwatchTimer;  // N번째 기록에 기록될 시간 상태
+}
 ```
 
 ```tsx
+// features/stopwatch-controls/ui/StartStopwatchButton.tsx
+export default function StartStopwatchButton({ className, style, onStartStopwatch }: Props) {
+  return (
+    <Button
+      className={className}
+      style={style}
+      onClick={onStartStopwatch}
+      children={"Start"}
+    />
+  )
+}
+
+// -> Stop, Record, Reset은 코드는 StartStopwatchButton과 모두 동일하기 때문에 하나의 컴포넌트만 구성하는 것도 생각했습니다.
+export default function StopwatchControlButton({ className, style, onStopwatchControl, label }: Props) {
+  return (
+    <Button
+      className={className}
+      style={style}
+      onClick={onStopwatchControl}
+      children={label}
+    />
+  )
+}
 ```
 
 ```tsx
+// widgets/contents/StopwatchContent/model/useStopwatch.ts
+export default function useStopwatch() {
+  const stopwatchIntervalId = useRef<number>(0); // 리렌더링 간에 intervalId를 유지시키기 위해 ref 객체 선언
+  const [stopwatch, setStopwatch] = useState<StopwatchState>({
+    mode: false,
+    totalTime: { minutes: 0, seconds: 0, milliseconds: 0 },
+    currentTime: { minutes: 0, seconds: 0, milliseconds: 0 },
+  });
+  const [laps, setLaps] = useState<Lap[]>([]);
+
+  const handleStartStopwatch = () => { ... };    // Stopwatch 시작 이벤트 핸들러
+  const handleStopStopwatch = () => { ... };     // Stopwatch 중단 이벤트 핸들러
+  const handleResetStopwatch = () => { ... };    // Stopwatch 초기화 이벤트 핸들러
+  const handleRecordStopwatch = () => { ... };   // Stopwatch 기록 이벤트 핸들러
+
+  return {
+    ...
+  }
+}
 ```
 
+위와 같이 기존에 StopwatchContent 컴포넌트 내부에 함께 존재하던 상태 관리 로직을 FSD 아키텍처 구조에 맞게 분리하였지만, 개인적으로는 다음과 같은 이유로 다소 불편함을 느꼈습니다.
 
+- 상태를 소유하고 있는 컴포넌트와 상태 타입의 정의 위치가 분리되어 있어, 상태 구조를 수정할 때마다 Entities 레이어의 타입 파일로 이동해야 하는 점이 다소 번거롭게 느껴졌습니다.
+- StopwatchContent에서 상태를 선언한 뒤, 상태 제어 로직을 단순히 Props로 전달하는 구조로 동작하다 보니, Features 레이어에서는 사실상 ui 세그먼트만 필요하게 되어 디렉토리 깊이만 불필요하게 깊어지는 인상을 받았습니다.
+- 그렇다고 Shared 레이어에 stopwatch-controls 버튼 컴포넌트들을 배치하기에는, 전역적으로 재사용되는 UI가 아니기 때문에 오히려 FSD 아키텍처의 레이어 원칙을 위반한다고 느꼈습니다.
+- 또한 상태 업데이트 함수(setState)를 그대로 전달하는 구조로 변경하여 model 세그먼트를 두기에는, 상태를 소유한 쪽이 아닌 Props를 전달받은 쪽에서 상태를 제어하게 되어 상태 소유권의 경계가 흐려지는 느낌이 들었습니다.
 
-Stopwatch의 시작, 중단, 기록, 초기화 기능을 제어하는 버튼들을 처음에는 StopwatchContent 컴포넌트 로직에 기능을 구현했습니다. 이후, 프로젝트를 완성하고 난 뒤 리팩토링을 진행을 할 때 이 Stopwatch를 제어하는 버튼들을 어떻게 관리할 지 고민을 했습니다.
+이러한 불편함들로 인해, FSD 아키텍처 원칙에 따라 컴포넌트 구조를 설계할 경우 오히려 필요 이상으로 코드가 분리된다는 인상을 받았습니다. 이로 인해, `widgets/contents/StopwatchContent` 내부에서 상태 소유권과 제어 책임을 다른 레이어로 분리하지 않고 함께 관리하는 구조가 더 관리하기 용이하다고 판단하여, 최종적으로 분리하지 않는 방향으로 구조를 구성하게 되었습니다.
 
-- stopwatch를 제어하는 컴포넌트 설계를 featuers에다가 해야될 지 widgets에 해야될 지 모르는 상황
-- 왜냐하면 featuers 레이어 자체는 사용자의 인터랙션을 통해 기능이 변경되는 로직이 있고, widgets에는 상태를 정의하는 로직이 있기 때문에
-- 하지만, FSD 아키텍처의 레이어 자체의 원칙대로 컴포넌트 구조를 설계할 경우 다음과 같은 문제가 발생했음
-  - 불필요한 정도로 코드가 분리됨
-  - 상태 정의는 widgets에서 되고 있고, 상태 업데이트(setState) 함수는 넘겨줘야 하는 구조가 발생함
-  - 그렇다고 상태도 featuers에서 할 경우에는 Props는 단방향(부모 -> 자식) 구조이기 떄문에 이를 역방향으로 하기 위해서는 전역 상태를 이용해야 됨
-  - 또한, 로직을 widgets에서 정의하고 featuers에 넘기는 구조가 되면 featuers에는 컴포넌트 로직만 있기 때문에 featuers 레이어 역할에 충실하지 못하게 됨
-- 위 같은 문제로 인해서 상태를 선언한 widgets에서 상태를 제어하는 로직까지 가지게 만들어서 상태 소유권과 제어 책임을 분리시키지 않는 구조로 진행함
+```md
+# 최종 StopwatchContent 디렉토리 구조
+src/
+├─ widgets/
+│  └─ contents/
+│     └─ StopwatchContent/
+│        ├─ model/
+│        │  ├─ index.ts
+│        │  └─ useStopwatch.ts
+│        │
+│        └─ ui/
+│           ├─ StopwatchDisplay/
+│           │  └─ index.tsx
+│           │
+│           ├─ StopwatchButtonGroup/
+│           │  └─ index.tsx
+│           │
+│           ├─ StopwatchListItem/
+│           │  └─ index.tsx
+│           │
+│           └─ index.tsx
+```
+
+```tsx
+// widgets/contents/StopwatchContent/model/useStopwatch.ts
+export default function useStopwatch() {
+  const stopwatchIntervalId = useRef<number>(0); // 리렌더링 간에 intervalId를 유지시키기 위해 ref 객체 선언
+  const [stopwatch, setStopwatch] = useState<StopwatchState>({
+    mode: false,
+    totalTime: { minutes: 0, seconds: 0, milliseconds: 0 },
+    currentTime: { minutes: 0, seconds: 0, milliseconds: 0 },
+  });
+  const [laps, setLaps] = useState<Lap[]>([]);
+
+  const handleStartStopwatch = () => { ... };    // Stopwatch 시작 이벤트 핸들러
+  const handleStopStopwatch = () => { ... };     // Stopwatch 중단 이벤트 핸들러
+  const handleResetStopwatch = () => { ... };    // Stopwatch 초기화 이벤트 핸들러
+  const handleRecordStopwatch = () => { ... };   // Stopwatch 기록 이벤트 핸들러
+
+  return {
+    ...
+  }
+}
+```
+
+```tsx
+// widgets/contents/StopwatchContent/ui/StopwatchButtonGroup
+export default function StopWatchButtonGroup({ styles, mode, onResetStopwatch, onStartStopwatch, onAppendLabStopwatch, onStopStopwatch }: Props) {
+  return (
+    <div className={`${styles["button-group"]}`}>
+      <Button className={`${styles["reset"]}`} style={{ display: !mode ? "block" : "none" }} onClick={onResetStopwatch} children={"Reset"} />
+      <Button className={`${styles["start"]}`} style={{ display: !mode ? "block" : "none" }} onClick={onStartStopwatch} children={"Start"} />
+      <Button className={`${styles["lap"]}`} style={{ display: mode ? "block" : "none" }} onClick={onAppendLabStopwatch} children={"Lap"} />
+      <Button className={`${styles["stop"]}`} style={{ display: mode ? "block" : "none" }} onClick={onStopStopwatch} children={"Stop"} />
+    </div>
+  );
+}
+```
+
+```tsx
+// widgets/contents/StopwatchContent/ui
+export default function StopwatchContent() {
+  const {
+    stopwatch: { mode, totalTime, currentTime },
+    laps,
+    handleStartStopwatch,
+    handleStopStopwatch,
+    handleResetStopwatch,
+    handleRecordStopwatch
+  } = useStopwatch();
+
+  return (
+    <main className={styles["conatinaer"]}>
+      {/* Stopwatch가 지난 시간 */}
+
+      {/* Stopwatch의 실행을 제어할 버튼 그룹 컴포넌트 */}
+      <StopWatchButtonGroup
+        mode={mode}
+        styles={styles}
+        onResetStopwatch={handleResetStopwatch}
+        onStartStopwatch={handleStartStopwatch}
+        onAppendLabStopwatch={handleRecordStopwatch}
+        onStopStopwatch={handleStopStopwatch}
+      />
+
+      {/* Stopwatch의 기록을 나타내는 컴포넌트 */}
+    </main>
+  );
+}
+```
