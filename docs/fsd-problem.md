@@ -27,7 +27,7 @@ FSD 아키텍처에서는 Process 레이어가 더 이상 권장하지 않기 �
 
 각 레이어는 위와 같이 명확한 규칙과 역할을 기반으로 정의되어 있습니다. 그리고 블로그 포스트를 살펴보면, 다음과 같은 이미지가 있습니다.
 
-![fSD-hierarchical](/public/images/fsd-hierarchical.png);
+![fSD-hierarchical](/public/images/fsd-hierarchical.png)
 
 당시에는 앞서 설명한 FSD 아키텍처의 레이어별 의미와 작성 규칙을 충분히 숙지하지 않은 상태에서 프로젝트를 진행했기 때문에, 이 이미지만 보고 디렉토리 구조를 해석하게 되었습니다. 그 결과, App 레이어를 제외한 나머지 레이어를 단순히 **Atomic Deisgn System과 유사한 계층적 컴포넌트 구조**로 설계하면 된단고 판단했고, 아래와 같은 디렉토리 구조로 프로젝트를 구성하게 되었습니다.
 
@@ -144,6 +144,60 @@ export default function AlarmContentListItem() {
 <br />
 
 **② 모든 레이어가 Slice -> Segment 구조를 가진다고 잘못 이해한 문제**
+
+프로젝트를 진행하면서 계속 참고했던 블로그 ["(번역) 기능 분할 설계 - 최고의 프론트엔드 아키텍처"](https://emewjin.github.io/feature-sliced-design/) 포스트는 2024-02-01에 게시된 자료이며, 공식 문서가 아닌 해외 개발 글을 번역한 내용이었습니다. 따라서 해당 내용이 당시 공식 문서의 원칙과 완전히 동일한지, 혹은 문서 기준이 변경된 결과인지는 정확히 판단하기 어렵지만, 해당 포스트에는 `App`, `Shared` 레이어에서 Slice를 사용하지 않는다는 내용이 명확히 언급되어 있지 않았습니다.
+
+그래서 당연히 모든 레이어는 Slice -> Segment 구조를 가진다고 생각하고 개발을 진행했습니다. 그러나 현재 개발 중인 기능을 어느 레이어에 두어야 하는지 기준이 모호할 때마다 ChatGPT에 레이어 배치를 질문하고 했습니다. 그 과정에서 `App`, `Shared` 레이어에 위치해야 한다는 답변을 받는 경우 Slice를 생략한 채 곧바로 Segment 하위에 배치했습니다. 처음에는 단순히 요약 과정에서 누락되었거나 잘못 안내된 것이라 생각해서 다음과 같이 디렉토리 구조를 구성했습니다.
+
+```md
+src/
+├─ app/
+│  └─ app-slice-a/
+│     └─ segment/
+├─ pages/
+│  └─ page-slice-b/
+│     └─ segment/
+├─ widgets/
+│  └─ widget-slice-c/
+│     └─ segment/
+├─ features/
+│  └─ feature-slice-d/
+│     └─ segment/
+├─ entities/
+│  └─ entity-slice-e/
+│     └─ segment/
+├─ shared/
+│  └─ shared-slice-f/
+│     └─ segment/
+```
+
+하지만 개발을 진행하면서 Shared 레이어에 위치한, 여러 페이지에서 재사용되는 Button, Header와 같은 컴포넌트들이 전달된 Props를 통해서만 동작하는 순수 UI 컴포넌트임에도 불구하고, Slice -> Segment 단위로 구조를 구성하다 보니 실제로는 사용되지 않는 디렉토리 구조(예:  `shared/button/ui/index.tsx`)로 인해 디렉토리 구조의 깊이(Depth)가 불필요하게 깊어지고 있다고 판단했습니다.
+
+이후 프로젝트의 기능을 마무리 후 FSD 아키텍처 구조에 대해 추가로 구글링하던 중, [Feature-Sliced Deisgn 공식 문서](https://feature-sliced.design/kr/docs/get-started/overview#layers)를 확인하게 되었습니다. 공식 문서의 설명과 예시를 살펴본 결과 App과 Shared 레이어는 Slice를 사용하지 않고 Segment 단위로만 구성된다는 점을 확인할 수 있었습니다. 이에 따라, 불필요하게 깊어진 디렉토리 구조를 개선하기 위해 공식 문서에서 제시하는 방식에 맞춰 리팩토링을 진행했습니다.
+
+```md
+src/
+├─ app/
+│  ├─ layout/
+│  ├─ provider/
+│  ├─ routers/
+│  ├─ styles/
+│  ├─ types/
+│  └─ App.tsx
+├─ pages/
+│  └─ ...
+├─ widgets/
+│  └─ ...
+├─ features/
+│  └─ ...
+├─ entities/
+│  └─ ...
+├─ shared/
+│  ├─ assets/
+│  ├─ model/
+│  ├─ styles/
+│  └─ ui/
+```
 
 <br />
 
