@@ -1,4 +1,4 @@
-![problem](/public/images/problem.webp)
+![problem](./images/problem.webp)
 
 > ☝️ 이 문서는 FSD 아키텍처를 도입하는 과정에서 개인적으로 경험한 문제점과, 이를 어떻게 해결했는지를 정리한 문서입니다.
 
@@ -27,7 +27,7 @@ FSD 아키텍처에서는 Process 레이어가 더 이상 권장하지 않기 �
 
 각 레이어는 위와 같이 명확한 규칙과 역할을 기반으로 정의되어 있습니다. 그리고 블로그 포스트를 살펴보면, 다음과 같은 이미지가 있습니다.
 
-![fSD-hierarchical](/public/images/fsd-hierarchical.png)
+![fSD-hierarchical](./images/fsd-hierarchical.png)
 
 당시에는 앞서 설명한 FSD 아키텍처의 레이어별 의미와 작성 규칙을 충분히 숙지하지 않은 상태에서 프로젝트를 진행했기 때문에, 이 이미지만 보고 디렉토리 구조를 해석하게 되었습니다. 그 결과, App 레이어를 제외한 나머지 레이어를 단순히 **Atomic Deisgn System과 유사한 계층적 컴포넌트 구조**로 설계하면 된단고 판단했고, 아래와 같은 디렉토리 구조로 프로젝트를 구성하게 되었습니다.
 

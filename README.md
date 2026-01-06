@@ -8,7 +8,7 @@ JGW Clock App은 iPhone 시계 앱을 모바일 화면 크기를 기준으로 �
 
 ||||||
 |--|--|--|--|--|
-|![React](/public/images/react.svg)|![TypeScript](/public/images/typescript.svg)|![SCSS](/public/images/sass.svg)|![Vite](https://www.svgrepo.com/show/354521/vitejs.svg)|![Vercel](/public/images/vercel.svg)|
+|![React](/public/icons/react.svg)|![TypeScript](/public/icons/typescript.svg)|![SCSS](/public/icons/sass.svg)|![Vite](https://www.svgrepo.com/show/354521/vitejs.svg)|![Vercel](/public/icons/vercel.svg)|
 |React|TypeScript|SCSS|Vite|Vercel|
 
 <br />

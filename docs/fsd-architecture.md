@@ -1,4 +1,4 @@
-![FSD Archiecture](/public/images/fsd-architecture.png)
+![FSD Archiecture](./images/fsd-architecture.png)
 
 > ☝️ 이 문서는 이전 프로젝트에서 사용하던 디렉토리 구조로 인해 발생한 문제를 바탕으로, 이번 Clock 프로젝트에서 FSD 아키텍처를 도입하게 된 이유를 정리한 문서입니다.
 
@@ -228,7 +228,7 @@ function Header() {
 
 <br />
 
-![FSD 계층 구조](/public/images/fsd-layer.png)
+![FSD 계층 구조](./images/fsd-layer.png)
 
 FSD 아키텍처는 디렉토리를 App -> Process -> Pages -> Widgets -> Features -> Entities -> Shared 레이어로 구성하고, 각 레이어 간의 접근을 제한함으로써 책임과 의존성의 방향을 명확히 합니다. 또한 각 레이어 내부의 슬라이스와 세그먼트 단위로 나누어, 구조적으로 명확한 의미와 역할을 가지도록 설계된 아키텍처입니다.
 
