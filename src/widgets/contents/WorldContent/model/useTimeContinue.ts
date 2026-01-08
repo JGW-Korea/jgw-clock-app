@@ -19,7 +19,7 @@ export default function useTimeContinue(world: WordTimeListType) {
     target: "AM",
     time: ""
   });
-  const intervalIdRefs = useRef<number[]>([]);
+  const intervalIdRefs = useRef<ReturnType<typeof setInterval>>(0);
 
   // 현재 시간대와 사용자가 지정한 각 도시의 시간대의 차이를 계산하는 로직
   // 각 도시마다 일정 간격 동안 시간대를 계산하는 로직
@@ -33,18 +33,26 @@ export default function useTimeContinue(world: WordTimeListType) {
     const timerId = setTimeout(() => {
       updateTime(world, setTimeStatus);
       
+      console.log(`${world.from} -> ${world.to} timer start`);
+
       const intervalId = setInterval(() => {
+        console.log(`${world.from} -> ${world.to}: ${intervalId}`);
+        
         updateTime(world, setTimeStatus);
       }, 1000 * 60);
-      intervalIdRefs.current.push(intervalId);
+
+      // intervalIdRefs.current = intervalId;
+      (window as any)._intervalId = intervalId;
     }, delay);
 
     return () => {
       clearTimeout(timerId);
-      if(intervalIdRefs.current.length) {
-        intervalIdRefs.current.forEach((id) => {
-          clearInterval(id);
-        });
+      
+      console.log(`(window) ${world.from} -> ${world.to}: ${(window as any)._intervalId}`);
+      
+      if((window as any)._intervalId > 0) {
+        clearInterval((window as any)._intervalId);
+        // clearInterval(intervalIdRefs.current);
       }
     }
   }, []);

@@ -189,9 +189,72 @@ export function updateTime(world: WordTimeListType, setState: React.Dispatch<Rea
 
 **③ `setInterval` 타이머 식별자를 전역 변수 대신 참조 객체로 관리하도록 수정**
 
+가비지 컬렉션(Garbage Collection)은 JavaScript 엔진이 메모리에 할당된 객체 중 더 이상 참조되지 않은 데이터를 자동으로 해제해주는 기능입니다. 그러나 `setTimeout`이나 `setInterval`과 같이 콜백 함수가 등록된 타이머는 실행 흐름이 유지되는 동안 참조가 남아 있기 때문에, 명시적으로 해제하지 않는 한 가비지 컬렉션의 대상이 되지 않습니다.
 
-- ~~UTC 기준으로 offset을 더해 수동으로 지역 시간을 계산~~
-- ~~AM / PM, 시·분을 각각 상태로 분리해 관리~~
-- ~~Intl.DateTimeFormat은 날짜 문자열 비교용으로만 제한적으로 사용~~
-- ~~날짜 비교(Today / Tomorrow / Yesterday)를 문자열 합산 방식으로 처리~~
-- interval을 window 전역에 보관하여 정리
+다만, MPA(Multi Page Application) 방식의 애플리케이션에서는 페이지 전환 시마다 새로운 실행 컨텍스트가 생성되고, 기존 페이지의 JavaScript 실행 컨텍스트는 종료됩니다. 이 과정에서 더 이상 참조되지 않는 타이머 역시 함께 정리되므로, setInterval을 사용하더라도 페이지 이동과 함께 가비지 컬렉션의 대상이 됩니다.
+
+반면 현재 진행 중인 Clock 프로젝트와 같이 SPA(Single Page Application) 방식의 애플리케이션은 페이지 전환 시 실제 HTML 문서가 변경되지 않고, 단일 실행 컨텍스트 내에서 JavaScript 로직과 DOM 구조만 갱신됩니다. 이로 인해 컴포넌트가 언마운트되더라도 setInterval이 명시적으로 해제되지 않으면 참조가 유지되어 가비지 컬렉션의 대상이 되지 않고, 메모리 누수로 이어질 수 있습니다. 그래서 처음 로직을 작성을 했을때는 다음 코드와 같이 타이머 식별자를 전역 변수로 관리하여, 컴포넌트 언마운트 시 클린업 대상에 포함되도록 처리했습니다.
+
+```tsx
+// 기존에 작성된 컴포넌트 마운트 시 side-effect 로직
+useEffect(() => {
+  // ...시간 갱신 로직...
+
+  return () => {
+    clearTimeout(timeoutId); // delay 시간이 경과하기 전에 사용자가 라우트를 이동할 수 있으므로 타이머를 명시적으로 해제
+    
+    // delay 이후 interval 식별자가 생성된 경우를 대비해 남아 있는 interval을 명시적으로 해제
+    if((window as any)._worldTimeIntervalId) {
+      clearInterval((window as any)._worldTimeIntervalId);
+    }
+  }
+}, []);
+```
+
+하지만 이와 같이 타이머 식별자를 전역 변수로 관리할 경우, 다음과 같은 문제점이 발생할 수 있다고 판단했습니다.
+
+- 전역 변수에 타이머 식별자를 저장하면 여러 개의 `setInterval`이 생성되는 상황에 마지막으로 생성된 타이머 식별자로 값이 덮어써지게 되어, 이전에 생성된 타이머는 정상적으로 해제할 수 없는 문제점
+- 또한 전역 변수는 SPA(Single Page Application) 구조에서는 탭이 닫히기 전까지 전역 스코프에 유지되므로, 컴포넌트 생명주기와 무관하게 전역 변수가 메모리에 유지되는 문제점
+
+나열한 문제점들이 실제 동작에서도 동일하게 발생하는지 확인하기 위해, 다음과 같이 `setInterval` 콜백 실행 시점과 컴포넌트가 언마운트되어 클린업 함수가 호출되는 시점의 동작을 `console` 객체를 활용해 출력 디버깅을 진행했습니다.
+
+```tsx
+// 나열한 문제점들이 실제 동작에서도 동일하게 발생하는지 확인하기 위한 로직
+useEffect(() => {
+  // ...시간 갱신 로직...
+  
+  const timeoutId = setTimeout(() => {
+    // ...시간 갱신 로직...
+    console.log(`${world.from} -> ${world.to} timer start`); // delay 이후 estInterval 타이머 시작 시점 출력
+
+    const intervalId = setInterval(() => {
+      console.log(`${world.from} -> ${world.to}: ${intervalId}`); // 1분 간격으로 실행되는 interval의 타이머 식별자 출력
+      // ...시간 갱신 로직...
+    }, 1000 * 60);
+
+    // setInterval 콜백 함수 내부에서 식별자를 관리하면 콜백 실행마다 동일한 값으로 갱신되므로,
+    // setInterval 호출 직후에 타이머 식별자를 전역 변수에 등록
+    (window as any)._worldTimeIntervalId;
+  }, delay);
+
+  return () => {
+    clearTimeout(timeoutId);
+    
+    console.log(`(window) ${world.from} -> ${world.to}: ${(window as any)._intervalId}`); // 컴포넌트 언마운트 시점에 전역 변수에 저장된 setInterval 식별자 출력
+
+    if((window as any).__worldTimeIntervalId) {
+      clearInterval((window as any).__worldTimeIntervalId);
+    }
+  }
+}, []);
+```
+
+코드를 작성한 이후, 개발자 도구를 통해 다음과 같이 로그가 출력되는 것을 확인할 수 있었습니다.
+
+```md
+```
+
+> 위 코드 블록은 출력된 결과를 보기 좋게 Markdown 형식으로 작성한 내용입니다. 실제 이미지 출력은 [여기서](./images/timer-log.png) 확인할 수 있습니다.
+
+이미지를 확인하면 알 수 있듯이 제가 생각했던 문제와 동일하게 
+
