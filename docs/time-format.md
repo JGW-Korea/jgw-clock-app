@@ -346,4 +346,4 @@ Asia/Seoul -> Africa/Bissau: 13
 # 라우트 이동 이후 1분이 경과하더라도 clearInterval로 인해 추가 로그가 출력되지 않음
 ```
 
-> 위 코드 블록은 실제 출력된 로그를 보기 쉽게 Markdown 형식으로 정리한 내용입니다. 실제 개발자 도구에서의 출력 화면은 [여기](./images/timer-log(useRef).png)에서 확인할 수 있으며, 1분이 경과한 이후 추가 로그가 출력되지 않는 모습은 이 [영상](./videos/timer-log-setInterval.mov)을 통해 확인할 수 있습니다.
+> 위 코드 블록은 실제 출력된 로그를 보기 쉽게 Markdown 형식으로 정리한 내용입니다. 실제 개발자 도구에서의 출력 화면은 [여기](./images/timer-log(useRef).png)에서 확인할 수 있으며, 1분이 경과한 이후 추가 로그가 출력되지 않는 모습은 이 [영상](./videos/timer-log-setInterval.mov) 파일을 다운받아 확인할 수 있습니다.
