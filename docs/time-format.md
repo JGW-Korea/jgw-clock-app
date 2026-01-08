@@ -225,7 +225,7 @@ useEffect(() => {
   
   const timeoutId = setTimeout(() => {
     // ...시간 갱신 로직...
-    console.log(`${world.from} -> ${world.to} timer start`); // delay 이후 estInterval 타이머 시작 시점 출력
+    console.log(`${world.from} -> ${world.to} timer start`); // delay 이후 setInterval 타이머 시작 시점 출력
 
     const intervalId = setInterval(() => {
       console.log(`${world.from} -> ${world.to}: ${intervalId}`); // 1분 간격으로 실행되는 interval의 타이머 식별자 출력
@@ -242,8 +242,8 @@ useEffect(() => {
     
     console.log(`(window) ${world.from} -> ${world.to}: ${(window as any)._intervalId}`); // 컴포넌트 언마운트 시점에 전역 변수에 저장된 setInterval 식별자 출력
 
-    if((window as any).__worldTimeIntervalId) {
-      clearInterval((window as any).__worldTimeIntervalId);
+    if((window as any)._worldTimeIntervalId) {
+      clearInterval((window as any)._worldTimeIntervalId);
     }
   }
 }, []);
@@ -252,9 +252,98 @@ useEffect(() => {
 코드를 작성한 이후, 개발자 도구를 통해 다음과 같이 로그가 출력되는 것을 확인할 수 있었습니다.
 
 ```md
+# setInterval 타이머 시작 시점 로그 결과
+Asia/Seoul -> Africa/Addis_ababa timer start
+Asia/Seoul -> Africa/Accra timer start
+Asia/Seoul -> Africa/Bamoke timer start
+Asia/Seoul -> Africa/Bissau timer start
+
+# 1분 간격으로 실행되는 setInterval 콜백 함수 내부 로그 결과 (타이머 식별자 출력)
+Asia/Seoul -> Africa/Addis_ababa: 11
+Asia/Seoul -> Africa/Accra: 12
+Asia/Seoul -> Africa/Bamoke: 13
+Asia/Seoul -> Africa/Bissau: 14
+
+# 라우트 이동으로 인해 컴포넌트가 언마운트되며 클린업 로직이 수행될 때의 로그 결과
+# (마지막으로 생성된 타이머 식별자로 값이 덮어씌여 모두 동일한 식별자를 출력)
+(window) Asia/Seoul -> Africa/Addis_ababa: 14
+(window) Asia/Seoul -> Africa/Accra: 14
+(window) Asia/Seoul -> Africa/Bamoke: 14
+(window) Asia/Seoul -> Africa/Bissau: 14
+
+# 라우트 이동 이후 아무 동작 없이 1분이 경과했을 때의 로그 결과
+# (setInterval 콜백 함수 내부에서는 클로저로 인해 intervalId 참조를 유지하고 있기 때문에 처음 동작과 동일하게 출력)
+Asia/Seoul -> Africa/Addis_ababa: 11
+Asia/Seoul -> Africa/Accra: 12
+Asia/Seoul -> Africa/Bamoke: 13
 ```
 
-> 위 코드 블록은 출력된 결과를 보기 좋게 Markdown 형식으로 작성한 내용입니다. 실제 이미지 출력은 [여기서](./images/timer-log.png) 확인할 수 있습니다.
+```tsx
+// 번외, 라우트 이동 후 개발자 도구에서 전역 변수 출력 시 로그 결과 -> 마지막 타이머 식별자(14) 출력
+console.log(window._worldTimeIntervalId);
+```
 
-이미지를 확인하면 알 수 있듯이 제가 생각했던 문제와 동일하게 
+> 위 코드 블록은 실제 출력된 로그를 보기 쉽게 Markdown 형식으로 정리한 내용입니다. 실제 개발자 도구에서의 출력 화면은 [여기](./images/timer-log.png)에서 확인할 수 있습니다.
 
+출력된 로그를 확인해 보면, 전역 변수로 타이머를 관리할 경우 발생할 수 있다고 판단했던 문제들이 실제로 동일하게 발생하고 있음을 확인할 수 있습니다.
+
+이에 따라 해당 문제를 해결하기 위해 리렌더링 간에도 참조를 유지하면서 각 컴포넌트마다 독립적인 상태를 가질 수 있고, 컴포넌트 언마운트 시 클린업을 통해 안전하게 해제할 수 있는 방식이 필요하다고 판단했습니다.
+
+이러한 요구사항을 모두 충족하는 방법으로 useRef 훅을 활용하는 방식이 가장 적합하다고 판단하여, 다음 코드와 같이 기존의 전역 변수 관리 방식에서 useRef 기반의 관리 방식으로 리팩토링을 진행하게 되었습니다.
+
+```tsx
+// useRef 기반의 관리 방식 로직
+const intervalIdRef = useRef<ReturnType<typeof setInterval>>(0);
+
+useEffect(() => {
+  // ...시간 갱신 로직...
+  
+  const timeoutId = setTimeout(() => {
+    // ...시간 갱신 로직...
+    console.log(`${world.from} -> ${world.to} timer start`); // delay 이후 setInterval 타이머 시작 시점 출력
+
+    const intervalId = setInterval(() => {
+      console.log(`${world.from} -> ${world.to}: ${intervalId}`); // 1분 간격으로 실행되는 interval의 타이머 식별자 출력
+      // ...시간 갱신 로직...
+    }, 1000 * 60);
+
+    intervalIdRef.current = intervalId; // useRef에 타이머 식별자 등록
+  }, delay);
+
+  return () => {
+    clearTimeout(timeoutId);
+    
+    console.log(`(window) ${world.from} -> ${world.to}: ${intervalIdRef.current}`); // 컴포넌트 언마운트 시점에 useRef에 저장된 setInterval 식별자 출력
+
+    if(intervalIdRef.current > 0) {
+      clearInterval(intervalIdRef.current);
+    }
+  }
+}, []);
+```
+
+위와 같이 코드를 수정한 이후, 개발자 도구를 통해 다음과 같이 로그가 출력되는 것을 확인할 수 있었습니다.
+
+```md
+# setInterval 타이머 시작 시점 로그 결과
+Asia/Seoul -> Africa/Addis_ababa timer start
+Asia/Seoul -> Africa/Accra timer start
+Asia/Seoul -> Africa/Bamoke timer start
+Asia/Seoul -> Africa/Bissau timer start
+
+# 1분 간격으로 실행되는 setInterval 콜백 함수 내부 로그 결과 (타이머 식별자 출력)
+Asia/Seoul -> Africa/Addis_ababa: 10
+Asia/Seoul -> Africa/Accra: 11
+Asia/Seoul -> Africa/Bamoke: 12
+Asia/Seoul -> Africa/Bissau: 13
+
+# 라우트 이동으로 인해 컴포넌트가 언마운트되며 클린업 로직이 수행될 때의 로그 결과
+(window) Asia/Seoul -> Africa/Addis_ababa: 10
+(window) Asia/Seoul -> Africa/Accra: 11
+(window) Asia/Seoul -> Africa/Bamoke: 12
+(window) Asia/Seoul -> Africa/Bissau: 13
+
+# 라우트 이동 이후 1분이 경과하더라도 clearInterval로 인해 추가 로그가 출력되지 않음
+```
+
+> 위 코드 블록은 실제 출력된 로그를 보기 쉽게 Markdown 형식으로 정리한 내용입니다. 실제 개발자 도구에서의 출력 화면은 [여기](./images/timer-log(useRef).png)에서 확인할 수 있으며, 1분이 경과한 이후 추가 로그가 출력되지 않는 모습은 이 [영상](./videos/timer-log-setInterval.mov)을 통해 확인할 수 있습니다.
