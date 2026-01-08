@@ -347,3 +347,104 @@ Asia/Seoul -> Africa/Bissau: 13
 ```
 
 > 위 코드 블록은 실제 출력된 로그를 보기 쉽게 Markdown 형식으로 정리한 내용입니다. 실제 개발자 도구에서의 출력 화면은 [여기](./images/timer-log(useRef).png)에서 확인할 수 있으며, 1분이 경과한 이후 추가 로그가 출력되지 않는 모습은 이 [영상](./videos/timer-log-setInterval.mov) 파일을 다운받아 확인할 수 있습니다.
+
+<br />
+
+## III. 최종 리팩토링 코드
+
+```tsx
+// 실제 기능을 수행하는 커스텀 훅 로직
+export default function useTimeContinue(world: WordTimeListType) {
+  const [timeStatus, setTimeStatus] = useState<TimeStatus>({
+    day: "Today",
+    target: "AM",
+    time: ""
+  });
+  const intervalIdRef = useRef<ReturnType<typeof setInterval>>(0);
+
+  // 현재 시간대와 사용자가 지정한 각 도시의 시간대의 차이를 계산하는 로직
+  // 각 도시마다 일정 간격 동안 시간대를 계산하는 로직
+  useEffect(() => {
+    // 최초 마운트 시 현재 시간대와 사용자가 지정한 도시의 시간대의 차이를 계산해서 상태에 반영한다.
+    updateTime(world, setTimeStatus);
+    
+    // setInterval을 통해 일정 간격마다 시간을 계산하고, 컴포넌트 언마운트 시 비동기로 인해 메모리에 점유되고 있는 타이머 함수를 제거한다.
+    const delay = (60 - new Date().getSeconds()) * 1000;
+
+    const timerId = setTimeout(() => {
+      updateTime(world, setTimeStatus);
+      
+      const intervalId = setInterval(() => {
+        updateTime(world, setTimeStatus);
+      }, 1000 * 60);
+
+      intervalIdRef.current = intervalId;
+    }, delay);
+
+    return () => {
+      clearTimeout(timerId);
+      
+      if(intervalIdRef.current > 0) {
+        clearInterval(intervalIdRef.current);
+      }
+    }
+  }, []);
+
+  return { timeStatus };
+}
+```
+
+```tsx
+// 커스텀 훅 내부에서 가져다 사용하는 로직
+const getLocalDate = (timeZone: string, now: Date) => {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone,
+    dateStyle: "short",
+    timeStyle: "short",
+    hour12: true
+  }).formatToParts(now).filter(format => format.type !== "literal");
+}
+
+function getFullYear(targetDate: Intl.DateTimeFormatPart[]) {
+  return targetDate
+    .filter((element) => ["year", "month", "day"].includes(element.type))
+    .map(data => data.value)
+    .join("-");
+}
+
+function getFindIntlDateTimeFormatValue(date: Intl.DateTimeFormatPart[], type: Intl.DateTimeFormatPartTypes) {
+  return date.find((element) => element.type === type)!.value as string
+}
+
+function fullYearCompare(from: string, to: string): "Today" | "Tomorrow" | "Yesterday" {
+  if(from === to) return "Today";
+
+  const a = from.split("-").map(Number).reduce((prev, curr) => prev + curr);
+  const b = to.split("-").map(Number).reduce((prev, curr) => prev + curr);
+  
+  if(a < b) return "Tomorrow";
+  else {
+    return "Yesterday"
+  }
+}
+
+/**
+ * 화면에 반영할 시간대를 갱신하기 위한 보조 함수
+ * 
+ * @param {WordTimeListType} world - 사용자가 설정한 도시 정보
+ * @param {React.Dispatch<React.SetStateAction<TimeStatus>>} world - 사용자가 설정한 도시 정보
+*/
+export function updateTime(world: WordTimeListType, setState: React.Dispatch<React.SetStateAction<TimeStatus>>) {
+  const now = new Date(); // Intl 기준점이 될 현재 사용자의 시간대를 가지고 온다.
+  
+  const from = getLocalDate(world.from, now); // 사용자 시간대
+  const to = getLocalDate(world.to, now);     // 선택한 도시의 시간대
+
+  // 상태를 갱신한다.
+  setState({
+    day: fullYearCompare(getFullYear(from), getFullYear(to)),
+    target: getFindIntlDateTimeFormatValue(to, "dayPeriod").replaceAll(".", "").toUpperCase() as "AM" | "PM",
+    time: `${getFindIntlDateTimeFormatValue(to, "hour")}:${getFindIntlDateTimeFormatValue(to, "minute")}`
+  });
+}
+```
