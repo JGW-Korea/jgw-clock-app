@@ -150,4 +150,48 @@ const updateTime = () => {
 
 이처럼 날짜 비교는 Intl API를 사용하고, 시간 계산은 UTC 기준 시간을 직접 계산하는 방식으로 분리된 구조로 로직을 작성했습니다. 그러나 하나의 방식만으로도 대상 도시의 시간과 날짜를 모두 처리할 수 있지 않을까라는 의문이 들었습니다. 그래서 Intl API가 대상 도시의 날짜뿐만 아니라 시간 정보도 제공하지 않을까 생각하게 되었고, [MDN-Intl.DateTimeFormat](https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat) 문서를 확인한 결과 `Intl.DateTimeFormat()`의 옵션을 통해 시간과 관련된 다양한 정보를 함께 얻을 수 있다는 점을 확인했습니다.
 
-이로 인해 대상 도시의 정확한 시간을 제공하기 위해 직접 계산하는 방식은 계산식이 조금이라도 부정확할 경우 올바른 시간을 도출하지 못할 수 있다고 판단했습니다. 반면 Intl API는 정확한 시간을 제공할 뿐만 아니라 모든 주요 브라우저에서 지원되므로, 더 합리적인 방식이라고 생각하여 프로젝트 개발이 완료된 이후 리팩토링을 진행하기로 결정했습니다.
+이로 인해 대상 도시의 정확한 시간을 제공하기 위해 직접 계산하는 방식은 계산식이 조금이라도 부정확할 경우 정확한 시간을 도출하지 못할 수 있다고 판단했습니다. 반면 Intl API는 정확한 시간을 제공할 뿐만 아니라 모든 주요 브라우저에서 지원되므로, 더 합리적인 방식이라고 생각하여 프로젝트 개발이 완료된 이후 리팩토링을 진행하기로 결정했습니다.
+
+```tsx
+// Intl API를 활용해 매개변수로 전달된 timeZone에 해당하는 도시의 시간 정보를 가져오는 로직
+function getLocalDate(timeZone: string, now: Date) {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone,
+    dateStyle: "short",
+    timeStyle: "short",
+    hour12: true
+  }).formatToParts(now).filter(format => format.type !== "literal");
+}
+```
+
+위 코드와 같이 Intl API를 사용해 매개변수로 전달된 `timeZone`에 해당하는 시간 정보를 가져온 뒤, `formatToParts()` 메서드를 통해 각 형식별로 분리하고 기호(literal)를 제외한 `Intl.DateTimeFormatPart[]` 형태의 결과를 전달받도록 함수를 구성했습니다.
+
+이후 사용자가 선택한 도시 목록을 렌더링하는 과정에서, 사용자 지역(`world.from`)과 대상 도시(`world.to`)의 지역명을 `getLocalDate()` 함수의 `timeZone` 매개변수로 전달해 각 시간 정보를 Intl API로 각 시간 정보를 조회하여, 단순히 두 시간대의 날짜만 비교하는 방식이 아니라 두 시간대의 정확한 차이를 계산해 화면에 반영하도록 로직을 개선했습니다.
+
+```tsx
+// 화면에 표시할 시간 정보를 갱신하기 위한 로직
+export function updateTime(world: WordTimeListType, setState: React.Dispatch<React.SetStateAction<TimeStatus>>) {
+  const now = new Date(); // Intl API에서 시간 계산의 기준이 될 현재 시각 생성
+
+  const from = getLocalDate(world.from, now);  // 사용자 지역에 해당하는 시간 정보를 Intl API로 조회
+  const to = getLocalDate(world.to, now);      // 대상 도시에 해당하는 시간 정보를 Intl API로 조회
+
+  // Intl API를 통해 얻은 두 시간대를 기준으로 화면에 표시할 상태를 갱신
+  setState({
+    day: fullYearCompare(getFullYear(from), getFullYear(to)),
+    target: getFindIntlDateTimeFormatValue(to, "dayPeriod").replaceAll(".", "").toUpperCase() as "AM" | "PM",
+    time: `${getFindIntlDateTimeFormatValue(to, "hour")}:${getFindIntlDateTimeFormatValue(to, "minute")}`
+  });
+}
+```
+
+<br />
+
+**③ `setInterval` 타이머 식별자를 전역 변수 대신 참조 객체로 관리하도록 수정**
+
+
+- ~~UTC 기준으로 offset을 더해 수동으로 지역 시간을 계산~~
+- ~~AM / PM, 시·분을 각각 상태로 분리해 관리~~
+- ~~Intl.DateTimeFormat은 날짜 문자열 비교용으로만 제한적으로 사용~~
+- ~~날짜 비교(Today / Tomorrow / Yesterday)를 문자열 합산 방식으로 처리~~
+- interval을 window 전역에 보관하여 정리
