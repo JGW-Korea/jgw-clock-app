@@ -30,7 +30,7 @@ export default function useTimer() {
    * Timer가 활성화 되지 않은 상태에서 시간을 증가시키는 로직
    * @param {TimeUnit} type - 상태의 값을 증가시킬 시간
   */
-  const timerIncrement = (type: TimeUnit) => {
+  const handleTimerIncrement = (type: TimeUnit) => {
     if(!timerState.isActive) {
       setTimerState((prev) => ({
         ...prev,
@@ -43,7 +43,7 @@ export default function useTimer() {
    * Timer가 활성화 되지 않은 상태에서 시간을 감소시키는 로직
    * @param {TimeUnit} type - 상태의 값을 증가시킬 시간
   */
-  const timerDecrement = (type: TimeUnit) => {
+  const handleTimerDecrement = (type: TimeUnit) => {
     if(!timerState.isActive) {
       setTimerState((prev) => ({
         ...prev,
@@ -119,8 +119,8 @@ export default function useTimer() {
   return {
     timerState,
     progress,
-    timerIncrement,
-    timerDecrement,
+    handleTimerIncrement,
+    handleTimerDecrement,
     handleStartTimer,
     handleStopTimer,
     handleResetTimer
