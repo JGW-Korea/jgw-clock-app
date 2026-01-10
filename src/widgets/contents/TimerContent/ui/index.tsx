@@ -32,9 +32,9 @@ export default function TimerContent() {
       />
 
       <div className={`${styles["time-group"]}`}>
-        <TimerSelector styles={styles} label="hours" decrementDisabled={isActive || !!(hours - 1 === -1)} incrementDisabled={isActive || !!(hours + 1 === 24)} decrement={handleTimerDecrement} increment={handleTimerIncrement} />
-        <TimerSelector styles={styles} label="minutes" decrementDisabled={isActive || !!(minutes - 1 === -1)} incrementDisabled={isActive || !!(minutes + 1 === 60)} decrement={handleTimerDecrement} increment={handleTimerIncrement} />
-        <TimerSelector styles={styles} label="seconds" decrementDisabled={isActive || !!(seconds - 1 === -1)} incrementDisabled={isActive || !!(seconds + 1 === 60)} decrement={handleTimerDecrement} increment={handleTimerIncrement} />
+        <TimerSelector styles={styles} label="hours" decrementDisabled={isActive || hours - 1 === -1} incrementDisabled={isActive || hours + 1 === 24} decrement={handleTimerDecrement} increment={handleTimerIncrement} />
+        <TimerSelector styles={styles} label="minutes" decrementDisabled={isActive || minutes - 1 === -1} incrementDisabled={isActive || minutes + 1 === 60} decrement={handleTimerDecrement} increment={handleTimerIncrement} />
+        <TimerSelector styles={styles} label="seconds" decrementDisabled={isActive || seconds - 1 === -1} incrementDisabled={isActive || seconds + 1 === 60} decrement={handleTimerDecrement} increment={handleTimerIncrement} />
       </div>
     </main>
   );

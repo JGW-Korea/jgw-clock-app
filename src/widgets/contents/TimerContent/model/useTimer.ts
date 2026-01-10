@@ -20,9 +20,9 @@ const timerInitalState: TimerState = {
 };
 
 export default function useTimer() {
-  const totalSeconds = useRef<number>(0); // 전체 진행률을 계산하기 위한 참조 객체
   const [timerState, setTimerState] = useState<TimerState>(timerInitalState);
-
+  
+  const totalSeconds = useRef<number>(0); // 전체 진행률을 계산하기 위한 참조 객체
   const currentTotal = (timerState.hours * 3600) + (timerState.minutes * 60) + timerState.seconds;
   const progress = totalSeconds.current > 0 ? currentTotal / totalSeconds.current : 0;
 
