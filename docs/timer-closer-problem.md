@@ -569,11 +569,207 @@ useEffect(() => {
         return;
       }
 
+      setTimerState((prev) => ({
+        ...prev,
+        ...timerNextTick(hours, minutes, seconds)
+      }));
+    }, 1000);
+  }
+
+  return () => {
+    clearInterval(intervalId);
+  }
+}, [timerState.isActive]);
+```
+
+<br />
+
+## III. 클로저(Closure)로 인한 이전 참조 유지로 발생한 잘못된 시간 계산
+
+1초 간격으로 타이머의 시간이 감소되는 로직을 `handleStartTime()` 이벤트 핸들러 내에서 `setInterval`을 처리할 경우, 타이머를 중단하기 위해 타이머 식별자를 리렌더링 간에도 변경되지 않는 값으로 유지해야 했습니다. 이로 인해 타이머 식별자를 `useRef`로 관리하고, `handleStopTimer()`와 `handleResetTimer()` 이벤트 핸들러에서 clearInterval을 처리해야 했기 때문에, 컴포넌트에 사이드 이펙트(side-effect)를 부여할 수 있는 `useEffect`에 타이머의 활성화 상태를 나타내는 `isActive`를 의존성 배열에 추가하여 컴포넌트 생명주기(Component Life-cycle) 과정에서 `clearInterval` 작업을 수행했습니다.
+
+그리고 ["II. 상태 관리 로직을 useState 기반으로 리팩토링"](#ii-상태-관리-로직을-usestate-기반으로-리팩토링) 목차에서 확인할 수 있듯이, 기존 상태 관리 로직을 `useState` 기반으로 리팩토링을 진행했습니다. 그 과정에서 `useEffect` 의존성 배열에 `isActive` 뿐만 아니라 `timerState` 상태 객체도 포함되어 있었습니다. 해당 상태 객체는 `hours`, `minutes`, `seconds` 값이 1초 간격으로 감소하면서 리액트의 불변성 특성상 참조 주소가 계속 변경되었고, 이로 인해 `useEffect` 로직이 반복적으로 실행되면서 `setInterval`의 타이머 식별자 값이 계속 변경되는 문제가 발생했습니다. 그 결과 `timerStart`가 `true`인 경우 조건에 부합하여 `setInterval`이 다시 실행되는 구조가 되었기 때문에, `timerState`를 의존성 배열에서 제외했습니다.
+
+```tsx
+// 기존 useEffect 로직
+useEffect(() => {
+  let intervalId: ReturnType<typeof setInterval>;
+
+  if(timerStart) {
+    intervalId = setInterval(() => {
+      if(timerState.hours.value === 0 && timerState.minutes.value === 0 && timerState.seconds.value === 0) {
+        setTimerStart(false);
+        setTotalSeconds(0);
+        dispatch({ type: "RESET" });
+        return;
+      }
+
+      dispatch({ type: "TICK" });
+    }, 1000);
+  }
+
+  return () => {
+    clearInterval(intervalId);
+  }
+}, [timerStart, timerState]);
+// -> hours, minutes, seconds 값이 1초 간격으로 감소하면서 timerState 객체의 참조 주소가 변경되어 useEffect 로직이 반복적으로 재실행됨
+// -> 이로 인해 timerStart가 true인 경우 조건을 계속 만족하게 되어, 조건문 내부의 로직 역시 동일하게 반복 실행됨
+// -> 그 결과 매 렌더링마다 intervalId가 clearInterval의 대상이 된 후 다시 setInterval이 설정되는 구조가 되는 문제가 발생함
+```
+
+```tsx
+// 리팩토링한 useEffect 로직
+useEffect(() => {
+  let intervalId: ReturnType<typeof setInterval>;
+
+  if(timerState.isActive) {
+    let { hours, minutes, seconds } = timerState;
+    
+    intervalId = setInterval(() => {
+      if(hours === 0 && minutes === 0 && seconds === 0) {
+        setTimerState(timerInitalState);
+        totalSeconds.current = 0;
+        return;
+      }
+
+      setTimerState((prev) => ({
+        ...prev,
+        ...timerNextTick(hours, minutes, seconds)
+      }));
+    }, 1000);
+  }
+
+  return () => {
+    clearInterval(intervalId);
+  }
+}, [timerState.isActive]); // ‼️ 의존성 배열에 timerState 상태 객체를 제외함
+```
+
+이와 같이 리팩토링을 진행한 이후 정상 동작을 확인했지만, 기존에 정상적으로 동작하던 타이머 로직이 다음과 같이 의도한 대로 동작하지 않는 문제가 발생했습니다.
+
+```md
+# 기존 로직에서 정상적으로 감소하며 화면에 표시되던 타이머 시간
+00:01:00
+00:00:59
+00:00:58
+00:00:57
+00:00:56
+...
+```
+
+```md
+# 리팩토링 이후 화면에 표시된 타이머 시간 (초 값이 정상적으로 감소하지 않는 현상)
+00:01:00
+00:00:59
+00:00:59
+00:00:59
+00:00:59
+...
+```
+
+이처럼 리팩토링 이후 화면에 표시되는 타이머 시간이 정상적으로 감소하지 않는 현상을 확인했고, 해당 동작의 원인을 파악하기 위해 타이머 관련 로직을 다시 분석하게 되었습니다.
+
+<br />
+
+**① timerState가 useEffect 의존성 배열에 포함되어 있기 때문에 정상 동작**
+
+```tsx
+// 기존 useEffect 로직
+useEffect(() => {
+  let intervalId: ReturnType<typeof setInterval>;
+
+  if(timerStart) {
+    intervalId = setInterval(() => {
+      if(timerState.hours.value === 0 && timerState.minutes.value === 0 && timerState.seconds.value === 0) {
+        setTimerStart(false);
+        setTotalSeconds(0);
+        dispatch({ type: "RESET" });
+        return;
+      }
+
+      dispatch({ type: "TICK" });
+    }, 1000);
+  }
+
+  return () => {
+    clearInterval(intervalId);
+  }
+}, [timerStart, timerState]);
+```
+
+기존 로직의 코드를 살펴보면, useEffect의 의존성 배열에 timerState가 포함되어 있기 때문에 hours, minutes, seconds 값이 1씩 감소할 때마다 useEffect 내부 로직이 실행됩니다. 즉, 다음과 같은 동작 원리를 가지게 됩니다.
+
+1. 컴포넌트가 최초 마운트될 때 useEffect 로직이 실행되지만, timerStart의 초기 값이 false이기 때문에 useEffect 내부의 조건문 로직은 수행되지 않습니다.
+1. 이후 사용자가 hours, minutes, seconds 값을 설정한 뒤 타이머 시작 이벤트 핸들러가 실행하면, timerStart 값이 변경되고 이에 따라 useEffect 내부의 조건문 로직이 수행되어 setInterval이 실행됩니다. (이 구조에서는 hours, minutes, seconds 값이 변경될 때마다 useEffect 콜백 역시 다시 실행됩니다.)
+1. setInterval 내부에서 dispatch({ type: "TICK" })이 호출되면서 reducer 함수가 실행되고, 새로운 상태를 반환함에 따라 리렌더링이 발생합니다.
+1. 리렌더링이 발생하더라도 timerStart 값은 유지된 상태이며, useEffect의 의존성 배열에 timerState가 포함되어 있기 때문에 useEffect 내부의 조건문 로직이 다시 수행되어 setInterval이 새롭게 설정됩니다.
+1. 결과적으로 타이머가 시작된 이후 hours, minutes, seconds 값이 감소할 때마다 timerState 객체의 참조 주소가 변경되고, timerStart 값이 유지된 상태에서 조건문 내부 로직이 반복 실행되면서 정상적으로 동작하는 구조를 가지게 됩니다.
+
+<br />
+
+**② 클로저로 인해 이전 참조 주소가 유지되면서 발생한 시간 감소 오류**
+
+```tsx
+// 리팩토링 이후 useEffect 로직
+useEffect(() => {
+  let intervalId: ReturnType<typeof setInterval>;
+
+  if(timerState.isActive) {
+    let { hours, minutes, seconds } = timerState;
+    
+    intervalId = setInterval(() => {
+      if(hours === 0 && minutes === 0 && seconds === 0) {
+        setTimerState(timerInitalState);
+        totalSeconds.current = 0;
+        return;
+      }
+
+      setTimerState((prev) => ({
+        ...prev,
+        ...timerNextTick(hours, minutes, seconds)
+      }));
+    }, 1000);
+  }
+
+  return () => {
+    clearInterval(intervalId);
+  }
+}, [timerState.isActive]);
+```
+
+리팩토링 이후 코드를 살펴보면, useEffect의 의존성 배열에서 timerState.isActive(기존 timerStart)가 제외되어 있기 때문에 기존 코드와 달리 hours, minutes, seconds 값이 1씩 감소하더라도 useEffect 내부 로직이 재실행되지 않습니다. 즉, 다음과 같은 동작 원리를 가지게 됩니다.
+
+1. 컴포넌트가 최초 마운트될 때 useEffect 로직이 실행되지만, timerState.isActive의 초기 값이 false이기 때문에 useEffect 내부의 조건문 로직은 수행되지 않습니다.
+1. 이후 사용자가 hours, minutes, seconds 값을 설정한 뒤 타이머 시작 이벤트 핸들러를 실행하면, timerState.isActive 값이 변경되고 이에 따라 useEffect 내부의 조건문 로직이 수행되어 setInterval이 실행됩니다.
+1. setInterval 내부에서는 상태 업데이트 함수(setTimerState)를 통해 새로운 상태로 갱신이 이루어지며, 이로 인해 리렌더링이 발생합니다.
+1. 리렌더링이 발생하더라도 timerState.isActive 값은 유지되며, 해당 값만 useEffect의 의존성으로 설정되어 있기 때문에 useEffect 내부 로직은 재실행되지 않고 기존 setInterval 콜백이 그대로 유지됩니다.
+1. 이 과정에서 조건문 내부에서 구조 분해 할당(Destructuring)으로 선언된 `let { hours, minutes, seconds } = timerState` 지역 변수는 타이머가 시작된 시점의 값을 할당한 구조가 됩니다.
+1. 이로 인해 `timerNextTick(hours, minutes, seconds)`에 전달되는 값은 이전 참조로 유지된 값이 되며, 동일한 감소 결과(예: 00:01:00 -> 00:00:59)를 반복적으로 반환하여 상태를 갱신하게 됩니다.
+1. 결과적으로 클로저로 인해 이전 참조가 유지되고, 구조 분해 할당으로 선언된 지역 변수의 값이 갱신되지 않아 매 초 동일한 값을 기준으로 상태가 업데이트되면서 시간이 정상적으로 감소하지 않는 현상이 발생합니다.
+
+이처럼 자바스크립트 클로저로 인해 hours, minutes, seconds 값이 이전 참조로부터 할당된 상태로 유지되고 있는 구조임을 확인했습니다. 이에 따라 리팩토링 이후 useEffect의 setInterval 내부에서 새로운 상태로 갱신할 때, timerNextTick(hours, minutes, seonds)의 반환 값을 그대로 상태에 할당하는 방식이 아니라, 지역 변수의 값을 먼저 새로운 값으로 갱신한 뒤 해당 값을 기준으로 상태를 업데이트해야 한다는 점을 확인했고, 이를 반영하여 다음과 같이 코드를 수정했습니다.
+
+```tsx
+useEffect(() => {
+  let intervalId: ReturnType<typeof setInterval>;
+
+  if(timerState.isActive) {
+    let { hours, minutes, seconds } = timerState;
+    
+    intervalId = setInterval(() => {
+      if(hours === 0 && minutes === 0 && seconds === 0) {
+        setTimerState(timerInitalState);
+        totalSeconds.current = 0;
+        return;
+      }
+
+      // 현재 화면에 반영된 시간을 1씩 감소 시킨 후 클로저로 유지되고 있는 지역 변수의 값을 갱신함
       const nextTick = timerNextTick(hours, minutes, seconds);
       hours = nextTick.hours;
       minutes = nextTick.minutes;
       seconds = nextTick.seconds;
 
+      // 이후 변경된 지역 변수의 값을 이용하여 상태를 갱신하게 수정해줌
       setTimerState((prev) => ({
         ...prev,
         hours,
@@ -588,5 +784,3 @@ useEffect(() => {
   }
 }, [timerState.isActive]);
 ```
-
-<br />
