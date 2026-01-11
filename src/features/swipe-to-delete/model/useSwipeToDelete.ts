@@ -1,12 +1,13 @@
 import { useEffect, useRef } from "react";
 import { SWIPE_OPEN_LIMIT, SWIPE_THRESHOLD } from "../consts";
+import type { EditMode } from "@features/list-edit";
 
 /**
  * List Item의 Swipe를 활성화 시키는 커스텀 훅
  * 
  * @param {React.RefObject<HTMLLinkElement | null>} activeRef - 이전 Pointer 발생으로 등록된 List Item
 */
-export default function useSwipeToDelete(activeRef: React.RefObject<HTMLLIElement | null>, editMode: { click: boolean; swipe: boolean }, onEditModeActive: (type?: "click" | "swipe") => void) {
+export default function useSwipeToDelete(activeRef: React.RefObject<HTMLLIElement | null>, editMode: { click: boolean; swipe: boolean }, onEditModeActive: (type: keyof EditMode) => void) {
   const listItemRef = useRef<HTMLLIElement>(null);
 
   useEffect(() => {
@@ -95,7 +96,7 @@ export default function useSwipeToDelete(activeRef: React.RefObject<HTMLLIElemen
         toggleSwitchEl.style.removeProperty("pointer-events");
       }
 
-      if(editMode.swipe) onEditModeActive();
+      if(editMode.swipe) onEditModeActive("swipe");
     }
 
     delete listItemRef.current.dataset.pressStartX;

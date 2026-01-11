@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-type EditMode = {
+export type EditMode = {
   click: boolean;
   swipe: boolean;
 }

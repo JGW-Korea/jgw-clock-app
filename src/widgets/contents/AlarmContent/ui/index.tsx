@@ -2,10 +2,11 @@ import { useContext, useRef } from "react";
 import styles from "./index.module.scss"
 import AlarmListItem from "./AlarmListItem";
 import { AlarmContext } from "@entities/alarm";
+import type { EditMode } from "@features/list-edit";
 
 interface Props {
   editMode: { click: boolean; swipe: boolean };
-  onEditModeActive: (type?: "click" | "swipe") => void;
+  onEditModeActive: (type: keyof EditMode) => void;
 }
 
 export default function AlarmContent({ editMode, onEditModeActive }: Props) {

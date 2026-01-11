@@ -2,13 +2,14 @@ import type { AlarmData } from "@entities/alarm";
 import { SwipeToDelete } from "@features/swipe-to-delete";
 import { ToggleSwitch } from "@shared/ui";
 import { formatSelectedWeekdays } from "../../model";
+import type { EditMode } from "@features/list-edit";
 
 interface Props extends AlarmData {
   styles: CSSModuleClasses;
   activeRef: React.RefObject<HTMLLIElement | null>;
   editMode: { click: boolean; swipe: boolean };
-  onDeleteListItem: (id: string | number, type?: "swipe" | undefined, cb?: (() => void) | undefined) => void;
-  onEditModeActive: (type?: "click" | "swipe") => void;
+  onDeleteListItem: (id: string | number, type?: "swipe" | undefined, cb?: ((type: keyof EditMode) => void) | undefined) => void;
+  onEditModeActive: (type: keyof EditMode) => void;
   onToggleActiveAlarm: (id: number) => void;
 }
 

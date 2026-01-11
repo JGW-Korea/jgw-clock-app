@@ -1,18 +1,20 @@
 import { useWorldTimeList } from "@entities/world";
-import { useHeaderEditSheetControls } from "@shared/model";
+import { useBottomSheetControls } from "@features/bottom-sheet";
+import { useListEditControls } from "@features/list-edit";
 import { WorldBottomSheet } from "@widgets/bottom-sheet";
 import { WorldContent } from "@widgets/contents";
 import { WorldHeader } from "@widgets/headers";
 
 export default function WorldPage() {
-  const { controlState, handleOpenBottomSheet, handleCloseBottomSheet, handleEditModeActive } = useHeaderEditSheetControls();
+  const { editMode, handleEditModeActive } = useListEditControls();
+  const { isOpen, handleOpenBottomSheet, handleCloseBottomSheet } = useBottomSheetControls();
   const { worldTimeList, handleAppendWorldTime, handleDelete } = useWorldTimeList(handleCloseBottomSheet, handleEditModeActive);
 
   return (
     <>
       <WorldHeader
         worldTimeList={worldTimeList}
-        editMode={controlState.editMode}
+        editMode={editMode}
         onClickEditModeActive={handleEditModeActive}
         onClickOpenSheet={handleOpenBottomSheet}
       />
@@ -20,13 +22,13 @@ export default function WorldPage() {
       {/* 사용자가 추가한 세계 시간 리스트를 출력한다. */}
       <WorldContent
         worldTimeList={worldTimeList}
-        editMode={controlState.editMode}
+        editMode={editMode}
         onDelete={handleDelete}
         onEditModeActive={handleEditModeActive}
       />
 
       <WorldBottomSheet
-        isOpen={controlState.sheetOpen}
+        isOpen={isOpen}
         onClose={handleCloseBottomSheet}
         onClickAppendWorld={handleAppendWorldTime}
       />

@@ -1,1 +1,1 @@
-export { useListEditControls } from "./model";
+export { useListEditControls, type EditMode } from "./model";

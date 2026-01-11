@@ -2,8 +2,9 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import type { ConvertTimeZoneType, WordTimeListType } from "./index.type";
 import type { WorldAppendHandler } from "@widgets/bottom-sheet";
+import type { EditMode } from "@features/list-edit";
 
-export default function useWorldTimeList(handleCloseBottomSheet: () => void, handleEditModeActive:(type?: "click" | "swipe") => void) {
+export default function useWorldTimeList(handleCloseBottomSheet: () => void, handleEditModeActive:(type: keyof EditMode) => void) {
   const [worldTimeList, setWorldTimeList] = useState<WordTimeListType[]>([]);
 
   // World Route가 마운트 될 시 실행될 Side-effect 로직
@@ -56,7 +57,7 @@ export default function useWorldTimeList(handleCloseBottomSheet: () => void, han
     const afterDelete = worldTimeList.filter(({ to }) => id !== to);
 
     if(afterDelete.length === 0) {
-      handleEditModeActive();
+      handleEditModeActive("click");
     }
 
     localStorage.setItem("worldTime", JSON.stringify(afterDelete));

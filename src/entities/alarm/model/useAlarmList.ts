@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { AlarmData, HandleAddAlarmFunction } from "./alarm.types";
+import type { EditMode } from "@features/list-edit";
 
 /**
  * Alarm 도메인 데이터를 관리하는 커스텀 훅
@@ -33,14 +34,14 @@ export default function useAlarmList() {
   }
 
   // 알림을 삭제하는 이벤트 리스너
-  const handleDeleteAlarm = (id: number | string, type?: "swipe", editModeActive?: () => void) => {
+  const handleDeleteAlarm = (id: number | string, type?: "swipe", editModeActive?: (type: keyof EditMode) => void) => {
     const newAlarmData = alarmList.filter((alarm) => alarm.id !== id);
     setAlarmList(newAlarmData);
     localStorage.setItem("alarm", JSON.stringify(newAlarmData));
 
     // 모든 알림이 제거된 경우 editMode를 비활성화 시킨다.
     if((!newAlarmData.length || type === "swipe") && editModeActive) {
-      editModeActive();
+      editModeActive("swipe");
     }
   }
 

@@ -1,1 +1,1 @@
-export { default as useListEditControls } from "./useListEditControls";
+export { default as useListEditControls, type EditMode } from "./useListEditControls";

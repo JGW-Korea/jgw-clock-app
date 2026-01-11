@@ -3,14 +3,15 @@ import { useSwipeToDelete } from "../model";
 import styles from "./index.module.scss";
 import SwipeToDeleteActions from "./SwipeToDeleteActions";
 import SwipeToDeleteContainer from "./SwipeToDeleteContainer";
+import type { EditMode } from "@features/list-edit";
 
 interface Props extends ListItemProps {
   activeRef: React.RefObject<HTMLLIElement | null>;
   children: React.ReactElement;
   id: number | string;
   editMode: { click: boolean; swipe: boolean };
-  onDeleteListItem: (id: number | string, type?: "swipe", cb?: () => void) => void;
-  onEditModeActive: (type?: "click" | "swipe") => void;
+  onDeleteListItem: (id: number | string, type?: "swipe", cb?: (type: keyof EditMode) => void) => void;
+  onEditModeActive: (type: keyof EditMode) => void;
 }
 
 /**

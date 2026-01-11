@@ -2,11 +2,12 @@ import style from "./style.module.scss";
 import PlusIcon from "@shared/assets/icons/plus.svg?react";
 import Check from "@shared/assets/icons/check.svg?react";
 import { Header } from "@shared/ui";
+import type { EditMode } from "@features/list-edit";
 
 interface Props {
   worldTimeList: object[];
   editMode: { click: boolean; swipe: boolean };
-  onClickEditModeActive: (type?: "click" | "swipe") => void;
+  onClickEditModeActive: (type: keyof EditMode) => void;
   onClickOpenSheet: () => void;
 }
 

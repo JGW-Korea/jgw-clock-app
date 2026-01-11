@@ -4,10 +4,11 @@ import PlusIcon from "@shared/assets/icons/plus.svg?react";
 import { useContext } from "react";
 import { AlarmContext, type AlarmContextType } from "@entities/alarm";
 import { Header } from "@shared/ui";
+import type { EditMode } from "@features/list-edit";
 
 interface Props {
   editMode: { click: boolean; swipe: boolean };
-  onClickEditModeActive: (type?: "click" | "swipe") => void;
+  onClickEditModeActive: (type: keyof EditMode) => void;
   onClickOpenSheet: () => void;
 }
 

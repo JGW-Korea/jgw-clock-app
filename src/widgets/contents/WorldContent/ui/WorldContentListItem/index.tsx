@@ -2,13 +2,14 @@ import styles from "./index.module.scss";
 import type { WordTimeListType } from "@entities/world";
 import { SwipeToDelete } from "@features/swipe-to-delete";
 import { useTimeContinue } from "../../model";
+import type { EditMode } from "@features/list-edit";
 
 interface Props {
   world: WordTimeListType;
   activeRef: React.RefObject<HTMLLIElement | null>;
   editMode: { click: boolean; swipe: boolean };
-  onDeleteListItem: (id: number | string, type?: "swipe", cb?: () => void) => void;
-  onEditModeActive: (type?: "click" | "swipe") => void;
+  onDeleteListItem: (id: number | string, type?: "swipe", cb?: (type: keyof EditMode) => void) => void;
+  onEditModeActive: (type: keyof EditMode) => void;
 }
 
 /**
