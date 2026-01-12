@@ -21,3 +21,4 @@ JGW Clock App은 iPhone 시계 앱을 모바일 화면 크기를 기준으로 �
 |[FSD 아키텍처 문제점](/docs/fsd-layer-problem.md)|FSD 아키텍처를 도입하고 개인적으로 발생한 문제를 설명하는 문서입니다.|
 |[도시 시간 계산 로직 리팩토링 과정](/docs/city-time-calculation-refactoring.md)|기존 도시 시간 계산 로직의 문제점을 분석하고, 리팩토링 과정을 단계적으로 설명한 문서입니다.|
 |[Timer 로직 리팩토링 과정](/docs/timer-refactoring.md)|타이머 페이지에서 사용되는 useTimer 커스텀 훅 로직의 문제점을 분석하고, 리팩토링 과정을 단계적으로 설명한 문서입니다.|
+|[헤더 제어 로직 리팩토링 과정](/docs/header-controls-refactoring.md)|기존 useHeaderControls 로직을 분석하여, 책임을 어떻게 분리하고 FSD 아키텍처 구조에 맞게 수정한 과정을 설명한 문서입니다.|

@@ -86,3 +86,111 @@ export default function useHeaderControls() {
   }
 }
 ```
+
+<br />
+
+## II. 리팩토링한 useHeaderControls 로직이 FSD 아키텍처에 적합한지에 대한 고민
+
+기존 로직을 통합하여 useHeaderControls로 리팩토링한 이후에도, 현재 구조가 과연 FSD 아키텍처의 의도에 부합하는지에 대한 의문이 계속 남아 있었습니다. FSD 아키텍처는 Layer, Slice, Segment를 통해 관심사를 명확히 분리하고 각 요소가 단일 책임을 갖도록 설계하는 것을 목표로 합니다. 그러나 현재 구조는 "헤더를 제어한다"는 포괄적인 관심사를 기준으로 로직이 묶여 있으며, 이 로직을 shared/model에 두는 것이 적절한지가 의문이였습니다.
+
+shared 레이어는 애플리케이션 전역에서 재사용 가능하거나, 특정 도메인이나 화면에 종속되지 않는 관심사를 배치하기 위한 공간입니다. 하지만 useHeaderControls는 "헤더를 제어한다"는 성격을 가지며, 이는 모든 페이지에서 공통으로 사용되는 전역 개념이 아니라 Alarm과 World처럼 특정 페이지에서만 의미를 갖는 기능 집합이기 때문입니다. 이로 인해, shared에 배치하는 것은 레이어의 책임과 맞지 않는다고 판단했습니다.
+
+또한 저를 더 고민하게 된 이유는 "헤더를 제어한다"는 단일 책임 자체가 아니라는 점이였습니다. 헤더는 편집 모드, Bottom Sheet 호출 등 서로 다른 목적을 가진 여러 기능이 공존합니다. 이 기능들을 각각의 관심사 집합으로 놓고 보면, 이들의 교집합에 위치한 요소가 헤더일 뿐이기 때문입니다. 즉, "헤더 제어"라는 기준은 실제로는 서로 독립적인 기능들의 교집합을 묶어 하나의 책임처럼 취급한 것이며, 이로 인해 서로 다른 상태와 로직이 불필요하게 결합된 구조가 만들어 지는 것이기 때문에 FSD가 추구하는 관심사 분리와 단일 책임 원칙에 부합하지 않는다고 판단했습니다.
+
+이러한 이유들로, 저는 관심사를 다시 명확히 분리하기 위해 다음과 같이 리팩토링을 진행했습니다.
+
+<br />
+
+**① 헤더를 제어하는 기능들을 별도의 책임으로 분리**
+
+헤더를 제어하기 위한 상태는 다음과 같이 구성이 되어있었습니다.
+
+```tsx
+// 기존 useHeaderControls 내부에서 관리되고 있는 상태 구조
+const [controlState, dispatch] = useReducer(reducer, { 
+  sheetOpen: false,
+  editMode: {
+    click: false,
+    swipe: false
+  } 
+});
+```
+
+코드를 보면 알 수 있듯이 Bottom Sheet의 활성화 여부를 제어하는 `sheetOpen: boolean` 상태와 버튼 또는 스와이프를 통해 편집 모드가 활성화되는 `editMode: { click: boolean, swipe: boolean }` 상태가 하나의 객체로 묶여 함께 관리되고 있습니다.
+
+이로 인해 Bottom Sheet의 활성화 여부를 제어하는 useBottomSheetControls와, 버튼 또는 스와이프를 통해 편집 모드를 제어하는 useListEditControls로 로직을 분리하여, 각 커스텀 훅이 하나의 책임만 관리하도록 기존에 묶여 있던 상태를 기능 단위로 분리했습니다.
+
+```tsx
+// Bottom Sheet 활성화 여부만 제어하는 useBottomSheetControls
+export default function useBottomSheetControls() {
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+
+  // ...
+}
+```
+
+```tsx
+// 버튼 또는 스와이프를 통해 편집 모드 활성화 여부만 제어하는 useListEditControls
+export default function useListEditControls() {
+  const [editMode, setEditMode] = useState<EditMode>({
+    click: false,
+    swipe: false
+  });
+
+  // ...
+}
+```
+
+이처럼 "헤더 제어"라는 기능을 서로 다른 책임으로 분리함으로써, A의 로직이 변경되더라도 B에 영향을 주지 않고, B의 로직이 변경되더라도 A에 영향을 주지 않는 구조로 개선되었습니다. 그 결과, 결합도는 낮아지고 응집도는 높은 구조로 전환되었습니다.
+
+<br />
+
+**② 분리된 책임을 어느 레이어에 속할 것인지에 대한 고민**
+
+"헤더 제어"라는 기능을 서로 다른 책임으로 분리한 이후, 이 훅 파일들을 어느 레이어에 배치해야 할지에 대해 다시 고민하게 되었습니다.
+
+고민을 한 이유는, 분리된 로직들이 모두 사용자 인터랙션을 통해 헤더의 동작을 제어하기 때문입니다. AlarmHeader와 WorldHeader는 페이지 내에서 독립적인 위젯이지만, 이들이 제어하는 상태는 Bottom Sheet나 콘텐츠 영역 등 페이지의 다른 독립적인 컴포넌트에도 영향을 미칩니다. 따라서 헤더 내부에서 상태를 소유하는 방식은 Header -> Page -> Bottom Sheet / Contents 방향으로 Props를 전달하는 구조를 표현할 수 없었습니다.
+
+결과적으로 상태의 소유권은 Page에 있어야 했고, Page가 분리된 훅 로직을 조합하여 Header, Content, Bottom Sheet에 필요한 상태를 Props로 전달하는 구조가 필요했습니다. 그러나 이렇게 Page에서 조합해서 사용해야 하는 로직을 features 레이어에 model 세그먼트만 두는 형태로 배치하는 것도, 앞서 ["I. 기존 useHeaderControls 커스텀 훅 로직"](#i-기존-useheadercontrols-커스텀-훅-로직)의 마지막 단락에서 설명한 것처럼 구조적으로 어색하다고 판단했습니다. 이로 인해 해당 로직을 어느 레이어에 두는 것이 적절한지에 대해 계속해서 고민하게 되었습니다.
+
+그래서 개인적으로 계속 고민하기보다는, FSD 공식 문서에 제공된 실제 예제를 참고하여 레이어 배치를 결정하기로 했습니다. 그 과정에서 ["Moke Smoke"](https://github.com/penteleichuk/Moke-Smoke/tree/main/src) 프로젝트의 `src/features/auth/change-password` 디렉토리 구조가 다음과 같이 구성되어 있는것을 확인했습니다.
+
+```md
+# FSD 공식 문서 Moke Smoke 프로젝트 src/features/auth/change-password 구조
+src/
+└─ features/
+   └─ auth/
+      ├─ change-password/
+      │  ├─ model/
+      │  │  ├─ hooks/
+      │  │  └─ validations/
+      │  │
+      │  └─ index.ts
+      │
+      └─ ...
+```
+
+예제 Moke Smoke 프로젝트의 구조를 보면 알 수 있듯이, change-password 슬라이스에는 model 세그먼트만 존재하고 별도의 ui 세그먼트는 포함되어 있지 않습니다. 이 예제를 통해, 하나의 Slice가 반드시 화면을 구성하는 컴포넌트를 가져야 하는 것은 아니라는 점을 확인할 수 있었습니다.
+
+프로젝트를 진행하면서 저는 프론트엔드 개발이라는 맥락에서 디렉토리 구조를 해석하다 보니, 모든 Slice에는 이를 뒷받침하는 ui 컴포넌트가 반드시 함께 존재해야 한다는 전제를 가지고 구조를 판단하고 있었습니다. 이로 인해, useHeaderControls와 같이 ui를 직접 제공하지 않는 로직을 features에 배치하는 것이 어색하다고 느끼고, 결과적으로 레이어 선택에 혼란이 생기게 되는것이었습니다.
+
+하지만 FSD 아키텍처는 Layer, Slice, Segment 단위로 관심사를 분리하여 각 요소가 단일 책임을 갖도록 만들고, 이를 통해 결합도를 낮추고 응집도를 높이기 위한 구조 설계 방식입니다. 이는 모든 Slice가 반드시 ui를 포함해야 한다와 같은 강제성을 의미하지 않습니다. 이 점을 인식하게 되면서, 사용자 인터랙션을 통해 헤더의 동작을 제어하는 로직 역시 하나의 독립적인 기능으로서 features 레이어에 위치시키는 것이 적절하다는 판단에 도달할 수 있었고, 그로 인해 레이어 배치에 대한 고민을 해결할 수 있었습니다.
+
+```md
+# FSD 아키텍처 방법론에 맞게 수정한 디렉토리 구조
+src/
+└─ features/
+   ├─ bottom-sheet/
+   │  ├─ model/
+   │  │  ├─ useBottomSheetControls.ts
+   │  │  └─ index.ts
+   │  │
+   │  └─ index.ts
+   │
+   └─ list-edit/
+      ├─ model/
+      │  ├─ useListEditControls.ts
+      │  └─ index.ts
+      │
+      └─ index.ts
+```
