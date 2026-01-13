@@ -34,9 +34,55 @@
 
 하지만 해당 프로젝트는 직접 웹 서버를 구축한 환경이 아니라 Vercel을 통해 배포된 구조였기 때문에, 이 구간의 서버 처리(TTFB)에 대해 개발자가 직접 접근하거나 내부 제어할 수 있는 수단이 없었습니다. 또한, 이 지연을 애플리케이션 레벨에서 개선할 수 있는 방법을 별도로 찾지도 못한 상태였습니다.
 
-그러나 이를 해결하기에 앞서, 먼저 이 현상이 왜 발생하고 있는지를 파악하기로 했습니다. 현재 진행 중인 Clock 프로젝트는 React + TypeScript + Vite 기반의 SPA(Single-Page Application) 구조로 개발된 웹 애플리케이션으로, 최초 페이지 로드 이후에는 페이지 이동이 발생하더라도 HTML 문서가 다시 요청되지 않고, JavaScript가 메모리로 추상화하여 관리하는 Virtual DOM의 변경 사항만 실제 DOM에 반영하는 CSR(Client-Side Rendering) 방식으로 동작하기 때문에, 페이지 이동 시마다 파비콘과 같은 정적 자원이 다시 요청되는 이유를 이해하기 어려웠기 때문입니다.
+<br />
+
+## II. React 기반의 웹 애플리케이션 렌더링 과정
+
+> 📌 이 목차에서는 브라우저 렌더링 과정, SPA(Single-Page Application) 등의 내용을 요약하여 설명합니다. 다소 분량이 많기 때문에, 파비콘 자원이 재요청되는 원인만 확인하고 싶다면 다음 목차로 넘어가셔도 됩니다.
+
+["#i-최초-로드-이후에도-페이지-이동-시마다-파비콘favicon-자원이-재요청되는-현상"] 목차에서 설명한 문제를 해결하기에 앞서, 먼저 이 현상이 왜 발생하고 있는지를 파악하기로 했습니다.
+
+현재 진행 중인 Clock 프로젝트는 React + TypeScript + Vite 기반의 SPA(Single-Page Application) 구조로 개발된 웹 애플리케이션으로, 최초 페이지 로드 이후에는 페이지 이동이 발생하더라도 HTML 문서가 다시 요청되지 않고, JavaScript가 메모리로 추상화하여 관리하는 Virtual DOM의 변경 사항만 실제 DOM에 반영하는 CSR(Client-Side Rendering) 방식으로 동작하기 때문에, 페이지 이동 시마다 파비콘과 같은 정적 자원이 다시 요청되는 이유를 이해하기 어려웠기 때문입니다.
 
 <br />
 
-## II. React 기반의 SPA의 CSR(Client-Side Rendering) 렌더링 과정
+### A. 브라우저 동작･렌더링 과정
 
+![브라우저 렌더링 과정](./images/browser-rendering.webp)
+
+> 브라우저 동작･렌더링 과정에 대해 보다 자세한 내용은, 제 기술 블로그의 [Notion: 브라우저 동작 원리](https://gye-won.notion.site/Browser-Workflow-2ae88bd9c3fa80b8a33dc4b869c180ec?pvs=74) 포스트를 참고해 주시기 바랍니다.
+
+<br />
+
+많은 프론트엔드 개발자는 브라우저의 동작･렌더링 과정을 이해하고 프로젝트를 진행하게 됩니다. 간단하게 브라우저 동작･렌더링 과정을 설명하자면 다음과 같이 동작을 하게 됩니다.
+
+- 사용자가 URL에 최초 접속 시 브라우저 구성 요소 중 사용자 인터페이스는 이를 감지하여 렌더링을 위해 브라우저 엔진(UI와 렌더링 엔진 사이에서 발생한 동작을 중재하는 엔진)에 전달하고 렌더링 엔진(웹 서버로부터 전달받은 HTML 문서를 해석하여 브라우저 화면에 표시하는 역할을 수행하는 엔진)에 전달하게 됩니다.
+- URL을 전달받은 렌더링 엔진은 브라우저의 다른 구성 요소인 통신 모듈에 URL을 넘긴 후 통신 모듈은 DNS, TCP/IP 연결 과정을 진행하여 웹 서버로부터 해당 도메인의 정적 자원(HTML, CSS, JavaScript)을 전달받고 렌더링 엔진에게 다시 전달한다.
+- 이후, 렌더링 엔진은 전달받은 HTML 문서와 CSS 자원을 각각 DOM과 CSSOM으로 변환 시킨 후 이 둘을 결합하여 Render Tree를 생성하여 요소의 크기, 위치 등을 계산하는 Layout 단계를 수행하고, 요소의 색상, 그림자 등의 시각적 속성을 픽셀 단위로 계산하기 위한 Paint 작업을 수행하고, 수행된 결과물들을 결합하는 Composite 단계를 수행하여 실제 화면에 출력하기 위해 UI 백엔드에 넘겨준다.
+- UI 백엔드는 Render Tree 기반으로 계산된 요소의 위치, 크기, 색상 등을 브라우저 화면에 실제로 그리기 위해 GPU 및 OS 그래픽 시스템과 연동하여 실제 화면을 그리는 작업을 수행하고, 최종적으로 브라우저 뷰포트에 HTML 문서를 해석한 결과물이 렌더링된다.
+
+<br />
+
+### B. SPA(Single-Page Application)
+
+![SPA-MPA](./images/spa-mpa.webp)
+
+> SPA(Single-Page Application) & MPA(Multi-Page Application)에 대해 보다 자세한 내용은, 제 기술 블로그의 [Notion: SPA & MPA](https://gye-won.notion.site/SPA-MPA-29888bd9c3fa801d94b7c17a2fbb2799) 포스트를 참고해 주시기 바랍니다.
+
+<br />
+
+브라우저는 앞서 설명한 동작 원리에 따라 HTML, CSS, JavaScript 자원을 받아 렌더링을 수행합니다. 그렇다면 React 강의나 책에서 가장 먼저 등장하는 SPA(Single-Page Application)는 무엇을 의미할까요? 그건 바로 웹 애플리케이션이 하나의 HTML 문서를 기반으로 동작하는 구조를 의미합니다.
+
+일반적인 웹 사이트에서는 사용자가 여러 페이지를 이동할 때마다 서로 다른 HTML 문서가 서버로부터 전달됩니다. 이러한 방식으로 여러 HTML 페이지를 통해 웹 사이트를 구성하는 구조를 MPA(Multi-Page Application)라고 부릅니다. 이 경우 페이지가 전환될 때마다 브라우저는 새로운 HTML 문서를 요청하고, 이에 포함된 CSS, JavaScript 등의 정적 자원을 다시 받아 전체 렌더링 과정을 수행하게 됩니다.
+
+반면, React, Vue, Angular와 같은 프레임워크는 기본적으로 SPA 구조를 기반으로 합니다. 즉, 애플리케이션은 최초 접속 시 하나의 HTML 문서만 로드하고, 이후의 화면 전환은 이 HTML 문서를 교체하지 않은 채 JavaScript를 통해 화면을 동적으로 변경하는 방식으로 이루어집니다. 이러한 동작 방식은 [CSR(Client-Side Rendering)](https://gye-won.notion.site/CSR-Client-Side-Rendering-23688bd9c3fa811dab4fd1cbf549c3e6?pvs=74)과 [클라이언트 사이드 라우팅(Client-Side Routing)](https://gye-won.notion.site/Client-Side-Routing-29a88bd9c3fa80e9a67ddae3a6cddc5e)에 의해 가능해지며, 이에 대한 자세한 내용은 제 기술 블로그의 노션 포스트를 참고해 주시기 바랍니다.
+
+중요한 점은, 현재 개발 중인 Clock 프로젝트 역시 이러한 SPA 구조를 따르고 있기 때문에, 사용자가 최초 접속 시 전달받은 HTML 문서는 이후 페이지 이동이 발생하더라도 변경되지 않는다는 것입니다. 즉, 페이지 전환 시마다 새로운 HTML 정적 자원을 다시 요청하는 과정이 발생하지 않고, JavaScript가 메모리 상에서 관리하는 Virtual DOM의 변경 사항만 실제 DOM에 반영되어 화면이 갱신됩니다.
+
+이와 같은 구조를 고려할 때, 페이지 이동이 발생하더라도 HTML 문서가 다시 로드되지 않는 SPA 환경에서 `favicon.svg`와 같은 정적 자원이 반복적으로 재요청되는 현상은 저는 잘 이해가 되지 않았습니다.
+
+<br />
+
+### III. SPA 구조에서 `favicon.svg` 파일이 재요청되는 이유
+
+앞서 페이지 이동이 발생하더라도 
