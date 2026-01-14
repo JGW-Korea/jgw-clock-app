@@ -239,3 +239,178 @@ Performance 탭 상단의 Network 영역을 확인해 보면, `favicon.svg` 요�
 그러나 favicon.svg 정적 파일은 요청 및 응답 과정에서 일부 네트워크 자원이 소모되기는 하지만, 자원의 크기 자체가 크지 않을 뿐만 아니라 앞서 세운 기준에 비추어 보았을 때 화면 렌더링 과정에 영향을 주지도 않았고, 네트워크 요청이 블로킹되어 실행 흐름을 방해하는 현상도 확인되지 않았습니다. 반면, 캐시 정책을 적용할 경우 해당 자원이 사용자의 로컬 환경에 디스크 또는 메모리로 저장되면서 추가적인 공간을 점유하게 됩니다.
 
 이러한 점을 종합적으로 고려했을 때, `favicon.svg`에 캐시 정책을 적용하는 것은 개인적으로는 적절하지 않은 트레이드오프(Trade-off)라고 판단하였고, 그 결과 `favicon.svg`의 응답 헤더에 설정했던 `Cache-Control` 정책을 제거하여 캐시를 사용하지 않기로 결정했습니다.
+
+<br />
+
+## 번외. `favicon.svg`를 Base64 방식으로 사용하는 방법
+
+이 문서에서는 `favicon.svg` 정적 파일에 캐시 정책을 적용하게 된 배경과, 그 선택이 합리적인지에 대해 자세히 살펴보았습니다.
+
+다만 캐시 정책을 적용하지 않기로 결정하더라도, 페이지 이동 시마다 `favicon.svg`에 대한 네트워크 요청이 반복적으로 발생한다는 점은 여전히 남아 있습니다. 물론 앞선 분석을 통해 이러한 네트워크 요청이 런타임 성능이나 흐름에 직접적인 영향을 주지 않는다는 점은 확인할 수 있었습니다.
+
+그럼에도 불구하고 네트워크 요청이 발생한다는 사실 자체가 다음과 같은 잠재적인 비용을 수반할 수 있습니다.
+
+- **HTTP/1.1 환경** 에서는 파이프라이닝(Pipelining)을 통해 하나의 TCP 연결에서 여러 요청을 처리할 수 있지만, 서버가 요청을 순차적으로 처리하는 특성상 특정 요청의 응답이 지연될 경우 뒤따르는 요청들이 영향을 받는 HOL Blocking 문제가 발생할 수 있습니다.
+- **HTTP/2 환경** 에서는 다중화(Multiplexing)를 통해 단일 TCP 연결 내에서 여러 스트림을 병렬로 처리할 수 있어 HOL Blocking 문제가 완화됩니다. 그러나 연결이 유휴 상태로 유지되다 종료되는 경우, 이후 새로운 연결을 수립하는 과정에서 추가적인 RTT가 발생할 수 있습니다.
+
+이와 같은 이유로, `favicon.svg`로 인한 네트워크 요청과 그에 따른 RTT 발생 자체가 불필요하다고 판단된다면, 요청을 아예 발생시키지 않는 방식도 고려해볼 수 있습니다. 그중 하나가 `favicon.svg` 파일을 Base64 형태로 인코딩하여, 별도의 네트워크 요청 없이 HTML 문서를 해석하는 과정에서 문자열 데이터를 직접 사용하도록 하는 방식입니다.
+
+이 방식은 파비콘을 외부 자원으로 요청하지 않고 HTML 메타데이터에 포함시키는 접근으로, 네트워크 요청 자체를 제거할 수 있다는 점에서 구조적인 대안이 될 수 있습니다. 다만, Clock 프로젝트에서는 이 방식을 적용하지는 않지만, 참고를 위해 해당 방식을 어떻게 구현할 수 있는지 살펴보겠습니다.
+
+<br />
+
+**① `<link>` 태그의 `href` 속성에 직접 base64 인코딩 값을 할당하는 방법**
+
+파비콘을 Base64 형태로 인코딩하여 외부 자원 요청 없이 HTML 문서에 포함시키는 가장 간단한 방법은, 브라우저가 서버로부터 전달받는 HTML 문서의 `<link>` 태그 `href` 속성에 Base64로 인코딩된 Data URL을 직접 지정하는 방식입니다.
+
+```html
+<DOCTYPE html />
+<html>
+  <head>
+    <!-- type과 href의 data:image/svg+sml; 부분의 이미지 확장자에 따라 값이 변동됩니다. -->
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+sml;base64,PHN2ZyB4bWxu..."
+    />
+  </head>
+
+  <body>
+    <!-- ... -->
+  </body>
+</html>
+```
+
+<br />
+
+**② JavaScript를 이용하여 동적으로 파비콘을 설정하는 방법**
+
+파비콘과 같은 이미지를 Base64 형태로 인코딩할 경우 문자열 길이가 매우 길어질 수 있기 때문에, `<link>` 태그를 HTML 문서에 직접 작성하는 대신 JavaScript를 사용해 `<link>` 요소를 동적으로 생성한 후 `<head>` 요소에 삽입하는 방식으로 파비콘을 설정할 수도 있습니다.
+
+```jsx
+const imageResult = {};
+
+// 즉시 실행 함수(IIFE)를 통해 favicon.svg 자원에 접근한 뒤, 해당 이미지를 Base64 형태로 변환한다.
+(async () => {
+  const data = await fetch("/favicon.svg");
+  const blob = await data.blob();
+  const reader = new FileReader();
+  reader.onload = () => {
+    imageResult.type = blob.type;
+    imageResult.href = reader.result;
+  }
+  
+  reader.readAsDataURL(blob);
+})();
+
+// JavaScript를 통해 <link> 요소를 생성하고, 파비콘 관련 속성을 동적으로 할당한다.
+const linkEl = document.createElement("link");
+linkEl.rel = "icon";
+linkEl.type = imageResult.type;
+linkEl.href = imageResult.href;
+
+document.head.appendChild(linkEl); // <head> 요소의 자식으로 <link> 요소를 추가한다.
+```
+
+하지만 JavaScript를 이용하여 동적으로 파비콘을 설정하는 방식은 다음과 같은 문제점을 가질 수 있기 때문에 **일반적으로 사용되지 않는 방법**일반적으로 사용되지 않는 방법입니다.
+
+- 이미지 경로가 잘못되었거나 네트워크 요청이 실패할 경우, 파비콘을 정상적으로 로드하지 못할 수 있다.
+- 브라우저가 HTML 문서를 먼저 파싱한 이후 스크립트를 실행하여 파비콘을 설정하게 되므로, 초기 렌더링 시점에는 파비콘이 설정되지 않거나 렌더링 도중에 변경될 가능성이 있다.
+- 파비콘이 HTML 메타데이터가 아닌 스크립트에 의해 설정되기 때문에, SEO 관점에서 HTML 문서의 파비콘 정보를 수집하지 못해 SEO 점수가 낮아질 수 있다.
+- HTML 문서에 이미 <link rel="icon">이 존재하는 상태에서 추가로 파비콘을 설정할 경우, 중복 요청이 발생하거나 파비콘 충돌로 인해 의도한 파비콘이 정상적으로 표시되지 않을 수 있다.
+
+<br />
+
+**③ 빌드 또는 번들링 도구를 이용하는 방법**
+
+> 🚫 Vite를 제외한 다른 도구에서의 지원 여부는 확인하지 않았습니다.
+
+파비콘을 HTML 문서에 직접 작성하거나 JavaScript를 통해 `<link>` 태그를 동적으로 생성하는 방식 대신, 빌드 도구를 활용하여 빌드 시점에 파비콘을 주입하는 방법도 사용할 수 있습니다. 다만, 빌드 과정에서 추가적인 처리가 이루어지므로 빌드 시간이 다소 증가할 수 있습니다.
+
+```bash
+npm install vite-plugin-html-config
+# yarn add vite-plugin-html-config
+```
+
+```jsx
+export default defineConfig({
+  plugins: [
+    htmlConfig({
+      links: [
+        {
+          "rel": "icon",
+          type: 'image/svg+xml',
+          href: `data:image/x-icon;base64,${fs.readFileSync(
+            path.resolve(__dirname, 'public/favicon.svg'),
+            'base64'
+          )}`,
+        }
+      ]
+    })
+  ],
+  // ...
+});
+```
+
+```jsx
+// 파비콘 확장자가 SVG인 경우 -> UTF-8로 인코딩
+const getSvgDataUri = (filePath: string) => {
+  const svgRaw = fs.readFileSync(path.resolve(__dirname, filePath), 'utf-8');
+  // 특수문자(% , # , < , > 등)를 브라우저가 인식할 수 있는 코드로 변환
+  const encoded = encodeURIComponent(svgRaw)
+    .replace(/'/g, '%27')
+    .replace(/"/g, '%22');
+  
+  return `data:image/svg+xml;utf8,${encoded}`;
+};
+
+export default defineConfig({
+  plugins: [
+    htmlConfig({
+      links: [
+        {
+          "rel": "icon",
+          type: 'image/svg+xml',
+          href: `data:image/x-icon;base64,${fs.readFileSync(
+            path.resolve(__dirname, 'public/favicon.svg'),
+            'base64'
+          )}`,
+        }
+      ]
+    })
+  ],
+  // ...
+});
+```
+
+```html
+<DOCTYPE html />
+<html>
+  <head>
+    <!-- 빌드 시점에 파비콘을 주입하기 때문에 서버로부터 전달받은 HTML 문서에 link를 제거해야 합니다. -->
+  </head>
+
+  <body>
+    <!-- ... -->
+  </body>
+</html>
+```
+
+![Favicon base64 build](./images/build-favicon-base64.png)
+
+<br />
+
+지금까지 파비콘 이미지를 Base64로 인코딩하여 사용하는 방법을 살펴보았습니다. 이어서 해당 방식의 장단점에 대해 알아보겠습니다.
+
+**■ 장점**
+
+- 이미지 데이터를 HTML 문서에 직접 포함하므로, 파비콘을 위한 추가적인 HTTP 요청이 발생하지 않습니다.
+- 서버의 처리 속도나 네트워크 지연과 무관하게, HTML 문서가 로드되는 시점에 파비콘 데이터를 즉시 적용할 수 있습니다.
+- 확장자가 SVG인 경우 텍스트 기반 포맷이기 때문에, 필요한 특수 문자만 인코딩하면 되기 때문에 Base64로 인코딩 한 결과보다 HTML 문서의 크기 증가가 상대적으로 크지 않습니다.
+
+**■ 단점**
+
+- 이미지 자원을 Base64 형태로 변환할 경우, 원본 데이터 대비 약 33% 정도 용량이 증가하여 초기 HTML 다운로드 속도에 영향을 줄 수 있습니다.
+  _(Base64는 8비트 데이터를 6비트씩 끊어서 문자로 바꾸는 방식이기 때문에 원본이 이미지든 텍스트든 상관없이 약 33%가 증가한다.)_
+- 파비콘이 HTML 문서의 일부로 포함되기 때문에, 브라우저가 파비콘만 독립적으로 캐싱할 수가 없습니다. 즉, 파비콘을 변경하려면 HTML 문서 자체가 갱신되어야 합니다.
+  _(단, 빌드 단계에서 주입하는 방식을 사용할 경우 이 제약을 일부 완화할 수 있습니다.)_
