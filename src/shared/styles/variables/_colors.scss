@@ -1,0 +1,192 @@
+// 동일한 색상 값이 여러 방면에서 사용되고 있기 때문에 먼저 원시 값 자체만 SCSS 변수로 선언한다.
+$color-000000: #000000;
+$color-ffffff: #ffffff;
+$color-333333: #333333;
+$color-2c2c2f: #2c2c2f;
+$color-353535: #353535;
+$color-414040: #414040;
+$color-fafafa: #fafafa;
+$color-bbbbbc: #bbbbbc;
+$color-e1e1e1: #e1e1e1;
+$color-ff7f00: #ff7f00;
+$color-df3b32: #df3b32;
+$color-30b61e: #30b61e;
+$color-aca6a6: #aca6a6;
+$color-434343: #434343;
+$color-9e9eb2: #9e9eb2;
+$color-4d4d4d: #4d4d4d;
+$color-1b3d27: #1b3d27;
+$color-3d1616: #3d1616;
+$color-2ed157: #2ed157;
+$color-a8a8a8: #a8a8a8;
+
+// 구성한 원시 값을 통해 의미론적(Semantic) 단위의 SCSS 변수를 선언한다.
+$bg-colors: (
+  primary: $color-000000,
+  secondary: $color-2c2c2f,
+  tertiary: $color-353535,
+);
+
+$state-bg-colors: ( // 특정 컴포넌트 상태에 대한 배경색
+  delete: $color-df3b32,
+  active: $color-ff7f00,
+  neutral: $color-4d4d4d,
+  start: $color-1b3d27,
+  stop: $color-3d1616,
+  hover: $color-414040,
+);
+
+$box-shadow-colors: ( // Box-Shadw 색상
+  primary: $color-000000,
+  secondary: $color-333333,
+);
+
+$text-colors: ( // Text 색상 관련 SCSS map 자료형이지만, icons의 색상도 이를 활용한다.
+  primary: $color-ffffff,
+  secondary: $color-aca6a6,
+  tertiary: $color-2c2c2f,
+  empty: $color-a8a8a8,
+  stop: $color-df3b32,
+  start: $color-2ed157,
+  active: $color-ff7f00,
+);
+
+$border-colors: ( // Border UI에서 활용될 색상 변수
+  primary: $color-333333,
+  secondary: $color-ffffff,
+  tertiary: $color-414040,
+);
+
+$liqued-glass-colors: ( // Liquid-Glass 기반 UI 컴포넌트에서 활용될 색상 변수
+  glass: $color-bbbbbc,
+  content: $color-e1e1e1,
+  action: $color-ff7f00,
+  dark: $color-000000,
+  light: $color-ffffff,
+);
+
+// src/app/layout -> background-color 값으로 사용 (bg-colors 분리 O)
+// src/app/styles -> background-color 값으로 사용 (bg-colors 분리 O)
+// src/features/swipe-to-delete -> button.box-shadow 값으로 사용 (box-shadow-colors 분리 O)
+// #000
+
+// 전역 폰트 color 값으로 사용 (text-colors 분리 O)
+// picker mask 2번째 인자 값으로 사용 (text-colors 분리 O)
+// picker-track, picker-track-holder color 값으로 사용 (text-colors 분리 O)
+// bottom sheet header color 값으로 사용 (text-colors 분리 O)
+// List Item color 값으로 사용 (text-colors 분리 O)
+// TimerContent button의 color 값으로 사용 (text-colors 분리 O)
+// TimerContent button.decrement::before / button.increment::before의 border 값으로 사용 (border-colors 분리 O)
+// #FFF
+
+// swipe-to-delete__actions > button background-color 값으로 사용 (state-bg-colors 분리 O)
+// AlarmContent delete-btn background-color 값으로 사용 (state-bg-colors 분리 O)
+// Stopwatch button-group > .stop color 값으로 사용 (state-text-colors 분리 O)
+// TimerContent button-group > .stop color 값으로 사용 (state-text-colors 분리 O)
+// WorldContentListItem delete-btn background-color 값으로 사용 (state-bg-colors 분리 O)
+// #df3b32
+
+// // time-picker $visor 값으로 사용  (bg-colors 분리 O)
+// // alarm bottom sheet > weekdays background-color 값으로 사용  (bg-colors 분리 O)
+// #353535
+
+// // Bottom Sheet .container background-color 값으로 사용  (bg-colors 분리 O)
+// // Audio .audtio background-color 값으로 사용  (bg-colors 분리 O)
+// // TimerContent .time-group background-color 값으로 사용  (bg-colors 분리 O)
+// #2c2c2f
+
+
+// // Audio .audio > h3 + .audio > button color 값으로 사용 (state-text-colors 분리 O)
+// // alarm bottom sheet > weekdays > svg > path fill 값으로 사용 (state-text-colors 분리 O)
+// // Timer Content button:not(&:disabled):hover background-color, border-color 값으로 사용 (state-bg-colors 분리 O)
+// #ff7f00
+
+// // Shared List Item border-bottom 값으로 사용 (border-colors 분리 O)
+// // World Bottom Sheet & > li:first-child border-top 값으로 사용 (border-colors 분리 O)
+// // World Bottom Sheet & > button:active background-color (state-bg-colors 분리 O)
+// // Alarm Content & > li:first-child border-top 값으로 사용 (border-colors 분리 O)
+// #414040
+
+
+// // AlarmContent list-empty > span color 값으로 사용 (text-color 분리 O)
+// // WorldContent list-empty > span color 값으로 사용 (text-color 분리 O)
+// #a8a8a8
+
+// // Stopwatch button-group > .reset background-color 값으로 사용 (state-bg-colors 분리 O)
+// // Timer button-group > .reset background-color 값으로 사용 (state-bg-colors 분리 O)
+// #4d4d4d
+
+// // Stopwatch button-group > .start background-color 값으로 사용 (state-bg-colors 분리 O)
+// // Timer button-group > .start background-color 값으로 사용 (state-bg-colors 분리 O)
+// #1b3d27
+
+// // Stopwatch button-group > .stop background-color 값으로 사용 (state-bg-colors 분리 O)
+// // Timer button-group > .stop background-color 값으로 사용 (state-bg-colors 분리 O)
+// #3d1616
+
+// // Stopwatch button-group > .start color 값으로 사용 (state-text-colors 분리 O)
+// // Timer button-group > .start color 값으로 사용 (state-text-colors 분리 O)
+// #2ed157
+
+// // Bottom Sheet Header > .right-button box-shadow 값으로 사용 (box-shadow-colors 분리 O)
+// // Stopwatch Content .button-group border-bottom 값으로 사용 (border-colors 분리 O)
+// // Timer Content .button-group border-bottom 값으로 사용 (border-colors 분리 O)
+// #333333
+
+// // WorldContentListItem list-item__content-city > p color 값으로 사용
+// #aca6a6
+
+
+
+
+// ⬇️ #FFF로 통일
+// // Bottom Sheet Header > .svg-fill, .svg-stroke fill, stroke 값으로 사용
+// // alarm bottom sheet > weekdays > li > button color 값으로 사용
+// // Alarm Header .glass-button > svg > path stroke 값으로 사용
+// // World Header .glass-button > svg > path stroke 값으로 사용
+// #FAFAFA
+
+
+// // picker-controls color 값으로 사용 -> picker-controls > .control에서 mask를 통해 상 / 중 / 하 색상을 정하고 있기 때문에 지워도 될 듯
+// #9e9eb2
+
+
+
+// ------------------------
+// Toggle Switch
+// ------------------------
+// #FFF -> Toggle Switch - Thumb background-color 값으로 사용 (toggle-bg-colors 분리 O)
+// #434343 -> Shared Toggle Switch background-color 값으로 사용  (toggle-bg-colors 분리 O)
+// #30b61e -> Shared Toggle Switch.active background-color 값으로 사용 (toggle-bg-colors 분리 O)
+$toggle-bg-colors: ( // Toggle Switch 컴포넌트 배경색 (전역 변수가 아닌 지역 변수로 변경할 예정)
+  thumb: $color-ffffff,
+  inactive: $color-434343,
+  active: $color-30b61e
+);
+
+
+
+
+// ------------------------
+// Icon
+// ------------------------
+// audio::before / audio::after Icon background-color 값으로 사용 (text-colors 분리 O, 단 Toggle-Switch 컴포넌트 내부 지역 변수로 옮길까 생각중)
+// TimerContent button.decrement::before / button.increment::before의 background-color, border 값으로 사용 (text-colors 분리 O)
+// AlarmContent layout-list-item__delete-btn::before Icon background-color 값으로 사용 (text-colors 분리 O)
+// WorldContentListItem delete-btn::before Icon background-color 값으로 사용 (text-colors 분리 O)
+// #FFF
+
+// TimerContent decrement::before, increment::after, increment::before hover 시 icon 표현 background-color 값으로 사용
+// #2c2c2f
+
+
+
+
+// ------------------------
+// Liquid Glass
+// ------------------------
+// #bbbbbc -> liqued glass -> color.glass (SCSS 객체) 값으로 사용
+// #e1e1e1 -> liqued glass -> color.content (SCSS 객체) 값으로 사용
+// #ff7f00 -> liqued glass -> color.action (SCSS 객체) 값으로 사용
+// #000000 -> liqued glass -> color.dark (SCSS 객체) 값으로 사용 
+// #FFFFFF -> liqued glass -> color.light (SCSS 객체) 값으로 사용
