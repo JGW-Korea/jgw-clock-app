@@ -1,3 +1,5 @@
+@use "sass:map";
+@use "@shared/styles" as *;
 @use "./font.scss";
 
 // HTML 문서 루트 태그(<html>)에 font-size를 지정하여 rem 단위를 지정한다.
@@ -9,7 +11,7 @@ html, body {
 // Safari 모바일 환경에서 안전 영역의 배경색을 Layout과 동일한 배경색으로 지정한다.
 @media screen and (max-width: 436px) {
   body {
-    background-color: #000;
+    background-color: map.get($bg-colors, primary);
   }
 }
 
@@ -20,5 +22,5 @@ button, a, time, div {
   // -> font-family는 순차적으로 적용할 수 있는 폰트 구성을 찾으며, 적용할 수 있는 폰트 구성을 만난 경우 다음 폰트 구성은 무시한다.
   font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", Helvetica, "SF Pro", sans-serif, system-ui;
   text-decoration: none;
-  color: #FFF;
+  color: map.get($text-colors, primary);
 }

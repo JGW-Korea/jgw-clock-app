@@ -1,10 +1,13 @@
+@use "@shared/styles" as *;
+@use "sass:map";
+
 .layout {
   max-width: 436px;
   height: 100dvh;
   margin: 0 auto;
   box-sizing: border-box;
   padding: 3rem 4rem 2rem;
-  background-color: #000;
+  background-color: map.get($bg-colors, primary);
 
   display: flex;
   flex-direction: column;
