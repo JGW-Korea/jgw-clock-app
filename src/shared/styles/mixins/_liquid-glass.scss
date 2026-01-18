@@ -1,0 +1,26 @@
+@use "sass:map";
+@use "../variables" as *;
+
+// ---------------------------------------------------------------
+// Liquid-Glass 스타일에서만 사용되는 값들이므로
+// 전역 변수로 분리하지 않고, 해당 스타일 파일 내부의 지역 변수로 선언한다.
+// 이를 통해 Liquid-Glass 스타일 숮어 시 다른 파일을 참조할 필요 없이
+// 하나의 파일에서 관련 값과 로직을 함께 관리할 수 있도록 구성한다.
+// ---------------------------------------------------------------
+$liquid-glass-colors: ( // Liquid-Glass 기반 UI 컴포넌트에서 활용될 색상 변수
+  glass: $color-bbbbbc,
+  content: $color-e1e1e1,
+  action: $color-ff7f00,
+  dark: $color-000000,
+  light: $color-ffffff,
+);
+
+$liquid-glass-backdrop-filter: (
+  blur: 2rem,
+  saturation: 150%,
+);
+
+$liquid-glass-reflex-dark: 2;
+$liquid-glass-reflex-light: 0.3;
+$liquid-glass-transition: 400ms cubic-bezier(1, 0, 0.4, 1);
+$liquid-glass-rounded: map.get($rounded, full);

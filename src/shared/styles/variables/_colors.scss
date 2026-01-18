@@ -57,14 +57,6 @@ $border-colors: ( // Border UI에서 활용될 색상 변수
   tertiary: $color-414040,
 );
 
-$liqued-glass-colors: ( // Liquid-Glass 기반 UI 컴포넌트에서 활용될 색상 변수
-  glass: $color-bbbbbc,
-  content: $color-e1e1e1,
-  action: $color-ff7f00,
-  dark: $color-000000,
-  light: $color-ffffff,
-);
-
 // src/app/layout -> background-color 값으로 사용 (bg-colors 분리 O)
 // src/app/styles -> background-color 값으로 사용 (bg-colors 분리 O)
 // src/features/swipe-to-delete -> button.box-shadow 값으로 사용 (box-shadow-colors 분리 O)
