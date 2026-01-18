@@ -1,4 +1,4 @@
-import { TABS } from "../model/tabs";
+import { TABS } from "../consts";
 import TabItem from "./TabItem";
 import styles from "./index.module.scss";
 
