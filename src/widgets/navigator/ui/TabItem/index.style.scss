@@ -1,25 +1,27 @@
 @use "sass:map";
-@use "./variable.scss" as *;
-@use "./mixin.scss" as *;
+@use "@shared/styles" as *;
 
 // Tab Navigator -> Tab Navigation의 전체 레이아웃 스타일 구성
 .tab-nav {
-  $blur: 2rem;
   $transition: 400ms cubic-bezier(1, 0, 0.4, 1);
-  $borderRadius: 9999px;
 
   // 단순, Tab Nativgation 레이아웃 패딩, 테두리 경계선 지정
   padding: 2.5rem 3rem;
   box-sizing: border-box;
-  border-radius: $borderRadius;
+  border-radius: map.get($rounded, full);
 
-  // Liquid Glass 효과를 나타내기 위한 배경색 + 배경색 Blur 효과 / 채도 구성
-  background-color: color-mix(in srgb, map.get($colors, "glass") 12%, transparent);
-  backdrop-filter: blur($blur) saturate($saturation);
-  -webkit-backdrop-filter: blur($blur) saturate($saturation);
+  // 전역에 구성한 Liquid-Glass 스타일 합성
+  @include mixin-liquid-glass(
+    $boxShadow: "strong",
+    $transition: (background-color $transition, box-shadow $transition)
+  );
+  
+  // background-color: color-mix(in srgb, map.get($colors, "glass") 12%, transparent);
+  // backdrop-filter: blur($blur) saturate($saturation);
+  // -webkit-backdrop-filter: blur($blur) saturate($saturation);
 
-  @include glass-shadow(); // Liquid Glass 효과를 나타내기 위한 Box-Shadow 스타일 구성
-  transition: background-color $transition, box-shadow $transition; // Liquid Glass 효과를 위한 전환 상태(Transition)의 애니메이션 지정
+  // @include glass-shadow(); // Liquid Glass 효과를 나타내기 위한 Box-Shadow 스타일 구성
+  // transition: background-color $transition, box-shadow $transition; // Liquid Glass 효과를 위한 전환 상태(Transition)의 애니메이션 지정
   
   // Tab Lsit -> Tab Item을 구성하는 전체 리스트 레이아웃 스타일 구성
   &__list {
@@ -39,22 +41,33 @@
       // width: calc((100% / 4) - 3rem);
       top: 1.2rem;
       height: calc(100% - 2.5rem);
-      border-radius: $borderRadius;
-      background-color: color-mix(in srgb, map.get($colors, "content") 36%, transparent);
+      border-radius: map.get($rounded, full);
       z-index: -1;
-      box-shadow: 
-        inset 0 0 0 1px
-        color-mix(in srgb, map.get($colors, "light") calc($glass-reflex-light * 10%), transparent),
-        inset 2px 1px 0px -1px color-mix(in srgb, map.get($colors, "light") calc($glass-reflex-light * 10%), transparent),
-        inset -1.5px -1px 0px -1px color-mix(in srgb, map.get($colors, "light") calc($glass-reflex-light * 10%), transparent),
-        inset -2px -6px 1px -5px color-mix(in srgb, map.get($colors, "light") calc($glass-reflex-light * 10%), transparent),
-        inset -1px 2px 3px -1px color-mix(in srgb, map.get($colors, "dark") calc($glass-reflex-dark * 20%), transparent),
-        inset 0px -4px 1px -2px color-mix(in srgb, map.get($colors, "dark") calc($glass-reflex-dark * 20%), transparent),
-        0px 3px 6px 0px color-mix(in srgb, map.get($colors, "dark") calc($glass-reflex-dark * 20%), transparent);
       
-      transition:
-        box-shadow 400ms cubic-bezier(1, 0, 0.4, 1),
-        transform 400ms cubic-bezier(1, 0, 0.4, 1);
+      @include mixin-liquid-glass(
+        $colorKey: content,
+        $colorPercent: 36%,
+        $boxShadow: "soft",
+        $transition: (
+          box-shadow $transition,
+          transform $transition
+        )
+      );
+
+      // background-color: color-mix(in srgb, map.get($colors, "content") 36%, transparent);
+      // box-shadow: 
+      //   inset 0 0 0 1px
+      //   color-mix(in srgb, map.get($colors, "light") calc($glass-reflex-light * 10%), transparent),
+      //   inset 2px 1px 0px -1px color-mix(in srgb, map.get($colors, "light") calc($glass-reflex-light * 10%), transparent),
+      //   inset -1.5px -1px 0px -1px color-mix(in srgb, map.get($colors, "light") calc($glass-reflex-light * 10%), transparent),
+      //   inset -2px -6px 1px -5px color-mix(in srgb, map.get($colors, "light") calc($glass-reflex-light * 10%), transparent),
+      //   inset -1px 2px 3px -1px color-mix(in srgb, map.get($colors, "dark") calc($glass-reflex-dark * 20%), transparent),
+      //   inset 0px -4px 1px -2px color-mix(in srgb, map.get($colors, "dark") calc($glass-reflex-dark * 20%), transparent),
+      //   0px 3px 6px 0px color-mix(in srgb, map.get($colors, "dark") calc($glass-reflex-dark * 20%), transparent);
+      
+      // transition:
+      //   box-shadow 400ms cubic-bezier(1, 0, 0.4, 1),
+      //   transform 400ms cubic-bezier(1, 0, 0.4, 1);
     }
 
     &:has(a[href="/"][aria-current="page"])::after {
@@ -75,7 +88,7 @@
   &__item {
     flex: 1;
     height: 100%;
-    border-radius: $borderRadius;
+    border-radius: map.get($rounded, full);
     opacity: 1;
     transition: all 160ms;
   }
@@ -93,20 +106,22 @@
     gap: 1.5rem;
     cursor: default;
 
+    $transition: (200ms cubic-bezier(0.5, 0, 0, 1));
+
     // Tab Link 하위 아이콘 스타일
     &-icon {
       width: 7rem;
       height: 7rem;
-      transition: scale 200ms cubic-bezier(0.5, 0, 0, 1); // Hover 시 scale 전후 상태 제어 애니메이션 속성값
+      transition: scale $transition; // Hover 시 scale 전후 상태 제어 애니메이션 속성값
 
       & path {
-        fill: map.get($colors, "content");
+        fill: map.get($text-colors, primary);
       }
     }
 
     // Tab Link 하위 텍스트 스타일
     &-text {
-      transition: 200ms cubic-bezier(0.5, 0, 0, 1); // Hover 시 scale 전후 상태 제어 애니메이션 속성값
+      transition: $transition; // Hover 시 scale 전후 상태 제어 애니메이션 속성값
     }
 
     // 현재 활성화된 라우트가 아닌 탭 버튼 항목을 Hover 시 후 상태 처리
@@ -117,12 +132,12 @@
         & > .tab-nav__link-icon {
           scale: 1.14;
           & path {
-            fill: map.get($colors, "action");
+            fill: map.get($text-colors, active);
           }
         }
 
         & > .tab-nav__link-text {
-          color: map.get($colors, "action");
+          color: map.get($text-colors, active);
           font-weight: 700
         }
       }
