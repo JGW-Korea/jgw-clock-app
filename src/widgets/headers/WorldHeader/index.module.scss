@@ -1,11 +1,8 @@
 @use "sass:map";
-@use "./variable.scss" as *;
-@use "./mixin.scss" as *;
+@use "@shared/styles" as *;
 
 .glass-button {
-  $blur: 2rem;
   $transition: 200ms cubic-bezier(0.5, 0, 0, 1);
-  $borderRadius: 9999px;
 
   &__hidden {
     visibility: hidden;
@@ -17,17 +14,15 @@
     padding: 2rem 4rem;
   }
 
-  border-radius: $borderRadius;
+  border-radius: map.get($rounded, full);
   border: none;
   cursor: pointer;
 
-  // Liquid Glass 효과를 나타내기 위한 배경색 + 배경색 Blur 효과 / 채도 구성
-  background-color: color-mix(in srgb, map.get($colors, "glass") 12%, transparent);
-  backdrop-filter: blur($blur) saturate($saturation);
-  -webkit-backdrop-filter: blur($blur) saturate($saturation);
-
-  @include glass-shadow(); // Liquid Glass 효과를 나타내기 위한 Box-Shadow 스타일 구성
-  transition: $transition;
+  // 전역에 구성한 Liquid-Glass 스타일 합성
+  @include mixin-liquid-glass(
+    $boxShadow: "strong",
+    $transition: $transition
+  );
 
   // 폰트 스타일
   font-size: 4rem;
@@ -40,19 +35,19 @@
     height: 6rem;
 
     & > path {
-      stroke: #FAFAFA;
+      stroke: map.get($text-colors, primary);;
       transition: $transition;
     }
   }
 
   &:hover {
     &.glass-button__text {
-      color: map.get($colors, "action");
+      color: map.get($text-colors, action);
     }
     &.glass-button__icon {
       & > svg {
         & path {
-          stroke: map.get($colors, "action");
+          stroke: map.get($text-colors, action);
         }
       }
     }
