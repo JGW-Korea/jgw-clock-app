@@ -1,3 +1,6 @@
+@use "sass:map";
+@use "@shared/styles" as *;
+
 // ------------------------
 // Toggle Switch
 // ------------------------
@@ -12,7 +15,7 @@ $toggle-thumb-color: #fff;
   $width: 60px;
   width: $width;
   height: 25px;
-  border-radius: 9999px;
+  border-radius: map.get($rounded, full);
   position: relative;
   background-color: $toggle-disabled-track-color;
   padding: 0.5rem;
@@ -25,7 +28,7 @@ $toggle-thumb-color: #fff;
     width: calc((#{$width} + 10px) / 2);
     height: 100%;
     background-color: $toggle-thumb-color;
-    border-radius: 9999px;
+    border-radius: map.get($rounded, full);
     transform: translateX(0%);
     transition: transform 0.2s ease-out;
   }
