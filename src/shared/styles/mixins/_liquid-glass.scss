@@ -1,5 +1,4 @@
 @use "sass:map";
-@use "../variables" as *;
 
 // ----------------------------------------------------------------------------
 // Liquid-Glass 스타일에서만 사용되는 값들이므로
@@ -8,11 +7,11 @@
 // 하나의 파일에서 관련 값과 로직을 함께 관리할 수 있도록 구성한다.
 // ----------------------------------------------------------------------------
 $liquid-glass-colors: ( // Liquid-Glass 기반 UI 컴포넌트에서 활용될 색상 변수
-  glass: $color-bbbbbc,
-  content: $color-e1e1e1,
-  action: $color-ff7f00,
-  dark: $color-000000,
-  light: $color-ffffff,
+  glass: #bbbbbc,
+  content: #e1e1e1,
+  action: #ff7f00,
+  dark: #000000,
+  light: #ffffff,
 );
 
 $liquid-glass-backdrop-filter: (
@@ -23,7 +22,7 @@ $liquid-glass-backdrop-filter: (
 $liquid-glass-reflex-dark: 2;
 $liquid-glass-reflex-light: 0.3;
 $liquid-glass-transition: 400ms cubic-bezier(1, 0, 0.4, 1);
-$liquid-glass-rounded: map.get($rounded, full);
+$liquid-glass-rounded: 9999px;
 
 // ----------------------------------------------------------------------------
 // Liquid-Glass 스타일 내부에서 조건에 따라 서로 다른 값을 적반환하기 위한 함수
