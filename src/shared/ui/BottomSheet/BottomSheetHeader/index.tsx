@@ -22,15 +22,15 @@ export default function BottomSheetHeader({ sheetTitle, onClose, showRightButton
   
   return (
     <Sheet.Header className={`${styles["bottom-sheet-header"]}`}>
-      <button className={`${styles["bottom-sheet-header__button"]} ${styles["bottom-sheet-header__button-glass"]}`} onClick={onClose}>
-        <Cancel width={24} height={24} style={{ transform: "rotate(45deg)" }} className={`${styles["bottom-sheet-header__button-svg-storke"]}`} />
+      <button className={`${styles["bottom-sheet-header__button"]} ${styles["bottom-sheet-header__button-left"]}`} onClick={onClose}>
+        <Cancel width={24} height={24} style={{ transform: "rotate(45deg)" }} className={`${styles["bottom-sheet-header__button-svg-stroke"]}`} />
       </button>
       
       <h3 className={`${styles["bottom-sheet-header__title"]}`}>{sheetTitle}</h3>
       
       {/* Select Props가 전달된 경우 */}
       <button
-        className={`${styles["bottom-sheet-header__button"]} ${styles["bottom-sheet-header__button-rightButton"]}`}
+        className={`${styles["bottom-sheet-header__button"]} ${styles["bottom-sheet-header__button-right"]}`}
         style={{ visibility: showRightButton ? "visible" : "hidden" }}
         onClick={onRightButtonClick}
       >

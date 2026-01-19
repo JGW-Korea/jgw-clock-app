@@ -71,7 +71,7 @@ $liquid-glass-rounded: map.get($rounded, full);
 // ----------------------------------------------------------------------------
 // 전역에서 재활용할 Liquid-Glass 스타일 Mixin (show)
 // ----------------------------------------------------------------------------
-@mixin liquid-glass($colorKey: glass, $colorPercent: 12%, $boxShadow: "strong", $transition) {
+@mixin liquid-glass($colorKey: glass, $colorPercent: 12%, $boxShadow: "strong", $transition: null) {
   background-color: liquid-glass-color-mix($colorKey, $colorPercent);
   backdrop-filter: liquid-glass-backdrop-filter();
   -webkit-backdrop-filter: liquid-glass-backdrop-filter();

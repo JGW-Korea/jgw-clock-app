@@ -1,6 +1,5 @@
 @use "sass:map";
-@use "./_variables.scss" as *;
-@use "./_mixin.scss" as *;
+@use "@shared/styles" as *;
 
 .bottom-sheet-header {
   height: 10rem;
@@ -11,7 +10,7 @@
   // Bottom Sheet Header 내부에서 사용되는 Button 스타일
   &__button {
     padding: 2rem;
-    border-radius: 9999px;
+    border-radius: map.get($rounded, full);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -19,48 +18,32 @@
     cursor: pointer;
     transition: 200ms cubic-bezier(0.5, 0, 0, 1);
 
+    &-svg-fill > path { fill: map.get($text-colors, primary) }
+    &-svg-stroke > path { stroke: map.get($text-colors, primary) }
 
-    &-svg-fill  {
-      & > path {
-        fill: #FAFAFA;
-      }
-    }
-    &-svg-storke {
-      & > path {
-        stroke: #FAFAFA;
-      }
+    & > svg,
+    & > svg > path {
+      transition: 200ms cubic-bezier(0.5, 0, 0, 1);
     }
 
-    // Glassmorphism 스타일이 적용된 버튼 스타일 구성
-    &-glass {
-      // Liquid Glass 효과를 나타내기 위한 배경색 + 배경색 Blur 효과 / 채도 구성
-      background-color: color-mix(in srgb, map.get($colors, "glass") 12%, transparent);
-      backdrop-filter: blur(2rem) saturate($saturation);
-      -webkit-backdrop-filter: blur(2rem) saturate($saturation);
-      @include glass-shadow(); // Liquid Glass 효과를 나타내기 위한 Box-Shadow 스타일 구성
-
-      & > svg {
-        transition: 200ms cubic-bezier(0.5, 0, 0, 1);
-        & > path {
-          transition: 200ms cubic-bezier(0.5, 0, 0, 1);
-        }
-      }
+    &-left {
+      @include mixin-liquid-glass(); // 전역에 구성한 Liquid-Glass 스타일 합성
 
       &:hover {
         & svg {
           transform: rotate(45deg) scale(1.2) !important;
 
           & path {
-            stroke: map.get($colors, "action");
+            stroke: map.get($text-colors, active);
           }
         }
       }
     }
 
     // Bottom Sheet Header 오른쪽에 표시되는 버튼 스타일 구성
-    &-rightButton {
-      background-color: map.get($colors, "action");
-      box-shadow: 0 2px 4px #333;
+    &-right {
+      background-color: map.get($state-bg-colors, active);
+      box-shadow: 0 2px 4px map.get($border-colors, primary);
 
       & > svg {
         transition: 200ms cubic-bezier(0.5, 0, 0, 1);
@@ -85,6 +68,6 @@
   // Bottom Sheet Header 내부에서 사용되는 Title 스타일
   &__title {
     font-size: 5.8rem;
-    color: #fff;
+    color: map.get($text-colors, primary);
   }
 }
