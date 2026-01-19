@@ -23,17 +23,14 @@ export default function WorldHeader({ worldTimeList, editMode, onClickOpenSheet,
       <div style={{ display: "flex", justifyContent: "space-between" }}>
         {/* Edit Button 활성화 버튼 */}
         <button
-          className={`
-            ${style["glass-button"]}
-            ${style["glass-button__text"]} ${worldTimeList.length === 0 && style["glass-button__hidden"]}
-          `}
+          className={`${style["header-button"]} ${style["header-button__text"]} ${worldTimeList.length === 0 ? style["header-button__hidden"] : ""} liquid-glass fast`}
           onClick={() => onClickEditModeActive("click")}
         >
           {(editMode.click || editMode.swipe) ? <Check /> : "Edit" }
         </button>
         
         {/* Bottom Sheet 활성화 버튼 */}
-        <button className={`${style["glass-button"]} ${style["glass-button__icon"]}`} onClick={onClickOpenSheet}>
+        <button className={`${style["header-button"]} ${style["header-button__icon"]} liquid-glass fast`} onClick={onClickOpenSheet}>
           <PlusIcon />
         </button>
       </div>

@@ -27,7 +27,7 @@
     }
 
     &-left {
-      @include mixin-liquid-glass(); // 전역에 구성한 Liquid-Glass 스타일 합성
+      // @include mixin-liquid-glass(); // 전역에 구성한 Liquid-Glass 스타일 합성
 
       &:hover {
         & svg {

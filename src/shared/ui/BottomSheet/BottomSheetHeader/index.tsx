@@ -22,7 +22,7 @@ export default function BottomSheetHeader({ sheetTitle, onClose, showRightButton
   
   return (
     <Sheet.Header className={`${styles["bottom-sheet-header"]}`}>
-      <button className={`${styles["bottom-sheet-header__button"]} ${styles["bottom-sheet-header__button-left"]}`} onClick={onClose}>
+      <button className={`${styles["bottom-sheet-header__button"]} ${styles["bottom-sheet-header__button-left"]} liquid-glass`} onClick={onClose}>
         <Cancel width={24} height={24} style={{ transform: "rotate(45deg)" }} className={`${styles["bottom-sheet-header__button-svg-stroke"]}`} />
       </button>
       
