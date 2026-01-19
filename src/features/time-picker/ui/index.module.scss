@@ -1,5 +1,8 @@
-@use "../variables" as *;
+@use "sass:map";
+@use "@shared/styles" as *;
 
+$line-height: 8.5rem;
+$item-size: 14rem;
 $total: 60;
 $inner-angle: calc((360 / $total) * 1deg);
 $gap: 0px;
@@ -7,6 +10,39 @@ $radius: calc(($line-height + $gap) / sin($inner-angle) * -1);
 $rotation: calc(360deg / $total);
 
 .picker {
+  display: flex;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+  
+  // Picker Controls 영역 스타일 구성
+  &-controls {
+    transition: transform .25s;       // transform 변화 시 전 <-> 후 애니메이션 속성
+    // transform-style: preserve-3d;
+    display: flex;
+    gap: 0;
+
+    // 하위(후손) 요소들에게 상속될 스타일 선언
+    font-size: 4rem;
+    font-weight: 300;
+
+    &::after {
+      content: "";
+      position: absolute;
+      height: $line-height;
+      border-radius: 1.5rem;
+      background-color: map.get($bg-colors, tertiary);
+      top: 50%;
+      left: 0;
+      right: 0;
+      z-index: -1;
+      transform: translateY(-50%);
+      // transform-style: preserve-3d;
+      // transform: translate3d(-50%, -50%, -1px);
+      pointer-events: none;
+    }
+  }
+
   &-control {
     width: $item-size;
     aspect-ratio: 1 / 2;
@@ -19,8 +55,8 @@ $rotation: calc(360deg / $total);
     place-items: center;
     transform-style: preserve-3d;
     transform: translate(-2rem) translateZ(0);
-    mask: linear-gradient(#0000, #fff, #0000);
-    -webkit-mask: linear-gradient(#0000, #fff, #0000);
+    mask: linear-gradient(transparent, map.get($text-colors, primary), transparent);
+    -webkit-mask: linear-gradient(transparent, map.get($text-colors, primary), transparent);
     transition: opacity 0.25s;
 
     &.meridiem {
@@ -39,15 +75,15 @@ $rotation: calc(360deg / $total);
     top: 50%;
     left: 0;
     overflow: hidden;
-    color: #fff;
+    color: map.get($text-colors, primary);
     translate: 0 -50%;
     pointer-events: none;
-    background: $visor;
+    background: map.get($bg-colors, tertiary);
 
     &-holder {
       width: 100%;
       word-break: break-all;
-      color: #fff;
+      color: map.get($text-colors, primary);
       pointer-events: none;
       font-weight: 400;
       word-spacing: 50rem;
@@ -63,14 +99,14 @@ $rotation: calc(360deg / $total);
     width: 100%;
     aspect-ratio: 1;
     height: 55rem;
-    color: #0000;
+    color: transparent;
     overflow: auto;
     margin: 0;
     padding: 0;
     scroll-snap-type: y mandatory;
     scroll-timeline: --controller;
     padding-block: 0.5rem;
-    scrollbar-color: #0000 #0000;
+    scrollbar-color: transparent transparent;
 
     scrollbar-width: none;
     &::-webkit-scrollbar {

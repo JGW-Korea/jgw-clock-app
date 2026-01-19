@@ -1,5 +1,6 @@
 import Picker from "./Picker";
 import PickerWheel from "./PickerWheel";
+import styles from "./index.module.scss";
 import useTimePickerAnimation from "../model/useTimePickerAnimation";
 import { HOURS_LIST, HOURS_WHEEL, HOURS_TRACK, MERIDIEM_ITEMS, MINUTES_LIST, MINUTES_TRACK, MINUTES_WHEEL } from "../consts";
 
@@ -16,10 +17,10 @@ export default function TimePicker({ onPointerOver, onPointerLeave, updateTimePi
   const { meridiemRef, hoursRef, minutesRef } = useTimePickerAnimation(updateTimePicker);
 
   return (
-    <Picker onPointerOver={onPointerOver} onPointerLeave={onPointerLeave}>
-      <PickerWheel ref={meridiemRef} list={MERIDIEM_ITEMS} wheel={MERIDIEM_ITEMS} track={MERIDIEM_ITEMS} className="meridiem" />
-      <PickerWheel ref={hoursRef} list={HOURS_LIST} wheel={HOURS_WHEEL} track={HOURS_TRACK} className="hours" />
-      <PickerWheel ref={minutesRef} list={MINUTES_LIST} wheel={MINUTES_WHEEL} track={MINUTES_TRACK} className="minutes" />
+    <Picker styles={styles} onPointerOver={onPointerOver} onPointerLeave={onPointerLeave}>
+      <PickerWheel ref={meridiemRef} styles={styles} list={MERIDIEM_ITEMS} wheel={MERIDIEM_ITEMS} track={MERIDIEM_ITEMS} className="meridiem" />
+      <PickerWheel ref={hoursRef} styles={styles} list={HOURS_LIST} wheel={HOURS_WHEEL} track={HOURS_TRACK} className="hours" />
+      <PickerWheel ref={minutesRef} styles={styles} list={MINUTES_LIST} wheel={MINUTES_WHEEL} track={MINUTES_TRACK} className="minutes" />
     </Picker>
   )
 }

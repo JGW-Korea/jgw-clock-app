@@ -1,7 +1,8 @@
 import { forwardRef } from "react";
-import styles from "./index.module.scss";
+// import styles from "./index.module.scss";
 
 interface Props {
+  styles: CSSModuleClasses;
   list: ReadonlyArray<string | number>;
   wheel: ReadonlyArray<string | number>;
   track: ReadonlyArray<string | number>;
@@ -17,7 +18,7 @@ interface Props {
  * @param {ReadonlyArray<string | number>} list - 스크롤을 감지하기 위한 상수 배열이다. (무한 스크롤을 하기 위해서는 Wheel의 배열보다 1을 더 크게 설정하여, 마지막 인덱스 도달시 0번으로 되돌리기 위해 사용된다.)
  * @param {ReadonlyArray<string | number>} wheel - 실제 화면에 노출되는 값을 표현하기 위한 상수 배열이다.
 */
-export default forwardRef<HTMLUListElement, Props>(function PickerWheel({ list, wheel, track, label, className }, ref) {
+export default forwardRef<HTMLUListElement, Props>(function PickerWheel({ list, wheel, track, label, styles, className }, ref) {
   return (
     <div className={`${styles["picker-control"]} ${styles[`picker-control--${className}`]} ${className && styles[className]}`}>
       {/* 화면에 리스트 내용은 노출되지 않으나, 실제 사용자의 스크롤을 감지하는 영역  */}
