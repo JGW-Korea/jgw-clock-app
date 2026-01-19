@@ -49,7 +49,7 @@ footer {
         
         @include mixin-liquid-glass(
           $colorKey: content,
-          $colorPercent: 36%,
+          $colorPercent: 18%,
           $boxShadow: "soft",
           $transition: (
             box-shadow $transition,
