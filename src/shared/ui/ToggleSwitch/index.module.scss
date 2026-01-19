@@ -1,10 +1,20 @@
+// ------------------------
+// Toggle Switch
+// ------------------------
+// #FFF -> Toggle Switch - Thumb background-color 값으로 사용 (toggle-bg-colors 분리 O)
+// #434343 -> Shared Toggle Switch background-color 값으로 사용  (toggle-bg-colors 분리 O)
+// #30b61e -> Shared Toggle Switch.active background-color 값으로 사용 (toggle-bg-colors 분리 O)
+$toggle-disabled-track-color: #434343;
+$toggle-active-track-color: #30b61e;
+$toggle-thumb-color: #fff;
+
 .switch {
   $width: 60px;
   width: $width;
   height: 25px;
   border-radius: 9999px;
   position: relative;
-  background-color: #434343;
+  background-color: $toggle-disabled-track-color;
   padding: 0.5rem;
   box-sizing: border-box;
   cursor: pointer;
@@ -14,14 +24,14 @@
     display: block;
     width: calc((#{$width} + 10px) / 2);
     height: 100%;
-    background-color: #fff;
+    background-color: $toggle-thumb-color;
     border-radius: 9999px;
     transform: translateX(0%);
     transition: transform 0.2s ease-out;
   }
 
   &.active {
-    background-color: #30b61e;
+    background-color: $toggle-active-track-color;
     
     &::before {
       transform: translateX(calc(100% - (1rem + 10px)));

@@ -1,4 +1,6 @@
+@use "sass:map";
+@use "@shared/styles" as *;
+
 .list-item {
-  color: #FFF;
-  border-bottom: 1px solid #414040;
+  border-bottom: 1px solid map.get($border-colors, tertiary);
 }

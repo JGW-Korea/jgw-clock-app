@@ -1,10 +1,13 @@
+@use "sass:map";
+@use "@shared/styles" as *;
+
 .bottom-sheet {
   max-width: 436px;
   margin: 0 auto;
   visibility: visible !important;
 
   &-container {
-    background-color: #2c2c2f !important;
+    background-color: map.get($bg-colors, secondary) !important;
     padding: 4rem;
     box-sizing: border-box;
     border-top-left-radius: 8rem !important;

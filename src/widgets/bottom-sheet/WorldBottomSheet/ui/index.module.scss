@@ -1,9 +1,12 @@
+@use "sass:map";
+@use "@shared/styles" as *;
+
 .world-sheet-content {
   margin-top: 4rem;
 
   & > li {
     &:first-child {
-      border-top: 1px solid #414040;
+      border-top: 1px solid map.get($border-colors, tertiary);
     }
 
     & > button {
@@ -17,7 +20,7 @@
       transition: background-color .235s ease-out;
 
       &:active {
-        background-color: #414040;
+        background-color: map.get($border-colors, tertiary);
       }
     }
   }

@@ -1,3 +1,6 @@
+@use "sass:map";
+@use "@shared/styles" as *;
+
 .conatinaer {
   flex: 1;
   display: flex;
@@ -25,7 +28,7 @@
     padding-bottom: 6rem;
     display: flex;
     justify-content: space-between;
-    border-bottom: 1px solid #333;
+    border-bottom: 1px solid map.get($border-colors, primary);
 
     & > button {
       cursor: pointer;
@@ -38,9 +41,9 @@
       border: 2px solid transparent;
       transition: .3s ease;
 
-      &.reset, &.lap { $bgColor: #4d4d4d; border-color: $bgColor; background-color: $bgColor; }
-      &.start { $bgColor: #1b3d27; border-color: $bgColor; background-color: $bgColor; color: #2ed157 }
-      &.stop { $bgColor: #3d1616; border-color: $bgColor; background-color: $bgColor; color: #df3b32 }
+      &.reset, &.lap { border-color: map.get($state-bg-colors, neutral); background-color: map.get($state-bg-colors, neutral); }
+      &.start { border-color: map.get($state-bg-colors, start); background-color: map.get($state-bg-colors, start); color: map.get($text-colors, start) }
+      &.stop { border-color: map.get($state-bg-colors, stop); background-color: map.get($state-bg-colors, stop); color: map.get($text-colors, stop) }
 
       &:hover {
         filter: opacity(0.8);

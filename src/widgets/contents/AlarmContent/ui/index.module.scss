@@ -1,3 +1,6 @@
+@use "sass:map";
+@use "@shared/styles" as *;
+
 .layout {
   flex: 1;
   display: flex;
@@ -18,7 +21,7 @@
     // 알림 정보가 없을 경우 Font 스타일 구성
     & > span {
       font-size: 6rem;
-      color: #a8a8a8;
+      color: map.get($text-colors, empty);
     }
   }
 
@@ -39,7 +42,7 @@
       font-size: 4rem;
       
       &__delete-btn {
-        background-color: #df3b32;
+        background-color: map.get($state-bg-colors, delete);
         border: none;
         display: flex;
         width: 6rem;
@@ -60,7 +63,7 @@
           display: block;
           width: 3rem;
           height: 0.5rem;
-          background-color: #fff;
+          background-color: map.get($text-colors, primary);
           border-radius: 9999px;
         }
       }
@@ -102,7 +105,7 @@
     }
     
     & > li:first-child {
-      border-top: 1px solid #414040;
+      border-top: 1px solid map.get($border-colors, tertiary);
     }
   }
 }

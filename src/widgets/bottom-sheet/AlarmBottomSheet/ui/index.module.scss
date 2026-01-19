@@ -1,3 +1,6 @@
+@use "sass:map";
+@use "@shared/styles"  as *;
+
 .alarm-sheet-content {
   display: flex;
   flex-direction: column;
@@ -8,7 +11,7 @@
   &__weekdays {
     width: 100%;
     box-sizing: border-box;
-    background-color: #353535;
+    background-color: map.get($bg-colors, tertiary);
     border-radius: 4rem;
     overflow: hidden;
 
@@ -20,7 +23,7 @@
       & > button {
         border: none;
         background: none;
-        color: #FAFAFA;
+        color: map.get($text-colors, primary);
         font-size: 4rem;
         font-weight: 300;
         cursor: pointer;
@@ -32,12 +35,12 @@
         align-items: center;
 
         & > svg > path {
-          fill: #ff7f00;
+          fill: map.get($text-colors, active);
         }
       }
 
       &:active {
-        background-color: #414040;
+        background-color: map.get($state-bg-colors, hover);
       }
 
       // 마지막 리스트를 제외하고 모두 구분선 스타일을 구성한다.
@@ -49,7 +52,7 @@
         left: 2rem;
         right: 2rem;
         height: 1px;
-        background-color: #414040;
+        background-color: map.get($border-colors, tertiary);
       }
     }
 
