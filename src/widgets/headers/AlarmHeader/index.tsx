@@ -1,4 +1,4 @@
-import style from "./style.module.scss";
+import style from "./index.module.scss";
 import Check from "@shared/assets/icons/check.svg?react";
 import PlusIcon from "@shared/assets/icons/plus.svg?react";
 import { useContext } from "react";

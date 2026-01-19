@@ -1,4 +1,4 @@
-import style from "./style.module.scss";
+import style from "./index.module.scss";
 import PlusIcon from "@shared/assets/icons/plus.svg?react";
 import Check from "@shared/assets/icons/check.svg?react";
 import { Header } from "@shared/ui";
