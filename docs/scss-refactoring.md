@@ -20,23 +20,25 @@ src/
 │   │   │   └── index.styles.scss
 │   │   └── ...
 │   │
-│   └── headers/
-│       ├── AlarmHeader/
-│       │   ├── ui/
-│       │   │   ├── index.tsx
-│       │   │   ├── _index.module.scss
-│       │   │   ├── _mixin.scss
-│       │   │   └── _variable.scss
-│       │   └── ...
-│       │
-│       ├── WorldHeader/
-│       │   ├── ui/
-│       │   │   ├── index.tsx
-│       │   │   ├── _index.module.scss
-│       │   │   ├── _mixin.scss
-│       │   │   └── _variable.scss
-│       │   └── ...
-│       └── ...
+│   ├── headers/
+│   │   ├── AlarmHeader/
+│   │   │   ├── ui/
+│   │   │   │   ├── index.tsx
+│   │   │   │   ├── _index.module.scss
+│   │   │   │   ├── _mixin.scss
+│   │   │   │   └── _variable.scss
+│   │   │   └── ...
+│   │   │
+│   │   ├── WorldHeader/
+│   │   │   ├── ui/
+│   │   │   │   ├── index.tsx
+│   │   │   │   ├── _index.module.scss
+│   │   │   │   ├── _mixin.scss
+│   │   │   │   └── _variable.scss
+│   │   │   └── ...
+│   │   └── ...
+│   │
+│   └── ...
 │
 └── ...
 ```
@@ -229,3 +231,82 @@ $rounded: (
 ```
 
 <br />
+
+**③ 전역 SCSS 스타일 토큰 FSD 아키텍처에 맞춰 설계한 디렉토리 구조**
+
+SCSS는 CSS 전처리기 언어이기 때문에, SCSS로 작성한 문법은 브라우저에서 사용되기 전에 CSS 문법으로 변환되는 컴파일 과정(정확히는 트랜스파일 과정)을 거쳐야 합니다.
+
+이 과정에서 컴파일 대상에 포함되는 파일의 범위를 명확히 구분하는 것은 불필요한 빌드 작업을 줄이고, 결과적으로 빌드 시간을 최적화하는 데 도움이 됩니다. SCSS에서는 파일명 앞에 언더바(_)를 붙일 경우, 해당 파일을 직접적인 CSS 결과물로 컴파일하지 않고, 다른 SCSS 파일에서 참조되는 용도로만 사용할 수 있도록 설계되어 있습니다.
+
+이러한 특성을 활용하여, 전역에서 공통으로 사용되는 색상이나 값과 같은 스타일 토큰 파일들은 실제 CSS를 생성할 필요 없이 값만 제공하면 되므로, 모두 컴파일 대상에서 제외하는 방식으로 관리했습니다.
+
+또한 Clock 프로젝트는 FSD(Feautre-Sliced Design) 아키텍처를 기반으로 디렉토리 구조를 설계했기 때문에, 전역 스타일 토큰 역시 `shared` 레이어 하위에서 관리하는 것이 적절하다고 판단했습니다. 이에 따라 초기에는 다음과 같은 형태로, 컴파일 대상에서 제외된 전역 SCSS 변수 디렉토리 구조를 구성했습니다.
+
+```md
+src/
+├── shared/
+│   ├── styles/
+│   │   ├── variables/
+│   │   │   ├── _colors.scss
+│   │   │   └── _values.scss
+│   │   └── _variables.scss
+│   └── ...
+└── ...
+```
+
+하지만 이 구조를 그대로 사용할 경우, `variables`라는 디렉토리명과 `_variables.scss` 파일명이 중복되며, 진입점 역할을 하는 파일이 디렉토리 루트에 명확하게 드러나지 않는다는 문제가 있었습니다. 또한 파일명이 `index` 패턴을 따르지 않기 때문에, 전역 스타일 토큰을 사용할 때마다 명확한 경로를 작성해야 한다는 단점도 존재했습니다.
+
+```scss
+// _variables.scss 로직
+@forward "./variables/colors";
+@forward "./variables/values";
+```
+
+```scss
+// 전역 스타일 토큰 사용 시 경로 예시
+@use "@shared/styles/variables" as *;
+```
+
+이 구조를 그대로 유지할 경우, 이후 여러 곳에서 재사용되는 `mixin`이나 `function`과 같은 SCSS 로직이 추가될 때마다 `shared/styles` 하위에 디렉토리명과 파일명이 반복되는 구조가 계속해서 늘어나게 됩니다. 그 결과, 각 스타일 모듈의 책임 경계가 흐려질 뿐만 아니라, 디렉토리 루트에서 명확한 진입점 역할을 수행하는 파일을 파악하기 어려워진다고 판단했습니다.
+
+```md
+# 전역 mixin, function 로직이 추가되는 경우의 구조 예시
+src/
+├── shared/
+│   ├── styles/
+│   │   ├── variables/
+│   │   │   └── ...
+│   │   ├── mixins/
+│   │   │   └── ...
+│   │   ├── functions/
+│   │   │   └── ...
+│   │   ├── _variables.scss
+│   │   ├── _mixins.scss
+│   │   └── _functions.scss
+│   └── ...
+└── ...
+```
+
+이러한 문제를 해결하기 위해, 기존 `_variables.scss`에서 사용하던 `@forward` 문법을 활용하면 FSD 아키텍처의 Public API 개념과 동일하게, 각 스타일 모듈의 `_index.scss` 파일로 명확히 분리할 수 있다고 판단했습니다.
+
+즉, `shared/styles` 슬라이스 하위에 위치한 각 세그먼트가 개별적인 Public API를 가지도록 구성하고, 이를 다시 한 번 상위 `_index.scss`에서 통합 노출하는 구조로 전역 스타일 토큰 디렉토리를 리팩토링했습니다. 그 결과, FSD 아키텍처의 구조적 원칙에 부합한 구조로 리팩토링했습니다.
+
+```md
+# FSD 아키텍처 구조에 맞게 재설계한 전역 스타일 토큰 디렉토리
+src/
+├── shared/
+│   ├── styles/
+│   │   ├── variables/
+│   │   │   ├── ...
+│   │   │   └── _index.scss      # 전역에서 사용할 SCSS 변수 Public API
+│   │   ├── mixins/
+│   │   │   ├── ...
+│   │   │   └── _index.scss      # 전역에서 재사용할 SCSS mixin Public API
+│   │   ├── functions/
+│   │   │   ├── ...
+│   │   │   └── _index.scss      # 전역에서 재사용할 SCSS function Public API
+│   │   │
+│   │   └── _index.scss          # shared/styles 슬라이스의 최상위 Public API
+│   └── ...
+└── ...
+```
