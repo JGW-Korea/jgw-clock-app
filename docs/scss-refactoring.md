@@ -526,3 +526,184 @@ src/
 ```
 
 <br />
+
+**② SCSS 파일 식별자 이름 통일**
+
+앞서 살펴본 **"① 컴포넌트 내부 SCSS 파일 디렉토리 구조 통일"** 과 마찬가지로, SCSS 파일 식별자 이름을 통일하는 작업 역시 파일 위치 변경에 따른 경로 수정만 발생할 뿐, 실제 스타일 로직 자체에는 거의 영향을 주지 않는 영역입니다.
+
+다만 디렉토리 구조 통일과 달리, SCSS 파일명은 단순한 네이밍 규칙에 그치지 않습니다. SCSS는 최종적으로 CSS로 변환되어 사용되기 때문에, 파일명이 `*.styles.scss`인지 `*.module.scss`인지에 따라 CSS Modules 적용 여부가 달라지며, 그에 따라 스타일의 사용 방식에도 차이가 발생합니다.
+
+이 차이를 설명하기에 앞서, 먼저 SCSS를 사용하지 않고 브라우저가 직접 해석할 수 있는 일반적인 CSS를 사용할 경우, React 컴포넌트에서 스타일이 어떻게 적용되는지 CodeSandbox를 통해 간단한 예제를 통해 살펴보겠습니다.
+
+```css
+/* A page CSS File */
+.heading {
+  font-size: 48px;
+  color: red;
+}
+```
+
+```tsx
+// A page Component
+import "./index.styles.css";
+
+export default function A() {
+  return (
+    <div>
+      <h1 className="heading">A Page</h1>
+
+      {/* ... */}
+    </div>
+  );
+}
+```
+
+A 페이지에서는 CSS 파일을 직접 import하고 있으며, `<h1 className="heading">` 요소에 `font-size: 48px` 스타일이 정상적으로 적용됩니다. 다음으로 B 페이지는 아래와 같이 구성되어 있습니다.
+
+```tsx
+// B page Component
+export default function B() {
+  return (
+    <div>
+      <h1 className="heading">B Page</h1>
+
+      {/* ... */}
+    </div>
+  );
+}
+```
+
+B 페이지에서는 어떠한 CSS 파일도 import하지 않은 상태입니다. 그럼에도 불구하고, B 페이지의 `<h1 className="heading">` 요소에는 A 페이지에서 정의한 `font-size: 48px` 스타일이 그대로 적용됩니다.
+
+![B Page CSS](./images/codesandox-b-page-css.png)
+
+<br />
+
+이렇게 동작하는 이유는 React가 SPA(Single-Page Application) 구조로 동작하기 때문입니다. 즉, React 애플리케이션은 여러 페이지로 구성된 것처럼 보이더라도, 실제로는 하나의 HTML 문서를 기반으로 동작합니다. _(이와 관련된 자세한 내용은 저의 노션 포스트 ["SPA & MPA"](https://gye-won.notion.site/SPA-MPA-29888bd9c3fa801d94b7c17a2fbb2799?pvs=74)에서 확인할 수 있습니다.)_
+
+SPA 구조에서는 특정 컴포넌트 내부에서 CSS 파일을 생성하고 이를 import 하더라도, 결과적으로는 하나의 HTML 문서에 CSS 파일을 연결하는 것과 동일한 의미를 가지게 됩니다. 이로 인해 CSS는 애플리케이션 전반에 전역으로 적용되며, 컴포넌트 단위로 스타일을 격리하거나 모듈화하기가 어렵습니다.
+
+이러한 문제로 인해 과거에는 CSS-in-JS 방식을 대안으로 활용하기도 했습니다. 하지만 CSS-in-JS는 런타임 시점에 스타일을 적용하기 때문에, 런타임 성능에 영향을 줄 수 있다는 단점이 존재합니다. 이로 인해 현재는 Tailwind와 같은 Utility-First CSS, 또는 SCSS, Less와 같은 CSS 전처리기를 통한 CSS-in-CSS 방식이 일반적으로 사용되고 있습니다.
+
+SPA 구조의 CSS 적용 배경을 이해해야 하는 이유는, SCSS를 사용하고 있음에도 불구하고 파일명을 `*.styles.scss` 형태로 선언할 경우 일반적인 CSS 파일을 사용하는 방식과 동일하게 동작하기 때문입니다. 즉, 해당 방식은 CSS와 마찬가지로 스타일이 전역으로 적용되며, 컴포넌트 단위로 스타일이 모듈화가 되지 않습니다.
+
+> _SCSS 파일명에 `styles` 식별자를 사용하지 않더라도, `index.scss`와 `index.styles.scss`는 동작 방식에 차이가 없습니다. 단순히 식별 용도로만 구분됩니다._
+
+또한 기존에 작성된 코드를 살펴보면, SCSS 파일을 import하는 방식과 클래스 속성을 사용하는 방식 역시 일반적인 CSS를 사용하는 경우와 동일하다는 점을 확인할 수 있습니다.
+
+```scss
+// index.styles.scss
+.tab-nav {
+  ...
+  
+  // Tab Lsit -> Tab Item을 구성하는 전체 리스트 레이아웃 스타일 구성
+  &__list {
+    ...
+
+    &::after {
+      ...
+    }
+  }
+}
+```
+
+```tsx
+import "./index.style.scss";
+
+export default function TabNavigator() {
+  return (
+    <footer>
+      <nav className="tab-nav">
+        <ul className="tab-nav__list">
+          {TABS.map(({ id, path, label, icon }) => (
+            <TabItem
+              key={id}
+              path={path}
+              label={label}
+              SvgIconComponent={icon}
+            />
+          ))}
+        </ul>
+      </nav>
+    </footer>
+  )
+}
+```
+
+![scss file naming styles](./images/scss-file-naming-styles.png)
+
+<br />
+
+반면 SCSS 파일명을 `*.module.scss` 형태로 지정할 경우, 해당 스타일은 전역으로 공유되지 않고 특정 컴포넌트 범위 내에서만 적용되는 CSS 모듈로 동작합니다.
+
+이렇게 동작하는 이유는 SCSS가 CSS로 컴파일되는 과정에서, 컴파일러와 번들러가 클래스 이름을 해시 기반의 고유한 식별자로 변환하여 관리하기 때문입니다. 이 과정에서 생성된 클래스 이름은 번들 결과물에도 동일하게 반영되며, 그 결과 스타일이 다른 컴포넌트와 충돌하지 않도록 범위가 자연스럽게 격리됩니다.
+
+```tsx
+import styles from "./index.module.scss";
+
+export default function TabNavigator() {
+  return (
+    <footer>
+      <nav className={`${styles["tab-nav"]} liquid-glass slow`}>
+        <ul className={`${styles["tab-nav__list"]}`}>
+          {TABS.map(({ id, path, label, icon }) => (
+            <TabItem
+              key={id}
+              path={path}
+              label={label}
+              SvgIconComponent={icon}
+            />
+          ))}
+        </ul>
+      </nav>
+    </footer>
+  )
+}
+```
+
+![scss file naming styles](./images/scss-file-naming-module.png)
+
+즉, 앞서 살펴본 **"① 컴포넌트 내부 SCSS 파일 디렉토리 구조 통일"**과 달리, SCSS 기반 스타일 로지을 모듈 단위로 관리하기 위해서는 개발자의 선호나 팀의 스타일에 더 가까운 영역에 맡길 수 있는 문제가 아니라 반드시 이해하고 통일해야 하는 중요한 요소입니다.
+
+이에 따라 특정 컴포넌트에 종속되어야 하는 스타일 로직은 모두 `*.styles.scss`가 아닌 `*.module.scss` 형태로 통일하여 관리하도록 리팩토링을 진행했습니다.
+
+```md
+src/
+├── features/
+│   ├── swipe-to-delete/
+│   │   ├── ui/
+│   │   │   ├── SwipeToDeleteActions/
+│   │   │   │   └── index.tsx
+│   │   │   ├── SwipeToDeleteContainer/
+│   │   │   │   └── index.tsx
+│   │   │   ├── index.module.scss
+│   │   │   └── index.tsx
+│   │   └── ...
+│   │
+│   ├── time-picker/
+│   │   ├── ui/
+│   │   │   ├── Picker/
+│   │   │   │   └── index.tsx
+│   │   │   ├── PickerWheel/
+│   │   │   │   └── index.tsx
+│   │   │   ├── index.module.scss
+│   │   │   └── index.tsx
+│   │   └── ...
+│   │
+│   └── ...
+│
+├── widgets/
+│   ├── navigator/
+│   │   ├── ui/
+│   │   │   ├── TabItem/
+│   │   │   │   └── index.tsx
+│   │   │   ├── index.tsx
+│   │   │   └── index.module.scss
+│   │   └── ...
+│   │
+│   └── ...
+│
+└── ...
+```
+
+<br />
