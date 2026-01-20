@@ -368,3 +368,161 @@ src/
 이러한 이유로, 컴포넌트 내부에서 사용되는 SCSS 파일의 이름과 디렉토리 구조를 통일하는 방향으로 리팩토링을 진행하기로 결정했습니다.
 
 <br />
+
+**① 컴포넌트 내부 SCSS 파일 디렉토리 구조 통일**
+
+리팩토링 과정에서 먼저 진행한 작업은 컴포넌트 내부의 디렉토리 구조를 통일하는 것이었습니다. 이는 파일의 위치가 변경되어 경로를 수정해야 하는 작업을 제외하면, 실제 로직 변경이 거의 발생하지 않는 영역이었기 때문입니다. 이를 위해 먼저, 당시 프로젝트에서 사용되고 있던 디렉토리 구조가 어떻게 통일되지 않은 상태였는지 다시 한 번 살펴보겠습니다.
+
+```md
+src/
+├── features/
+│   ├── swipe-to-delete/
+│   │   ├── ui/
+│   │   │   ├── SwipeToDeleteActions/
+│   │   │   │   └── index.tsx             # 상위 index.module.scss의 styles를 Props로 전달받아 사용
+│   │   │   ├── SwipeToDeleteContainer/
+│   │   │   │   └── index.tsx             # 상위 index.module.scss의 styles를 Props로 전달받아 사용
+│   │   │   ├── index.module.scss
+│   │   │   └── index.tsx
+│   │   └── ...
+│   │
+│   ├── time-picker/
+│   │   ├── ui/
+│   │   │   ├── Picker/
+│   │   │   │   ├── index.module.scss     # 개별 SCSS 파일을 직접 사용하는 구조
+│   │   │   │   └── index.tsx
+│   │   │   ├── PickerWheel/
+│   │   │   │   ├── index.module.scss     # 개별 SCSS 파일을 직접 사용하는 구조
+│   │   │   │   └── index.tsx
+│   │   │   ├── index.module.scss
+│   │   │   └── index.tsx
+│   │   └── ...
+│   │
+│   └── ...
+│
+└── ...
+```
+
+구조를 다시 한 번 살펴본 결과, 현재 SCSS 스타일 적용 방식은 다음 두 가지 유형으로 구분할 수 있었습니다.
+
+1. 상위 컴포넌트의 `index.module.scss`에서 정의된 `styles` 객체를 Props로 전달받아 사용하는 구조
+1. 각 컴포넌트가 개별적인 SCSS 스타일 파일을 직접 불러와(import) 사용하는 구조
+
+두 방식의 핵심적인 차이는 각 컴포넌트의 스타일을 독립적으로 관리하느냐에 있으며, 이로 인해 각각 뚜렷한 장단점이 드러납니다.
+
+먼저, **"상위 컴포넌트의 `index.module.scss`에서 정의된 `styles` 객체를 Props로 전달받아 사용하는 구조"**는 하나의 SCSS 파일에서 해당 UI 세그먼트 전반의 스타일을 통합적으로 관리할 수 있다는 장점이 있습니다. 이 방식은 스타일의 맥락을 한 곳에서 파악할 수 있고, SCSS 파일의 개수도 최소화할 수 있습니다.
+
+하지만, UI 세그먼트가 커질수록 하나의 SCSS 파일에 스타일 로직이 집중되어 코드 길이가 과도하게 늘어날 수 있다는 단점이 존재합니다.
+
+```scss
+// features/swipe-to-delete/ui/index.module.scss
+.swipe-to-delete {
+  ...
+
+  &__actions {
+    ...
+  }
+
+  &__container {
+    ...
+  }
+}
+```
+
+<br />
+
+반면 **"각 컴포넌트가 개별적인 SCSS 스타일 파일을 직접 불러와(import) 사용하는 구조"** 는 컴포넌트 단위로 스타일을 분리하여 관리할 수 있어, 스타일 로직을 해당 컴포넌트의 역할에 집중시킬 수 있다는 장점이 있습니다. 이로 인해 각 SCSS 파일의 크기를 상대적으로 작게 유지할 수 있습니다.
+
+다만, 스타일 파일이 여러 개로 분산되면서 동일한 네임스페이스를 기준으로 한 앰퍼서드(&) 결합 규칙이 각 파일에서 독립적으로 정의되어야 하며, 전체 스타일 구조를 한 눈에 파악하기 어렵다는 단점이 발생할 수 있습니다.
+
+```scss
+// features/time-picker/ui/Picker/index.module.scss
+.picker {
+  ...
+
+  // Picker Controls 영역 스타일 구성
+  &-controls {
+    ...
+
+    &::after {
+      ...
+    }
+  }
+}
+```
+
+```scss
+// features/time-picker/ui/PickerWheel/index.module.scss
+.picker {
+  &-control {
+    ...
+
+    &.meridiem {
+      ...
+    }
+  }
+
+  &-holder {
+    ...
+  }
+}
+```
+
+<br />
+
+다만 이러한 구조의 선택은, 개인적으로 명확한 정답이 존재하는 문제라기보다는 개발자의 선호나 팀의 스타일에 더 가까운 영역이라고 판단했습니다.
+
+물론 여러 개의 SCSS 파일로 분리하지 않고 하나의 파일로 관리할 경우, 컴파일 대상 파일 수가 줄어들기 때문에 컴파일 시간이나 빌드 시간이 어느 정도 감소할 수는 있다고 생각했습니다. 이에 따라, Vercel에서 GitHub 리포지토리를 연결해 지속적인 배포가 이루어지고 있다는 점을 활용하여, 두 방식에 대한 실제 빌드 결과를 다음과 같이 비교해 보았습니다.
+
+```md
+# 여러 개의 SCSS 파일로 구성된 경우의 빌드 결과
+...
+03:40:24.211 | dist/assets/index-CFfNR6NU.css              23.56 kB │ gzip:   4.36 kB
+03:40:24.212 | ✓ built in 6.91s
+```
+
+```md
+# 단일 SCSS 파일로 구성된 경우의 빌드 결과
+...
+08:56:19.832 | dist/assets/index-BlpU9Dsr.css              22.23 kB │ gzip:   4.37 kB
+08:56:19.835 | ✓ built in 6.65s
+```
+
+> _위 결과는 SCSS를 CSS로 컴파일하는 과정만을 측정한 것이 아니라, 프로젝트 전체 빌드 시간을 기준으로 한 값이므로 절대적인 비교 지표로 보기는 어렵습니다._
+
+실제 빌드 결과를 확인한 결과, 단일 SCSS 파일로 구성했을 때 번들 크기와 전체 빌드 시간이 소폭 감소한 것은 사실이지만, 프로젝트 전반의 구조 선택에 영향을 줄 만큼 유의미한 차이라고 보기는 어렵다고 판단했습니다.
+
+이러한 이유로, 저는 개인적으로 하나의 SCSS 파일로 스타일을 관리하는 방식이 기존에 사용해 오던 스타일과도 유사하고, FSD 아키텍처 원칙에 따라 이미 슬라이스 단위로 기능이 충분히 분리되어 있다고 보았습니다.
+
+따라서 굳이 SCSS 파일을 더 세분화하기보다는, 앰퍼서드(&) 결합 규칙을 하나의 파일에서 관리하는 편이 SCSS의 특성을 더 잘 활용할 수 있다고 판단했고, 이에 따라 전체 디렉토리 구조를 단일 SCSS 파일 기준으로 통일시켰습니다.
+
+```md
+# 상위 index.module.scss의 styles를 Props로 전달받아 사용
+src/
+├── features/
+│   ├── swipe-to-delete/
+│   │   ├── ui/
+│   │   │   ├── SwipeToDeleteActions/
+│   │   │   │   └── index.tsx
+│   │   │   ├── SwipeToDeleteContainer/
+│   │   │   │   └── index.tsx
+│   │   │   ├── index.module.scss
+│   │   │   └── index.tsx
+│   │   └── ...
+│   │
+│   ├── time-picker/
+│   │   ├── ui/
+│   │   │   ├── Picker/
+│   │   │   │   └── index.tsx
+│   │   │   ├── PickerWheel/
+│   │   │   │   └── index.tsx
+│   │   │   ├── index.module.scss
+│   │   │   └── index.tsx
+│   │   └── ...
+│   │
+│   └── ...
+│
+└── ...
+```
+
+<br />
