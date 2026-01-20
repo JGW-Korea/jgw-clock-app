@@ -24,7 +24,7 @@ src/
 │   │   ├── AlarmHeader/
 │   │   │   ├── ui/
 │   │   │   │   ├── index.tsx
-│   │   │   │   ├── _index.module.scss
+│   │   │   │   ├── index.module.scss
 │   │   │   │   ├── _mixin.scss
 │   │   │   │   └── _variable.scss
 │   │   │   └── ...
@@ -32,7 +32,7 @@ src/
 │   │   ├── WorldHeader/
 │   │   │   ├── ui/
 │   │   │   │   ├── index.tsx
-│   │   │   │   ├── _index.module.scss
+│   │   │   │   ├── index.module.scss
 │   │   │   │   ├── _mixin.scss
 │   │   │   │   └── _variable.scss
 │   │   │   └── ...
@@ -310,3 +310,61 @@ src/
 │   └── ...
 └── ...
 ```
+
+<br />
+
+## III. 컴포넌트 내부 SCSS 파일명 및 디렉토리 구조 통일
+
+앞서 [I. SCSS 스타일 코드를 리팩토링을 하게 된 이유](#i-scss-스타일-코드를-리팩토링을-하게-된-이유)에서 Clock 프로젝트의 전반적인 SCSS 디렉토리 구조를 간략히 살펴보았습니다. 본 목차에서는 해당 구조를 기반으로, 컴포넌트 내부에서 사용되고 SCSS 파일들의 이름과 디렉토리 구성 방식을 조금 더 구체적으로 살펴보겠습니다.
+
+```md
+src/
+├── features/
+│   ├── swipe-to-delete/
+│   │   ├── ui/
+│   │   │   ├── SwipeToDeleteActions/
+│   │   │   │   └── index.tsx             # 상위 index.module.scss의 styles를 Props로 전달받아 사용
+│   │   │   ├── SwipeToDeleteContainer/
+│   │   │   │   └── index.tsx             # 상위 index.module.scss의 styles를 Props로 전달받아 사용
+│   │   │   ├── index.module.scss
+│   │   │   └── index.tsx
+│   │   └── ...
+│   │
+│   ├── time-picker/
+│   │   ├── ui/
+│   │   │   ├── Picker/
+│   │   │   │   ├── index.module.scss     # 개별 SCSS 파일을 직접 사용하는 구조
+│   │   │   │   └── index.tsx
+│   │   │   ├── PickerWheel/
+│   │   │   │   ├── index.module.scss     # 개별 SCSS 파일을 직접 사용하는 구조
+│   │   │   │   └── index.tsx
+│   │   │   ├── index.module.scss
+│   │   │   └── index.tsx
+│   │   └── ...
+│   │
+│   └── ...
+│
+├── widgets/
+│   ├── navigator/
+│   │   ├── ui/
+│   │   │   ├── TabItem/
+│   │   │   │   ├── index.tsx
+│   │   │   │   ├── index.styles.scss     # module이 아닌 styles 네이밍 사용 + 개별 SCSS 파일을 직접 사용하는 구조
+│   │   │   │   ├── mixin.scss
+│   │   │   │   └── variable.scss
+│   │   │   ├── index.tsx
+│   │   │   └── index.styles.scss
+│   │   └── ...
+│   │
+│   └── ...
+│
+└── ...
+```
+
+위 디렉토리 구조에서 확인할 수 있듯이, 현재 Clock 프로젝트에서 사용되고 있는 컴포넌트 내부 SCSS 파일들은 파일명과 디렉토리 구성 방식이 일관되지 않은 상태입니다. 이러한 구조는 즉각적인 기능 오류를 발생시키지는 않지만, 프로젝트 전반의 가독성과 유지보수성 측면에서는 분명한 한계를 가지고 있습니다.
+
+특히 향후 일부 스타일이나 컴포넌트를 수정해야 하는 상황이 발생할 경우, 각 디렉토리마다 서로 다른 구조와 규칙을 고려해야 하므로 수정 비용이 점점 증가할 수 있습니다. 또한 구조적인 통일성이 부족한 상태는 개발이 종료된 이후 별도의 정리나 개선이 이루어지지 않은 인상을 줄 수 있다고 보았습니다.
+
+이러한 이유로, 컴포넌트 내부에서 사용되는 SCSS 파일의 이름과 디렉토리 구조를 통일하는 방향으로 리팩토링을 진행하기로 결정했습니다.
+
+<br />
