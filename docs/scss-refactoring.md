@@ -485,7 +485,7 @@ src/
 # 단일 SCSS 파일로 구성된 경우의 빌드 결과
 ...
 08:56:19.832 | dist/assets/index-BlpU9Dsr.css              22.23 kB │ gzip:   4.37 kB
-08:56:19.835 | ✓ built in 6.65s
+08:56:19.833 | ✓ built in 6.65s
 ```
 
 > _위 결과는 SCSS를 CSS로 컴파일하는 과정만을 측정한 것이 아니라, 프로젝트 전체 빌드 시간을 기준으로 한 값이므로 절대적인 비교 지표로 보기는 어렵습니다._
@@ -707,3 +707,405 @@ src/
 ```
 
 <br />
+
+## IV. Liquid-Glass 스타일을 전역 스타일로 관리
+
+프로젝트를 처음 시작했을 당시에는 가볍게 토이 프로젝트로 시작했지만, 개발을 진행하면서 다양한 UI 스타일을 직접 적용해 보고 싶어졌습니다. 다만 참고할 만한 디자인 템플릿이 마땅히 없어 iOS 모바일 기기의 시계 앱을 보며 개발을 이어 나갔고, 그 과정에서 작업이 점차 클론 코딩 형태로 진행되었습니다.
+
+이 과정에서 Liquid-Glass 스타일을 어떻게 구현해야 할지 감이 잡히지 않아 CodePen에 공개된 ["Apple_Liquid-glass_switcher"](https://codepen.io/Sir-Naomi/pen/GgoprxL) 예제를 참고했습니다.
+
+해당 예제를 바탕으로 Tab Navigator 컴포넌트에 적용할 Liquid-Glass 스타일 로직을 React + SCSS 조합에 맞게 재구성하여 구현했습니다. 이후 다른 컴포넌트에서도 동일한 스타일이 필요해질 때마다, 기존에 작성한 스타일 로직을 그대로 복사하여 적용해 나갔습니다.
+
+그 결과, Liquid-Glass 스타일과 관련된 SCSS 파일들이 다음과 같이 여러 컴포넌트 하위에 중복 생성되는 구조가 되었습니다.
+
+```md
+src/
+├── widgets/
+│   ├── navigator/
+│   │   ├── ui/
+│   │   │   ├── TabItem/
+│   │   │   │   ├── index.tsx
+│   │   │   │   ├── index.styles.scss
+│   │   │   │   ├── mixin.scss
+│   │   │   │   └── variable.scss
+│   │   │   ├── index.tsx
+│   │   │   └── index.styles.scss
+│   │   └── ...
+│   │
+│   ├── headers/
+│   │   ├── AlarmHeader/
+│   │   │   ├── ui/
+│   │   │   │   ├── index.tsx
+│   │   │   │   ├── index.module.scss
+│   │   │   │   ├── _mixin.scss
+│   │   │   │   └── _variable.scss
+│   │   │   └── ...
+│   │   │
+│   │   ├── WorldHeader/
+│   │   │   ├── ui/
+│   │   │   │   ├── index.tsx
+│   │   │   │   ├── index.module.scss
+│   │   │   │   ├── _mixin.scss
+│   │   │   │   └── _variable.scss
+│   │   │   └── ...
+│   │   └── ...
+│   │
+│   └── ...
+│
+└── ...
+```
+
+이로 인해, 중복된 스타일 로직을 정의한 SCSS 파일들이 의도와 달리 CSS로 변환되는 구조가 되었고, 그 결과 CSS 번들 결과물의 크기가 불필요하게 증가한다고 판단했습니다.
+
+이 문제를 해결하기 위해, 중복된 스타일 로직을 재사용 가능한 Mixin 기반 구조로 분리하기로 결정했으며, 먼저 참고한 예제를 기준으로 반복적으로 사용되는 값들을 SCSS 변수로 분리하여 정의하는 작업부터 진행했습니다.
+
+```scss
+// ----------------------------------------------------------------------------
+// Liquid-Glass 스타일에서만 사용되는 값들이므로
+// 전역 변수로 분리하지 않고, 해당 스타일 파일 내부의 지역 변수로 선언한다.
+// 이를 통해 Liquid-Glass 스타일 숮어 시 다른 파일을 참조할 필요 없이
+// 하나의 파일에서 관련 값과 로직을 함께 관리할 수 있도록 구성한다.
+// ----------------------------------------------------------------------------
+$liquid-glass-colors: ( // Liquid-Glass 기반 UI 컴포넌트에서 활용될 색상 변수
+  glass: #bbbbbc,
+  content: #e1e1e1,
+  action: #ff7f00,
+  dark: #000000,
+  light: #ffffff,
+);
+
+$liquid-glass-backdrop-filter: (
+  blur: 2rem,
+  saturation: 150%,
+);
+
+$liquid-glass-reflex-dark: 2;
+$liquid-glass-reflex-light: 0.3;
+$liquid-glass-transition: 400ms cubic-bezier(1, 0, 0.4, 1);
+$liquid-glass-rounded: 9999px;
+```
+
+<br />
+
+이후 예제를 참고하여 여러 위치에 분산되어 있던 Liquid-Glass 스타일 로직을 분석했고, 그 과정에서 동일한 값이 반복적으로 사용되거나 특정 값에 따라 서로 다른 결과를 반환해야 하는 경우를 처리하기 위해 SCSS의 @function 문법을 활용해 함수 형태의 로직을 구성했습니다.
+
+```scss
+// ----------------------------------------------------------------------------
+// Liquid-Glass 스타일 내부에서 조건에 따라 서로 다른 값을 적반환하기 위한 함수
+// ----------------------------------------------------------------------------
+@function liquid-glass-color-mix($colorKey: glass, $colorPercent: 12%) {
+  @return color-mix(
+    in srgb,
+    map.get($liquid-glass-colors, $colorKey) $colorPercent,
+    transparent
+  );
+}
+
+@function liquid-glass-backdrop-filter() {
+  @return blur(map.get($liquid-glass-backdrop-filter, blur)) saturate(map.get($liquid-glass-backdrop-filter, saturation));
+};
+```
+
+이와 같이 구조를 정리한 이후, 기존 Tab Navigator 컴포넌트에서만 `box-shadow` 값이 다르게 사용되고 있음을 확인했습니다. 이에 따라 Mixin 문법을 활용하여 `include` 시점에 조건에 따라 각기 다른 box-shadow 값을 적용할 수 있도록 분기 로직을 구성했습니다.
+
+```scss
+// ----------------------------------------------------------------------------
+// Liquid-Glass 스타일 내부에서 조건에 따라 서로 다른 스타일을 적용하기 위한 전용 mixin 로직
+// ----------------------------------------------------------------------------
+@mixin liguid-glass-box-shadow($variant: "strong") {
+  @if($variant == "strong") {
+    box-shadow:
+      inset 0 0 0 1px liquid-glass-color-mix(light, $liquid-glass-reflex-light * 10%),
+      inset 1.8px 3px 0px -2px liquid-glass-color-mix(light, $liquid-glass-reflex-light * 90%),
+      inset -2px -2px 0px -2px liquid-glass-color-mix(light, $liquid-glass-reflex-light * 80%),
+      inset -3px -8px 1px -6px liquid-glass-color-mix(light, $liquid-glass-reflex-light * 60%),
+      inset -0.3px -1px 4px 0px liquid-glass-color-mix(dark, $liquid-glass-reflex-dark * 12%),
+      inset -1.5px 2.5px 0px -2px liquid-glass-color-mix(dark, $liquid-glass-reflex-dark * 12%),
+      inset 0px 3px 4px -2px liquid-glass-color-mix(dark, $liquid-glass-reflex-dark * 12%),
+      inset 2px -6.5px 1px -4px liquid-glass-color-mix(dark, $liquid-glass-reflex-dark * 12%),
+      0px 1px 5px 0px liquid-glass-color-mix(dark, $liquid-glass-reflex-dark * 12%),
+      0px 6px 16px 0px liquid-glass-color-mix(dark, $liquid-glass-reflex-dark * 12%);
+  } @else {
+    box-shadow: 
+      inset 0 0 0 1px liquid-glass-color-mix(light, $liquid-glass-reflex-light * 10%)
+      inset 2px 1px 0px -1px liquid-glass-color-mix(light, $liquid-glass-reflex-light * 10%)
+      inset -1.5px -1px 0px -1px liquid-glass-color-mix(light, $liquid-glass-reflex-light * 10%)
+      inset -2px -6px 1px -5px liquid-glass-color-mix(light, $liquid-glass-reflex-light * 10%)
+      inset -1px 2px 3px -1px liquid-glass-color-mix(dark, $liquid-glass-reflex-dark * 20%),
+      inset 0px -4px 1px -2px liquid-glass-color-mix(dark, $liquid-glass-reflex-dark * 20%),
+      0px 3px 6px 0px liquid-glass-color-mix(dark, $liquid-glass-reflex-dark * 20%);
+  }
+}
+```
+
+전역에서 재사용할 Liquid-Glass 기반 스타일 SCSS 파일 내부에서만 사용될 변수, 함수, Mixin을 구성한 뒤, 이를 조합하여 최종적으로 Liquid-Glass 스타일을 적용하기 위한 Mixin 로직을 구성했습니다.
+
+```scss
+// ----------------------------------------------------------------------------
+// 전역에서 재활용할 Liquid-Glass 스타일 Mixin (show)
+// ----------------------------------------------------------------------------
+@mixin liquid-glass($colorKey: glass, $colorPercent: 12%, $boxShadow: "strong", $transition: null) {
+  background-color: liquid-glass-color-mix($colorKey, $colorPercent);
+  backdrop-filter: liquid-glass-backdrop-filter();
+  -webkit-backdrop-filter: liquid-glass-backdrop-filter();
+
+  @include liguid-glass-box-shadow($boxShadow);
+  transition: $transition;
+}
+```
+
+다만, Liquid-Glass 기반 스타일 SCSS 파일에 정의된 모든 변수, 함수, Mixin이 외부에 노출될 필요는 없다고 판단했습니다. 이에 따라 `shared/styles/mixin` 진입점 파일에서는 SCSS의 `show` 키워드를 사용하여, 최종적으로 Liquid-Glass 스타일을 적용하기 위한 Mixin 로직만 외부로 노출되록 구성했습니다.
+
+```scss
+// shared/styles/mixin/index.scss
+@forward "font-face";
+@forward "liquid-glass" show liquid-glass;
+```
+
+이렇게 모두 구성한 뒤 기존에 Liquid-Glass 기반의 스타일을 사용되고 있던 모든 파일에서 중복적으로 계속 작성된 로직들을 제거하고 전역에서 재사용할 Mixin 로직을 활용하여 Liquid-Glass 스타일을 적용시켰습니다.
+
+```md
+# 기존 각 컴포넌트 하위 경로에 Liquid-Glass 스타일을 적용시킬 변수, Mixin SCSS 파일을 제거한 이후 디렉토리 구조
+src/
+├── widgets/
+│   ├── navigator/
+│   │   ├── ui/
+│   │   │   ├── TabItem/
+│   │   │   │   └── index.tsx
+│   │   │   ├── index.tsx
+│   │   │   └── index.styles.scss
+│   │   └── ...
+│   │
+│   ├── headers/
+│   │   ├── AlarmHeader/
+│   │   │   ├── ui/
+│   │   │   │   ├── index.tsx
+│   │   │   │   └── index.module.scss
+│   │   │   └── ...
+│   │   │
+│   │   ├── WorldHeader/
+│   │   │   ├── ui/
+│   │   │   │   ├── index.tsx
+│   │   │   │   └── index.module.scss
+│   │   │   └── ...
+│   │   └── ...
+│   │
+│   └── ...
+│
+└── ...
+```
+
+```scss
+// Bottom Sheet Header 컴포넌트 내부에서 사용되던 Liquid-Glass 스타일을 아래와 같이 대체
+@include mixin-liquid-glass();
+```
+
+```scss
+// WorldHeader 컴포넌트 내부에서 사용되던 Liquid-Glass 스타일을 아래와 같이 대체
+@include mixin-liquid-glass(
+  $boxShadow: "strong",
+  $transition: $transition // $transition: 200ms cubic-bezier(0.5, 0, 0, 1);
+);
+```
+
+```scss
+// AlarmHeader 컴포넌트 내부에서 사용되던 Liquid-Glass 스타일을 아래와 같이 대체
+@include mixin-liquid-glass(
+  $boxShadow: "strong",
+  $transition: $transition // $transition: 200ms cubic-bezier(0.5, 0, 0, 1);
+);
+```
+
+```scss
+// Tab Navigator 컴포넌트의 .tab-nav 클래스 속성에서 사용되던 값을 아래와 같이 대체
+@include mixin-liquid-glass(
+  $boxShadow: "strong",
+  $transition: (background-color $transition, box-shadow $transition)
+  // $transition: 400ms cubic-bezier(1, 0, 0.4, 1);
+);
+```
+
+```scss
+// Tab Navigator 컴포넌트의 .tab-nav__list::after 클래스 속성에서 사용되던 값을 아래와 같이 대체
+@include mixin-liquid-glass(
+  $colorKey: content,
+  $colorPercent: 18%,
+  $boxShadow: "soft",
+  $transition: (
+    box-shadow $transition,
+    transform $transition
+    // $transition: 400ms cubic-bezier(1, 0, 0.4, 1);
+  )
+);
+```
+
+이렇게 재사용 가능한 구조로 변경한 이후, 재사용 단위 기반으로 로직을 정리했기 때문에 SCSS -> CSS 컴파일 시간과 컴파일된 CSS 번들 결과물의 크기 모두 유의미하게 감소할 것이라 예상했습니다. 예상한 결과가 실제로 맞는지 확인하기 위해 Vercel의 빌드 결과를 확인했지만, 다음과 같이 의외의 결과가 나왔습니다.
+
+```md
+# 로직 변경 전 빌드 결과
+...
+03:40:24.211 | dist/assets/index-CFfNR6NU.css              23.56 kB │ gzip:   4.36 kB
+03:40:24.212 | ✓ built in 6.91s
+```
+
+```md
+# 로직 변경 후 빌드 결과
+01:32:10.235 | dist/assets/index-0xaH7see.css              23.72 kB │ gzip:   4.34 kB
+01:32:10.236 | ✓ built in 6.96s
+```
+
+> _위 결과는 SCSS를 CSS로 컴파일하는 과정만을 측정한 것이 아니라, 프로젝트 전체 빌드 시간을 기준으로 한 값이므로 절대적인 비교 지표로 보기는 어렵습니다._
+
+빌드 로그를 비교해 보면, Liquid-Glass 스타일을 전역에서 재사용 가능한 Mixin 기반 로직을 변경한 이후 CSS 번들 크기와 전체 빌드 시간이 감소하지 않고, 오히려 수치상으로는 소폭 증가한 것을 확인할 수 있습니다.
+
+비록 증가 폭은 매우 미미했지만, 이러한 결과가 나온 정확한 원인을 이해하고 싶어 SCSS의 Mixin 문법과 컴파일 방식에 대한 관련 자료들을 찾아봤습니다. 찾은 자료 중에서 Medium의 ["scss(sass) mixin의 함정"](https://medium.com/@sonky740/scss-sass-mixin%EC%9D%98-%ED%95%A8%EC%A0%95-52eddef227c6) 포스트를 통해 해당 현상의 원인을 비교적 명확하게 파악할 수 있었습니다.
+
+> _아래 코드는 Midium의 "scss(sass) mixin의 함정" 포스트에서 예제로 사용된 코드입니다._
+
+```scss
+// 재사용을 목적으로 정의한 Mixin 로직
+@mixin icon($name, $size) {
+  background-image: url('/icons/#{$name}.svg');
+  background-size: contain;
+  width: $size;
+  height: $size;
+}
+
+// .icon 클래스 속성 명을 가진 하위 요소에서 미리 정의한 Mixin 로직 재사용
+.icon {
+  &-time {
+    @include icon('time', 16px);
+  }
+  &-user {
+    @include icon('user', 20px);
+  }
+}
+```
+
+위 코드는 Mixin 문법을 통해 재사용 가능한 스타일 로직을 정의한 뒤, `.icon` 클래스 선택자에서 해당 로직을 재사용하고 있습니다. 하지만 이 코드를 컴파일하면 CSS 로직은 다음과 같이 생성됩니다.
+```css
+.icon-time {
+  background-image: url('/icons/time.svg');
+  background-size: contain;
+  width: 16px;
+  height: 16px;
+}
+
+.icon-user {
+  background-image: url('/icons/user.svg');
+  background-size: contain;
+  width: 20px;
+  height: 20px;
+}
+```
+
+컴파일된 CSS 코드를 확인해 보면, Mixin 문법을 통해 작성한 스타일 로직은 공통 스타일로 묶여 재사용되는 형태가 아니라, `@include`가 사용된 위치마다 Mixin 내부의 스타일 코드가 그대로 1:1로 복사되어 출력되는 구조임을 알 수 있습니다.
+
+즉, 전역에서 재사용할 수 있도록 `shared/styles/mixin`에 정의한 Liquid-Glass Mixin 로직을 기존 코드에서 그대로 사용하게 되면, 실제 결과는 다음과 같은 형태로 컴파일됩니다.
+
+```scss
+// Bottom Sheet Header에서 Liquid-Glass Mixin을 통해 재사용할 수 있게 리팩토링한 로직
+.bottom-sheet-header {
+  ...
+  &__button {
+    ...
+    &-left {
+      @include mixin-liquid-glass(); // 전역에 구성한 Liquid-Glass 스타일 합성
+    }
+  }
+}
+```
+
+```css
+/* Bottom Sheet Header */
+.bottom-sheet-header__button-left {
+  background-color: color-mix(in srgb, #bbbbbc 12%, transparent);
+  backdrop-filter: blur(2rem) saturate(150%);
+  -webkit-backdrop-filter: blur(2rem) saturate(150%);
+  
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, #ffffff calc(0.3 * 10%), transparent),
+    inset 1.8px 3px 0px -2px color-mix(in srgb, #ffffff calc(0.3 * 90%), transparent),
+    inset -2px -2px 0px -2px color-mix(in srgb, #ffffff calc(0.3 * 80%), transparent),
+    inset -3px -8px 1px -6px color-mix(in srgb, #ffffff calc(0.3 * 60%), transparent),
+    inset -0.3px -1px 4px 0px color-mix(in srgb, #000000 calc(2 * 12%), transparent),
+    inset -1.5px 2.5px 0px -2px color-mix(in srgb, #000000 calc(2 * 12%), transparent),
+    inset 0px 3px 4px -2px color-mix(in srgb, #000000 calc(2 * 12%), transparent),
+    inset 2px -6.5px 1px -4px color-mix(in srgb, #000000 calc(2 * 12%), transparent),
+    0px 1px 5px 0px color-mix(in srgb, #000000 calc(2 * 12%), transparent),
+    0px 6px 16px 0px color-mix(in srgb, #000000 calc(2 * 12%), transparent);
+}
+```
+
+이와 같이 Liquid-Glass 스타일을 리팩토링한 후, 컴파일 단계에서 이 Mixin을 호출하는 모든 위치마다 코드가 개별적으로 확장되었습니다. 특히 Mixin 내부에 포함된 또 다른 중첩 Mixin들까지 함께 복제되어 최종 CSS 번들에 병합되면서, 결과적으로 번들 크기와 빌드 시간이 소폭 증가하는 현상이 발생하던 것이었습니다.
+
+그럼에도 불구하고 Mixin 방식은 한 곳에서 로직을 관리하고 여러 곳에서 재사용할 수 있다는 유집보수 측면의 막강한 장점이 있어, 이전처럼 각 파일에서 개별적으로 관리하는 방식으로 회귀하는 것은 비효율적이었습니다.
+
+이러한 문제를 해결하기 위해 저는 SPA의 특성을 활용하기로 했습니다. SPA는 한 번 로드된 하나의 CSS 파일을 애플리케이션 전체에서 공유하게 되는데, 이는 HTML 문서에 `<link>` 태그로 전역 스타일을 연결하는 것과 같은 원리로 동작하게 됩니다.
+
+즉, 전역 스코프에서 해당 Mixin 로직을 단 한 번만 호출하여 클래스 선택자로 정의해 두면, 스타일이 필요한 곳에서는 클래스 이름만 추가하여 이미 정의된 스타일을 참조할 수 있습니다. 이를 통해 컴파일 과정에서 코드 중복을 완전히 제거하고, 유지보수성과 번들 최적화를 동시에 달성할 수 있도록 다음과 같이 수정했습니다.
+
+```scss
+// app/styles/global.scss
+@use "liquid-glass";
+```
+
+```scss
+// app/styles/liquid-glass.scss
+@use "@shared/styles" as *;
+
+.liquid-glass {
+  --transition: "";
+
+  &.fast { --transition: 200ms cubic-bezier(0.5, 0, 0, 1); }
+  &.slow { --transition: background-color 400ms cubic-bezier(1, 0, 0.4, 1), box-shadow 400ms cubic-bezier(1, 0, 0.4, 1); }
+
+  @include mixin-liquid-glass(
+    $boxShadow: "strong",
+    $transition: var(--transition)
+  );
+}
+```
+
+```tsx
+// Bottom Sheet Header 컴포넌트 내부에서 클래스 이름을 추가하여 이미 정의된 스타일 참조
+export default function BottomSheetHeader({ sheetTitle, onClose, showRightButton, onRightButtonClick }: Props) {
+  
+  return (
+    <Sheet.Header className={`...`}>
+      <button className={`... liquid-glass`} ...>
+        <Cancel ... />
+      </button>
+      
+      {/* ... */}
+    </Sheet.Header>
+  );
+}
+```
+
+Liquid-Glass 스타일을 사용하는 모든 컴포넌트를 위와 같은 방식으로 수정한 이후, Vercel의 빌드 결과는 다음과 같이 변화했습니다.
+
+```md
+# 리팩토링 이전 빌드 결과
+...
+03:40:24.211 | dist/assets/index-CFfNR6NU.css              23.56 kB │ gzip:   4.36 kB
+03:40:24.212 | ✓ built in 6.91s
+```
+
+```md
+# 재사용 가능한 Mixin 로직 정의 후,
+# 각 컴포넌트에서 해당 Mixin을 직접 사용하는 방식으로 리팩토링했을 때의 빌드 결과
+...
+01:32:10.235 | dist/assets/index-0xaH7see.css              23.72 kB │ gzip:   4.34 kB
+01:32:10.236 | ✓ built in 6.96s
+```
+
+```md
+# 전역 클래스 기반으로 Liquid-Glass 스타일을 정의하고,
+# 각 컴포넌트에서는 클래스 선택자만 사용하는 방식으로 최종 리팩토링한 이후의 빌드 결과
+...
+08:56:19.832 | dist/assets/index-BlpU9Dsr.css              22.23 kB │ gzip:   4.37 kB
+08:56:19.833 | ✓ built in 6.65s
+```
+
+최종적으로 리팩토링한 빌드 결과를 보면 알 수 있듯이 CSS 파일의 번들 크기가 작아졌을 뿐만 아니라 프로젝트 전체 빌드 시간도 단축된 것을 확인할 수 있습니다.
