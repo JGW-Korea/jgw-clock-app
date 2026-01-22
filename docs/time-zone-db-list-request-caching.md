@@ -118,7 +118,47 @@ Clock 프로젝트에서 Time Zone DB API와 같은 무료 Open API가 아니라
 
 <br />
 
-**③ 사용자가 사용 중인 네트워크가 느린 경우**
+**③ 요청이 발생할 때마다 JavaScript 로직 수행**
+
+네트워크 요청은 브라우저가 화면을 그리기 위해 HTML, CSS, JavaScript와 같은 정적 파일을 전달하는 경우를 제외하면, 대부분 Fetch API, XHR, Axios와 같은 JavaScript를 통해 개발자가 직접 필요한 데이터를 요청하는 방식으로 수행됩니다.
+
+즉, 네트워크 요청이 발생하면 API 로직이 JavaScript 해석기를 통해 실행되며, 이 과정에서 브라우저 프로세스의 메모리 자원(Heap, Code, Data)을 점유하게 됩니다. 또한 함수 호출은 JavaScript 해석기의 단일 스레드에서 처리됩니다.
+
+이벤트 루프를 통해 비동기 로직이 수행되기 때문에 겉으로 보기에는 다중 스레드(Multi Thread)로 동작하는 것처럼 보일 수 있지만, 정확히 말하면 런타임 환경 자체가 멀티 스레드로 구성되어 있어 여러 비동기 작업을 병렬적으로 처리하는 구조일 뿐, JavaScript 해석기 자체는 단일 스레드로 동작합니다.
+
+이로 인해 JavaScript를 통해 브라우저에 표시된 화면을 조작하거나 API 요청과 같은 특정 로직을 수행하게 되면, 해당 함수 호출은 JavaScript 해석기의 단일 스레드가 관리하는 콜 스택에 쌓이게 되고, 브라우저 프로세스의 메모리 자원을 점유하게 됩니다.
+
+이를 직접 확인하기 위해 JavaScritp를 통해 List Time Zone API 요청을 수행한 뒤, 개발자 도구의 Performance 탭을 통해 해당 구간의 정보를 살펴보았습니다.
+
+![time-zone-db-send-request](./images/time-zone-db-send-request.png)
+
+Performance 탭의 결과를 보면, List TIme Zone API 요청과 응답 과정에서 JavaScript 해석기의 스레드 상에 다수의 함수 호출 경로가 표시되는 것을 확인할 수 있습니다.
+
+또한 JS Heap 메모리 영역을 살펴보면, 요청을 발생했을 때 계단식으로 메모리 사용량이 증가한 뒤 일부 메모리가 해제되며 소폭 감소한 상태로 유지되는 것을 확인할 수 있습니다. 이후 네트워크 요청의 응답을 전달받는 시점에 메모리 사용량이 다시 증가하며, 해당 구간 동안 최대 약 7.8MB의 메모리를 차지하고 있는 것을 확인할 수 있습니다.
+
+이러한 현상은 JavaScript API 요청 로직이 수행되는 과정에서 콜 스택에 쌓였던 함수 호출 자체는 제거되었지만, 비동기 요청이 진행 중인 상황에서 API 로직 내부의 코드들이 클로저(Closure)로 인해 참조를 유지하고 있기 때문에 메모리가 해제되지 않은 상태로 유지되기 때문입니다. 이후 응답이 도착하면서 리렌더링과 같은 추가 로직이 수행되며 메모리 사용량이 다시 증가하게 됩니다.
+
+약 7.8MB라는 수치 자체는 문제가 되지 않는 수준으로 보일 수도 있습니다. 하지만 이 결과는 외부 요인의 영향을 최소화한 Chrome 시크릿 모드 환경에서 측정한 결과입니다. 일반 사용자는 시크릿 모드가 아닌 일반 모드에서 브라우저를 사용하기 때문에, 외부 요인에 의해 메모리 사용량이 더 증가할 수 있습니다.
+
+<br />
+
+![time-zone-db-send-request-default](./images/time-zone-db-send-request-defalut.png)
+
+위 이미지는 시크릿 모드가 아닌 일반 모드에서 List Time Zone API 요청과 응답 과정에 대해 측정한 Performance 결과입니다.
+
+시크릿 모드에서 측정한 결과보다 함수 호출 경로가 더 많이 표시되는 이유를 정확하 파악하기는 어렵지만, JS Heap 영역을 확인해 보면 브라우저 프로세스의 힙 메모리에서 최대 약 15.8MB의 메모리를 JavaScript 로직이 점유하고 있는 것을 확인할 수 있습니다.
+
+이 수치 또한 절대적으로 큰 값은 아니지만, 사용자가 활성화한 탭이 많거나 확장 플러그인을 다수 사용하고 있는 환경과 같은 외부 요인이 더해질 경우 메모리 사용량은 더욱 증가할 수 있습니다. 실제로 이번 측정 역시 테스트를 위해 최대한 탭을 줄인 상태였음에도 불구하고, 시크릿 모드 대비 약 2배 이상 증가한 결과를 확인할 수 있었습니다.
+
+<br />
+
+이러한 상황이 문제가 되는 이유는, 클로저나 참조가 유지되는 참조 자료형(Array, Object, Function, Detached elements 등)으로 인해 GC(Garbage Collection)가 메모리를 즉시 해제하지 못하는 상태에서 순간적으로 메모리 사용량이 급증할 수 있기 때문입니다. 이 경우 사용자의 런타임 성능에 직접적인 영향을 줄 수 있습니다.
+
+한두 번의 요청이라면 큰 문제가 되지 않을 수도 있지만, `/world` 페이지를 이동할 때마다 List Time Zone API 요청과 응답으로 인해 메모리 사용량이 반복적으로 급증하게 되면 버벅임 현상이 지속적으로 발생하게 되고, 결과적으로 사용자 경험(UX) 저하로 이어질 수 있습니다.
+
+<br />
+
+**④ 사용자가 사용 중인 네트워크가 느린 경우**
 
 일반적으로 서비스를 개발하는 개발자의 네트워크 환경은 비교적 성능이 좋은 경우가 많습니다. 이로 인해 개발 과정에서 네트워크 성능으로 인한 문제를 직접 체감하기는 쉽지 않습니다.
 
@@ -154,7 +194,7 @@ Clock 프로젝트에서 Time Zone DB API와 같은 무료 Open API가 아니라
 
 <br />
 
-**④ 적절한 예외 처리를 하지 않았을 경우**
+**⑤ 적절한 예외 처리를 하지 않았을 경우**
 
 개발자가 적절한 예외 처리를 수행하지 않았더라도, 그 결과가 화면에 직접적인 영향을 주지 않는 경우에는 사용자가 에러 발생 여부를 인지한지 못한 채 넘어갈 수 있습니다. 이게 정확히 무슨 소리인지 알아보기 위해 기존 API 로직을 다음과 같이 수정해보겠습니다.
 
@@ -214,6 +254,76 @@ export default function WorldBottomSheet({ isOpen, onClose, onClickAppendWorld }
 <br />
 
 > ⭐️ 지금 상황과 반대로 네트워크 요청 등으로 인해 오류가 발생했을 때 이 오류가 직접적인 렌더링 결과에 영향을 주는 경우에는 사용자 화면에는 빈 화면 또는 에러 결과문이 나타날 수도 있습니다.
+
+<br />
+
+**⑥ 친절하지 않은 Time Zone DB 공식 문서**
+
+브라우저는 서버와 HTTP 프로토콜을 통해 서로 통신합니다. 따라서 필요한 자원에 대해 API 요청을 보내기 위해서는 URL(Uniform Resource Locator)을 사용하여 해당 자원의 명확한 위치를 식별한 뒤 요청을 전송하게 됩니다.
+
+이처럼 프로젝트 내부에 구성된 API가 아닌 외부 API인 경우에는, 클라이언트가 해당 API의 사용 방법(요청 방식, 응답 결과 등)을 알 수 있도록 공식 문서를 운영하는 것이 일반적입니다. 현재 Clock 서비스에서 사용 중인 Open API인 Time Zone DB 역시 공식 문서를 제공하고 있습니다.
+
+[![Time Zone DB API 공식 문서](./images/time-zone-api-reference.png)](https://timezonedb.com/)
+
+> _이미지를 클릭하면 Time Zone DB 공식 문서로 이동하실 수 있습니다._
+
+<br />
+
+하지만 모든 API나 라이브러이의 공식 문서가 항상 충분한 정보를 제공하는 것은 아닙니다. 특히 Time Zone DB와 같은 무료 Open API의 경우에는 문서의 상세도가 더 낮은 경우도 많습니다.
+
+이를 단순히 문제로만 볼 수 없는 이유는, 공식 문서를 운영하고 유지하는 것 역시 인프라 비용이 발생하는 작업이며, 무료로 API를 제공하는 서비스 입장에서는 핵심 기능이 아닌 문서 영역에 추가적인 비용을 투자하기가 쉽지 않기 때문입니다.
+
+본론으로 돌아와서, 이와 같은 무료 Open API를 사용하는 경우에도 결국 네트워크 요청은 발생하게 됩니다. 그리고 해당 API를 제공하는 서버가 클라이언트가 알 수 없는 이유로 정상적으로 동작하지 않는 상황이 발생하며, 클라이언트는 이에 대한 적절한 예외 처리를 수행하기 어려워집니다.
+
+| Field |	Description |
+|:--|:--|
+| status |	Status of the API query. Either OK or FAILED. |
+| message |	Error message. Empty if no error. |
+| countryCode |	Country code of the time zone. |
+| countryName |	Country name of the time zone. |
+| zoneName |	The time zone name. |
+| gmtOffset |	The time offset in seconds based on UTC time. |
+| gmtOffset |	The time offset in seconds based on UTC time. |
+| dst |	Whether Daylight Saving Time (DST) is used. Either 0 (No) or 1 (Yes). |
+| timestamp |	Current local time in Unix time. Minus the value with gmtOffset to get UTC time. |
+
+> _공식 문서에 명시된 ![List Time Zone API의 응답 결과](./images/list-time-zone-api-reference.png)를 Markdown 형태로 정리한 테이블입니다._
+
+<br />
+
+위 응답 테이블을 보면, `status` 프로퍼티를 통해 API 요청 결과가 `OK` 또는 `FAILED`로 구분된다는 것을 알 수 있습니다. 즉, 서버에서 요청을 정상적으로 처리하지 못한 경우에도 실패 응답을 통해 이에 대한 예외 처리가 가능하다는 의미입니다.
+
+하지만 Time Zone DB 공식 문서가 친절하지 않다고 느낀 이유는, 실패 응답이 반환될 수 있음에도 불구하고 어떤 상황에서 어떤 실패 응답이 반환되는지에 대한 정보가 공식 문서에는 명시되어 있지 않다는 점이었습니다.
+
+이로 인해 실패 응답의 유형을 명확히 알 수 없어, List Time Zone API 요청에 대한 예외 처리 로직은 다음과 같이 제한적인 형태로 작성되어 있습니다.
+
+```tsx
+useEffect(() => {
+  const fetchListTimeZone = async () => {
+    try {
+      // ...
+    } catch(error) {
+      if(error instanceof AxiosError) {
+        switch(error.code) {
+          case "ERR_NETWORK": {
+            console.error("Axios 요청에서 Network Error가 발생했습니다.", error);
+          }
+        }
+      }
+
+      console.error(error);
+    }
+  }
+
+  fetchListTimeZone();
+}, []);
+```
+
+에러 응답이 발생했을 경우 `catch` 문에서 이에 대한 적절한 예외 처리가 이루어져야 하지만, 어떤 종류의 에러가 발생하는지 알 수 없기 때문에 현재는 단순히 에러를 출력하는 수준에 머물러 있는 상태입니다.
+
+실제로 앞서 살펴본 문제점인 **⑤ 적절한 예외 처리를 하지 않았을 경우** 역시, Bottom Sheet 내부의 콘텐츠가 비어 있는 상태를 보고 개발자 도구를 열어 확인한 뒤에야 에러 발생 여부를 인지할 수 있었습니다.
+
+즉, 에러가 발생했음에도 불구하고 어떤 에러인지 명확히 알 수 없기 때문에 적절한 예외 처리를 수행하지 못하는 구조가 됩니다. 이러한 상황에서 `/world` 페이지로 이동할 때마다 List Time Zone API 재요청이 빈번하게 발생한다면, 해당 문제는 더욱 크게 드러나게 됩니다.
 
 <br />
 
