@@ -327,7 +327,7 @@ useEffect(() => {
 
 <br />
 
-## III. "List Time Zone 요청 API 로직" 문제 해결 방법
+## III. "List Time Zone 요청 API 로직" 문제 원인 분석 및 해결 방법
 
 앞서 ["II. 현재 작성된 "List Time Zone 요청 API 로직"의 문제점"](#ii-현재-전체-시간대-목록-요청-api-로직의-문제점)에서는 현재 작성된 List Time Zone 요청 API 로직으로 인해 발생할 수 있는 여러 가지 문제점들을 정리했습니다. 이제 앞서 분석한 문제점들의 유형을 먼저 간단히 다시 정리해 보겠습니다.
 
@@ -346,9 +346,13 @@ useEffect(() => {
 
 다만 그전에, **"① HTTP 버전이 낮은 경우"** 문제는 Time Zone DB 서버의 HTTP 프로토콜 버전이 낮았을 경우를 가정하여 도출한 문제입니다. 그러나 아래 이미지에서 확인할 수 있듯이, Time Zone DB의 원본 서버는 HTTP/3 프로토콜을 사용하고 있기 때문에 해당 문제점은 현재 환경에서 실제로 발생하는 문제라기 보다는, 구조적으로 발생할 수 있는 문제를 가정하여 정리한 항목입니다.
 
-[Time Zone DB Protocol version](./images/time-zone-db-http-protocol-version.png);
+<br />
+
+![Time Zone DB Protocol version](./images/time-zone-db-http-protocol-version.png)
 
 > _Dev Tools > Network 결과 항목에서 Protocol 열에 표시되는 h1, h2, h3 값은 클라이언트-서버 간에 사용되는 HTTP 프로토콜의 버전을 의미합니다._
+
+<br />
 
 다시 원래 문제로 돌아와 보면, "재요청"이 반복적으로 발생하는 상황에서 원본 서버로 요청을 보내지 않고 동일한 데이터를 재사용할 수 있는 방법은 무엇일까요? 바로 요청의 응답에 대해 **"캐싱(Cache)"** 을 적용하여 최적화하는 것입니다.
 
@@ -430,6 +434,8 @@ export const useUserLikedMovies = (nickname: string) => {
 
 > _0 B used out of 296,631 MB storage quota: 총 296,631 MB 할당량 중 0B 사용_
 
+<br />
+
 실제로 "개발자 도구 > Application" 탭을 확인하면, 각 탭마다 제공되는 브라우저 저장소의 할당량과 현재 사용 중인 용량을 확인할 수 있습니다. Clcok 프로젝트의 배포 사이트 기준으로 보면, 브라우저는 탭마다 총 296,631MB의 저장 공간을 할당받고 있음에도 불구하고, 실제 사용량은 1kB 조차 사용하지 않고 있다는 것을 확인할 수 있습니다.
 
 따라서 현재 Clock 프로젝트에서는 외부 패키지를 통한 캐싱 구조 도입은 적절하지 않다고 판단하여, TanStack Query와 같은 외부 라이브러리는 사용하지 않기로 결정했습니다.
@@ -487,5 +493,181 @@ Session Storage는 정확히 말하면 메모리에 직접 저장되는 구조�
 또한 지금까지 응답 데이터가 변경되지 않는다고 설명해 왔지만, 이를 절대적으로 단언할 수는 없습니다. 왜냐하면 Open API 특성상, 해당 API를 제공하는 서비스 측에서 응답 구조나 데이터를 수정할 경우 응답 결과는 언제든지 변경될 수 있기 때문입니다.
 
 그렇기 때문에 Local Storage 또는 IndexedDB를 활용하여 브라우저 캐시 저장소를 구축할 것이지만, 캐시 검증을 위한 조건부 요청은 재사용(304 Not Modified)이 아닌 갱신(200 OK) 방식으로 처리할 것입니다.
+
+<br />
+
+## IV. Local Storage vs IndexedDB
+
+["III. "List Time Zone 요청 API 로직" 문제 원인 분석 및 해결 방법"](#iii-list-time-zone-요청-api-로직-문제-원인-분석-및-해결-방법)에서, 현재 List Time Zone API의 근본적인 문제 원인이 재요청 구조에 있으며, 해결 방향으로는 최초 요청을 통해 전달받은 응답 결과를 브라우저 저장소에 저장하여 캐싱 로직을 구성하는 방식을 선택했습니다.
+
+그러나 List Time Zone API의 응답 헤더에는 HTTP 헤더 기반의 `Cache-Control` 캐시 정책이 포함되어 있지 않기 때문에, 브라우저 캐시 저장소를 직접 활용하는 방식이 아닌 Local Storage 또는 IndexedDB를 사용하는 구조를 선택하게 되었습니다.
+
+두 방식 모두 비휘발성 저장소라는 특징을 가지고 있기 때문에, 사용자가 페이지를 나갔다가 다시 접속하더라도 저장된 데이터가 유지되어 추가 요청이 발생하지 않는다는 공통점을 가집니다.
+
+즉, 브라우저 캐시 저장소를 대체하는 구조를 구성하는 과점에서는 두 방식 모두 올바른 선택지가 될 수 있습니다. 다만 두 저장소는 의미와 기술적 구조에 차이가 있기 때문에, 각 저장소의 사용 방식과 특성을 비교한 후 현재 구조에 더 적절하다고 판단되는 저장소를 선택해 보겠습니다.
+
+<br />
+
+**① Local Storage**
+
+Local Storage는 클라이언트(브라우저)에서 사용할 수 있는 Key-Value 형태의 저장소로, 페이지를 닫거나 브라우저를 종료하더라도 데이터가 삭제되지 않고 영구적으로 유지되는 비휘발성 브라우저 저장소입니다.
+
+> Local Storage의 자세한 개념은 저의 노션 ["브라우저 데이터 저장소 | Local Storage"](https://gye-won.notion.site/Local-Storage-2b488bd9c3fa80e88769cfaf087209bf?pvs=74)에서 확인할 수 있습니다.
+
+이러한 특성 때문에 Local Storage는 특정 상태를 지속적으로 유지해야 하는 용도로 많이 활용됩니다. 대표적인 예로는 사용자의 테마 모드, 언어 설정, 로그인 상태 유지(토큰 기반 인증 구조) 등이 있습니다.
+
+```tsx
+const handleToggleTheme = () => {
+  let currentTheme = localStorage.getItem<Theme>("theme"); // 현재 설정된 테마의 정보를 가지고 온다.
+
+  switch(currentTheme) {
+    case "light": {
+      currentTheme = "dark"; // Light -> Dark
+    }
+    case "dark": {
+      currentTheme = "light"; // Dark -> Light
+    }
+  }
+
+  localStorage.setItem("theme", currentTheme); // 변경된 테마 상태를 영구 저장
+
+  // 📌 실제 구현 시에는 테마 변경이 화면에 반영되어야 하므로,
+  // React 환경에서는 상태(state)를 통해 리렌더링을 발생시키고,
+  // Vanilla JavaScript 환경에서는 DOM의 class 속성을 제어하는 방식으로 처리됩니다.
+}
+```
+
+위 코드와 같이 Local Storage는 특정 상태를 영구적으로 보존하기 위한 용도로 많이 사용됩니다. 다만 Local Storage를 포함한 웹 스토리지(Web Storage)는 일반적으로 약 5MB ~ 10MB 수준의 저장 용량 제한을 가지며, Key-Value 구조이지만 Value에는 문자열 형태의 데이터만 저장 가능하다는 제약이 있습니다.
+
+즉, 배열이나 객체와 같은 복잡한 구조의 데이터를 저장하기 위해서는 문자열로의 직렬화 과정이 필요합니다. 그러나 단순 문자열로 변환할 경우, 실제 내부 데이터 구조는 유지되지 않고 참조 주소에 대한 문자열 표현만 남게 됩니다.
+
+```java
+public class Main {
+  public static void main(String[] args) {
+    String str[] = {"a", "b", "c"};
+    
+    System.out.println("Length: " + str.toString());
+  }
+}
+// -> Length: [Ljava.lang.String;@5a07e868
+```
+
+```tsx
+// 배열은 내부 값을 콤마(,)로 연결한 문자열로 변환됨
+// 객체는 [object, Object] 형태의 문자열로 변환됨
+const users = [
+  { id: 1, name: "Vito", age: 28 },
+  { id: 2, name: "John", age: 28 },
+  { id: 3, name: "Michele", age: 28 },
+];
+
+console.log(String(users)); // 또는 users.toString()
+// -> [object Object],[object Object],[object Object]
+```
+
+위 예시에서 확인할 수 있듯이, 참조 값을 단순 문자열로 변환할 경우 실제 데이터 구조를 보존하지 못하고 참조 주소에 대한 문자열만 생성하게 됩니다. 그러나 참조 자료형을 문자열로 변환하는 방법이 없는 것은 아닙니다.
+
+JavaScript의 경우 JSON 빌트인 객체를 활용하는 방법입니다. JSON.stringify()를 통해 **"JSON 기반 데이터 -> 문자열"** 직렬화를 수행하고, `JSON.parse()`를 통해 **"문자열 -> JSON 기반 데이터"**로 역직렬화할 수 있습니다.
+
+표면적으로 보면 이는 매우 단순하고 편리한 방식처럼 보이지만, 내부 동작 구조를 살펴보면 생각이 달라지게 됩니다. 다음 코드는 실제 `JSON.stringify()` 구현이 아닌, 동작 원리를 이해하기 위해 구조를 유추하여 작성한 알고리즘 예시 코드입니다.
+
+```tsx
+// 실제 JSON.stringify() 내부 구현이 아닌 동작 구조를 이해하기 위한
+// 동작 원리의 개념을 바탕으로 유추하여 작성한 알고리즘입니다.
+class JSON {
+  stringify(data: object | object[]) {
+    let result = "";
+
+    if(Array.isArray(data)) {
+      result += "[";
+      
+      for(const value of data) {
+        const valueType = getValueType(value);
+
+        switch(valueType) {
+          // 배열 내부의 값이 원시 자료형인 경우
+          case "string":
+          case "number":
+          case "boolean":
+          case "undefined":
+          case "null": { // Null 자료형은 실제로 typeof 시 object로 나오게 됩니다. (JS 초기 결함)
+            result += value;
+            break;
+          }
+          case "object": {
+            result += this.stringify(value); // 재귀를 통해 다시 내부 구성 요소의 값들을 재구성한 결과를 결합한다.
+            break;
+          }
+        }
+
+        result += ",";
+      }
+
+      result += "]";
+    } else {
+      result += "{";
+
+      Object.Keys(data).forEach((key) => {
+        result += `"${key}":`;
+
+        const valueType = getValueType(value);
+
+        switch(valueType) {
+          // 배열 내부의 값이 원시 자료형인 경우
+          case "string":
+          case "number":
+          case "boolean":
+          case "undefined":
+          case "null": { // Null 자료형은 실제로 typeof 시 object로 나오게 됩니다. (JS 초기 결함)
+            result += value;
+            break;
+          }
+          case "object": {
+            result += this.stringify(value); // 재귀를 통해 다시 내부 구성 요소의 값들을 재구성한 결과를 결합한다.
+            break;
+          }
+        }
+      });
+
+      result += "}";
+    }
+
+    return result;
+  }
+
+  // ...
+}
+```
+
+구조를 보면, 전달받은 `data`의 각 프로퍼티에 접근하여 원시 값을 문자열로 변환하고, 재귀 구조를 통해 중첩 객체를 순회하면서 최종 문자열을 구성하는 방식임을 확인할 수 있습니다.
+
+문제가 되는 지점은, API 응답 데이터의 구조를 사전에 예측할 수 없다는 점입니다. 응답이 단일 객체인지, 배열 구조인지, 중첩 구조인지, 혹은 복합 구조인지 알 수 없기 때문에 직렬화 비용은 구조에 따라 크게 달라지게 됩니다.
+
+이를 "최선의 경우", "평균의 경우", "최악의 경우"와 같이 경우별로 나눠서 보면 다음과 같습니다.
+
+- **최선의 경우(Best Case)**: 단일 객체 + 모든 프로퍼티가 원시 자료형 -> 객체 프로퍼티 수만큼 반복 수행 -> 시간 복잡도 O(N)
+- **평균의 경우(Average Case)**: 단일 객체 + 중첩 구조 포함 -> 반복문 + 재귀 구조 결합 -> 재귀 깊이에 따라 시간 복잡도 예측 어려움
+- **최악의 경우(Worst Case)**: 배열 구조 + 내부 요소가 중첩 객체 구조 -> 배열 순회 + 객체 순회 + 재귀 호출 중첩 -> 문자열 직렬화 반복 수행
+
+이 구조에서 단순 반복문도 비용 요소가 될 수 있지만, 가장 큰 문제는 재귀 호출 구조입니다. 재귀는 함수 호출이 누적되며 콜 스택을 사용하게 되고, 스택 깊이에는 제한이 존재하므로 스택 오버플로우(Stack Overflow) 위험이 발생할 수 있습니다. 이는 곧 런타임 오류로 이어질 수 있는 구조입니다.
+
+또한 재귀 구조는 동일한 계산이 반복 수행될 가능성이 있으며, 종료 조건이 명확하지 않을 경우 무한 루프 위험성도 함께 내포하게 됩니다.
+
+문제는 저장 과정에서 끝나지 않습니다. Local Storage에 문자열 형태로 저장된 데이터를 다시 사용하기 위해서는 반드시 역직렬화 과정이 필요하며, 이 역시 문자열을 다시 복잡한 객체 구조로 복원하는 연산 비용을 수반하게 됩니다.
+
+즉, Local Storage를 사용하여 응답 결과를 저장하는 구조는 단순 저장 비용뿐만 아니라 직렬화 + 역직렬화 과정이 모두 포함되는 구조이며, 결과적으로 성능 측면에서 불리한 특성을 가지게 됩니다.
+
+<br />
+
+> 물론 실제 `JSON.stringify()`와 `JSON.parse()`는 내부적으로 다양한 알고리즘 최적화가 적용되어 있기 때문에, 서술한 문제점들이 그대로 구현되어 있지는 않을 것입니다.
+> 그러나 동작 원리 자체는 유사한 구조를 가지기 때문에, 네트워크 응답 결과를 직렬화･역직렬화하여 저장하는 구조가 성능 측면에서 불리한 특성을 가진다는 점은 동일합니다.
+
+<br />
+
+실제 Local Storage와 IndexedDB 간의 성능 차이를 비교하기 위해, 우선 Local Storage를 기반으로 브라우저 캐시 저장소를 대체하는 구조로 기존 로직을 수정해보겠습니다.
+
+<br />
+
+**② IndexedDB**
 
 <br />
