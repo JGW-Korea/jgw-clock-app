@@ -508,7 +508,7 @@ Session Storage는 정확히 말하면 메모리에 직접 저장되는 구조�
 
 <br />
 
-**① Local Storage**
+### A. Local Storage
 
 Local Storage는 클라이언트(브라우저)에서 사용할 수 있는 Key-Value 형태의 저장소로, 페이지를 닫거나 브라우저를 종료하더라도 데이터가 삭제되지 않고 영구적으로 유지되는 비휘발성 브라우저 저장소입니다.
 
@@ -567,7 +567,7 @@ console.log(String(users)); // 또는 users.toString()
 
 위 예시에서 확인할 수 있듯이, 참조 값을 단순 문자열로 변환할 경우 실제 데이터 구조를 보존하지 못하고 참조 주소에 대한 문자열만 생성하게 됩니다. 그러나 참조 자료형을 문자열로 변환하는 방법이 없는 것은 아닙니다.
 
-JavaScript의 경우 JSON 빌트인 객체를 활용하는 방법입니다. JSON.stringify()를 통해 **"JSON 기반 데이터 -> 문자열"** 직렬화를 수행하고, `JSON.parse()`를 통해 **"문자열 -> JSON 기반 데이터"**로 역직렬화할 수 있습니다.
+JavaScript의 경우 JSON 빌트인 객체를 활용하는 방법입니다.` JSON.stringify()`를 통해 **"JSON 기반 데이터 -> 문자열"** 직렬화를 수행하고, `JSON.parse()`를 통해 **"문자열 -> JSON 기반 데이터"** 로 역직렬화할 수 있습니다.
 
 표면적으로 보면 이는 매우 단순하고 편리한 방식처럼 보이지만, 내부 동작 구조를 살펴보면 생각이 달라지게 됩니다. 다음 코드는 실제 `JSON.stringify()` 구현이 아닌, 동작 원리를 이해하기 위해 구조를 유추하여 작성한 알고리즘 예시 코드입니다.
 
@@ -666,8 +666,104 @@ class JSON {
 
 실제 Local Storage와 IndexedDB 간의 성능 차이를 비교하기 위해, 우선 Local Storage를 기반으로 브라우저 캐시 저장소를 대체하는 구조로 기존 로직을 수정해보겠습니다.
 
+```tsx
+useEffect(() => {
+  const fetchListTimeZone = async () => {
+    const listTimeZoneDatas = localStorage.getItem("listTimeZone");
+    
+    console.log("Local Storage에 List Time Zone API의 응답 결과가 포함되어 있는가?");
+
+    // Local Storage에 최초 요청 이후 저장된 List Time API의 응답 결과가 있는 경우
+    if(listTimeZoneDatas !== null) {
+      console.time("yes");
+      setWorldTimeListData(JSON.parse(listTimeZoneDatas));
+      console.timeEnd("yes");
+      return;
+    }
+
+    // Local Storage에 최초 요청 이후 저장된 List Time API의 응답 결과가 없는 경우
+    try {
+      //...
+
+      console.log("List Time Zone API 응답 개수:", response.data.zones.length);
+
+      console.time("no");
+      localStorage.setItem("listTimeZone", JSON.stringify(response.data.zones));
+      console.timeEnd("no");
+    } catch(error) {
+      // ...
+    }
+  }
+
+  fetchListTimeZone();
+}, []);
+```
+
+위와 같이 기존 로직을 간단히 수정한 뒤, Local Storage를 비운 상태에서 다시 실행하여 출력 결과를 확인해보겠습니다.
+
+```md
+# Local Storage에 응답 결과가 없는 경우
+List Time Zone API 응답 개수: 418
+no: 0.16796875 ms
+
+# Local Storage에 응답 결과가 있는 경우
+yes: 0.299072265625 ms
+```
+
+> 위 코드 블록은 실제 출력된 로그를 보기 쉽게 Markdown 형식으로 정리한 내용입니다. 실제 개발자 도구에서의 출력 화면은 [여기](./images/time-zone-response-local-storage-cache.png)에서 확인할 수 있습니다.
+
+출력 결과를 확인하면, Local Storage에 응답 결과가 **없는 경우 약 0.17ms**, 응답 결과가 **이미 저장되어 있는 경우 약 0.3ms**의 시간이 소요된 것을 확인할 수 있습니다.
+
+앞서 언급한 것처럼 JSON 빌트인 객체의 내부 알고리즘은 충분히 최적화되어 있기 때문에, 시간 수치만 놓고 보면 1ms도 걸리지 않는 매우 빠른 속도로 응답 결과의 저장 및 조회가 이루어지고 있음을 확인할 수 있습니다.
+
+그러나 단순 콘솔 출력 시간만으로는 실제 성능 영향을 판단하기 어렵기 때문에, Local Storage를 비운 후 "개발자 도구 > Performance" 탭을 통해 응답 결과를 저장하는 과정과 조회하는 과정의 실제 런타임 성능을 다시 측정해보겠습니다.
+
+![Local Storage Sync](./images/local-storage-sync.png)
+
+> setItem 우측에 표시된 test 함수는 Performance의 Main 탭이 JavaScript 메인 스레드의 콜 스택 기반 함수 호출 구조이기 떄문에, 실행 흐름을 명확히 구분하기 위해 분석용으로 임시 생성한 함수입니다.
+
+Performance 패널에서 JavaScript 메인 스레드 구간을 살펴보면, `localStorage.setItem()` 호출 막대가 이어진 뒤 분석용으로 만든 `test()` 함수가 실행되는 것을 확인할 수 있습니다. 이는 무엇을 의미하는 것일까요?
+
+이는 `localStorage.setItem()`이 **호출된 시점부터 종료되는 시점까지**를 하나의 막대(duration)로 표현하고 있다는 의미입니다. 즉, 해당 메서드가 **동기적으로 실행**되며, 호출이 끝나기 전까지는 다음 코드로 진행할 수 없다는 것을 보여줍니다.
+
+즉, Local Storage의 메서드는 동기적으로 수행을 하기 때문에 응답 결과를 저장하거나, 조회하는 과정이 모두 끝나야지 다음 명령줄로 넘어가 해당 동작을 수행한다는 것입니다. 물론, 지금 당장에는 setItem의 지속 기간(duration)이 약 0.17ms 밖에 안되기 때문에 문제가 없습니다.
+
+다시 말해 Local Storage의 메서드는 동기 방식으로 동작하기 때문에, 응답 결과를 저장하거나 조회하는 과정이 **완전히 종료된 이후**에야 다음 명령줄로 넘어가 작업을 수행할 수 있습니다. 물론 현재 측정 결과에서는 `localStorage.setItem()`의 지속 시간(duration)이 약 0.17ms 수준으로 매우 짧기 때문에, 즉시 문제로 이어지지는 않습니다.
+
+하지만 `JSON.stringify()`에 전달되는 데이터의 크기나 구조가 복잡해질수록 직렬화 비용이 증가하고, 그만큼 `localStorage.setItem()`의 수행 시간도 함께 늘어납니다. 또한 해당 시점에 화면 반영을 위한 렌더링 작업이 겹친다면, 메인 스레드가 블로킹되어 **렌더링 지연**으로 이어질 수 있습니다. 이를 확인하기 위해 다음과 같이 코드를 수정한 뒤 결과를 살펴보겠습니다.
+
+```tsx
+const dummyDatas = Array.from({ length: 10000 }, () => response.data.zones[0]);
+
+console.log("List Time Zone API 응답 개수:", response.data.zones.length);
+console.time("no");
+localStorage.setItem("listTimeZone", JSON.stringify(arr));
+console.timeEnd("no");
+```
+
+```md
+List Time Zone API 응답 개수: 10000
+no: 2.43603515625 ms
+```
+
+> 위 코드 블록은 실제 출력된 로그를 보기 쉽게 Markdown 형식으로 정리한 내용입니다. 실제 개발자 도구에서의 출력 화면은 [여기](./images/local-storage-stress-test-console.png)에서 확인할 수 있습니다. _(원본 이미지의 응답 개수는 418로 나와있지만, 실제 테스트 데이터 크기는 10,000 입니다.)_
+
+![Local Storage Stress test](./images/local-storage-stress-test.png)
+
+이미지에서 확인할 수 있듯이 실제 API의 응답 결과가 418개인 경우에는 약 0.17ms 시간 안에 응답 결과가 문자열로 변환되고, Local Storage에 저장이 되었지만, 배열의 크기를 10,000개로 지정 후 각 요소를 실제 응답으로 온 하나의 데이터로만 전체를 구성한 경우 전체 실행 결과는 약 2.5s가 소요된 것을 확인할 수 있음과 동시에 Performance에서 localStorage.setItem() 자체의 지속 기간(duration)만 살펴보더라도 약 1.43ms이 소요된 것을 확인할 수 있습니다.
+
+이미지에서 확인할 수 있듯이, 실제 API 응답 결과가 418개인 경우에는 약 0.17ms 내에 직렬화 및 저장이 완료되었습니다.
+
+반면, 배열 크기를 10,000개로 늘리고 각 요소를 동일한 응답 데이터로 채운 경우에는 전체 소요 시간이 약 2.5s가 소요되고, `localStorage.setItem()`의 작업 시간이 약 1.43ms로 증가한 것을 확인할 수 있습니다.
+
+즉, 최악의 상황을 가정하여 부하 테스트를 수행해보면, Local Storage 기반으로 응답 결과를 저장하는 방식은 다음과 같은 단점을 가지게 됩니다.
+
+- `JSON.stringify()` / `JSON.parse()`에 의해 직렬화 및 역직렬화 비용이 추가된다.
+- Local Storage에서 제공하는 기능들은 동기적으로 수행하기 때문에, 저장/조회 작업이 끝날 때까지 메인 스레드가 블로킹된다.
+- 그 결과, 동일 시점에 렌더링 작업이 발생하면 렌더링 지연으로 이어질 수 있다.
+
 <br />
 
-**② IndexedDB**
+### B. IndexedDB
 
 <br />
