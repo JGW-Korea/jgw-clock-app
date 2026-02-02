@@ -764,10 +764,12 @@ no: 2.43603515625 ms
 
 ### B. IndexedDB
 
-IndexedDB는 트랜잭션(Transaction) 기반 접근 모델을 가지는 객체 저장소(Object Store) 구조의 클라이언트 측 데이터베이스입니다. 사실 이전부터 IndexedDB라는 저장소의 존재는 알고 있었지만, 이 저장소를 어떻게 사용하는지, Local Storage와 어떤 차이점이 있는지, 그리고 어떤 이점을 가지는지에 대해서는 알지 못했습니다.
+Clock 프로젝트를 진행하기 전부터 IndexedDB라는 브라우저 저장소가 있다는 사실은 알고 있었습니다. 다만 실제로 어떻게 사용하는지, IndexedDB가 단순한 저장소를 넘어 어떤 특징을 가지는지, 그리고 Local Storage의 비휘발성 특성 외에 어떤 차이점이 있는지에 대해서는 정확히 알지 못했습니다.
 
-그래서 IndexedDB를 통해 브라우저 캐시 저장소를 대체하여 성능을 직접적으로 분석하기 전에, 앞서 MDN 공식 문서의 IndexedDB의 내용을 먼저 학습한 이후, 해당 내용을 정리하여 작성했습니다.
+그래서 IndexedDB를 활용해 브라우저 캐시 저장소를 대체하고, Local Storage와의 성능을 직접적으로 분석하기에 앞서, 먼저 MDN 공식 문서를 통해 IndexedDB의 주요 특징과 사용 방법을 학습했습니다. 이후 해당 내용을 바탕으로 성능 분석을 진행했습니다.
 
-> MDN 공식 문서의 IndexedDB API에 대해 공부한 내용은 저의 노션 [Web APIs | IndexedDB API](https://gye-won.notion.site/IndexedDB-API-2f288bd9c3fa80ecb31bed2d2e649894?pvs=74)에서 확인할 수 있습니다.
+<br />
+
+> IndexedDB에 대해 학습한 내용은 저의 노션 ["브라우저 데이터 저장소 | IndexedDB"](https://gye-won.notion.site/IndexedDB-2f388bd9c3fa80a6bc8af8f30f12ff76?pvs=74)에서 확인할 수 있습니다.
 
 <br />
