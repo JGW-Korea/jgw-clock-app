@@ -764,7 +764,7 @@ no: 2.43603515625 ms
 
 ### B. IndexedDB
 
-Clock 프로젝트를 진행하기 전부터 IndexedDB라는 브라우저 저장소가 있다는 사실은 알고 있었습니다. 다만 실제로 어떻게 사용하는지, IndexedDB가 단순한 저장소를 넘어 어떤 특징을 가지는지, 그리고 Local Storage의 비휘발성 특성 외에 어떤 차이점이 있는지에 대해서는 정확히 알지 못했습니다.
+Clock 프로젝트를 진행하기 전부터 IndexedDB라는 브라우저 저장소가 있다는 사실은 알고 있었습니다. 다만 실제로 어떻게 사용하는지, IndexedDB가 Local Storage와 비교했을 때 비휘발성 특징 외에 어떤 차이점이 있는지에 대해서는 정확히 알지 못했습니다.
 
 그래서 IndexedDB를 활용해 브라우저 캐시 저장소를 대체하고, Local Storage와의 성능을 직접적으로 분석하기에 앞서, 먼저 MDN 공식 문서를 통해 IndexedDB의 주요 특징과 사용 방법을 학습했습니다. 이후 해당 내용을 바탕으로 성능 분석을 진행했습니다.
 
@@ -785,6 +785,145 @@ IndexedDB는 트랜잭션 기반 접근 모델을 사용하는 클라이언트 �
 
 또한 활용 목적에서도 Local Storage는 테마 모드, 로그인 상태 유지와 같은 소량의 상태를 유지해야 하는 용도로 주로 사용되는 반면, IndexedDB는 서버 없이도 **비교적 많은 데이터를 관리하거나, API 요청을 통해 전달받은 응답 결과를 캐시하기 위한 용도로 활용**됩니다.
 
-이제 이렇게 살펴본 IndexedDB의 특성이 실제로 Local Storage 사용 시 발생했던 문제를 해결하고, 성능적인 이점을 가지는지 확인하기 위해, 다음 코드와 같이 IndexedDB 기반 데이터베이스를 생성한 쉬 성능을 직접 분석해보겠습니다.
+이제 이렇게 살펴본 IndexedDB의 특성이 실제로 Local Storage 사용 시 발생했던 문제를 해결하고, 성능적인 이점을 가지는지 확인하기 위해, 다음 코드와 같이 IndexedDB 기반 데이터베이스를 생성한 뒤 성능을 직접 분석해보겠습니다.
 
 <br />
+
+```tsx
+const cacheStorageDB: Promise<IDBDatabase> = new Promise((resolve, reject) => {
+  const DBOpenRequest = indexedDB.open("cacheStorageDB"); // 데이터베이스 연결 요청을 보낸다.
+
+  // cahceStorageDB 데이터베이스의 구조를 구성한다.
+  DBOpenRequest.onupgradeneeded = (event) => {
+    const db = DBOpenRequest.result;
+
+    // cacheStorageDB라는 데이터베이스가 생성되지 않은 경우에만 객체 저장소를 생성한다.
+    if(event.oldVersion < 1) {
+      db.createObjectStore("cacheStorage", {
+        keyPath: "cacheStorageName"
+      });
+    }
+  }
+
+  // cacheStorageDB 데이터베이스 연결이 성공된 경우
+  DBOpenRequest.onsuccess = () => {
+    const db = DBOpenRequest.result;
+
+    db.onclose = () => console.log("Database connection closed");
+    db.onversionchange = () => console.log("The version of this database has changed");
+
+    resolve(db);
+  }
+
+  // cacheStorageDB 데이터베이스 연결이 실패된 경우
+  DBOpenRequest.onerror = () => {
+    reject(DBOpenRequest.error);
+  }
+});
+```
+
+먼저 IndexedDB에 **`cacheStorageDB`라는 데이터베이스에 연결 요청**을 보냅니다. 이때 해당 데이터베이스가 IndexedDB에 존재하지 않는 경우, 브라우저는 새로운 데이터베이스를 생성하고 `onupgradeneeded` 이벤트를 통해 스키마 구성을 수행합니다.
+
+위 코드에서는 데이터베이스 연결 결과를 **Promise 객체로 감싸서 관리**하고 있습니다. 처음에는 단순히 변수에 데이터베이스 객체를 할당하는 방식으로 구현했지만, IndexedDB API의 동작 특성상 **데이터베이스 연결은 비동기적으로 완료**되기 때문에, 연결이 완료되기 이전 시점에 데이터베이스 객체에 접근하면서 `undefined`가 참조되는 문제가 발생했습니다.
+
+특히 이후 CRUD 작업을 위한 트랜잭션을 생성하는 과정에서, **아직 연결이 완료되지 않은 데이터베이스 객체를 사용하려다 `TypeError` 오류가 발생**했기 때문에, **데이터베이스 연결이 성공한 이후에만 해당 객체를 사용할 수 있도록 Promsie를 이용해 흐름을 제어**하도록 수정했습니다.
+
+데이터베이스 연결 요청 로직을 작성한 이후에는, 실제 IndexedDB에 등록된 cacheStorageDB를 대상으로 **데이터를 조회하는 `getCacheStorage` 로직**과 **데이터를 추가하거나 기존 값을 갱신하는 `setCacheStorage` 로직**을 작성했습니다.
+
+<br />
+
+```tsx
+/** Cache Storage 객체 저장소 조회 요청 수행 */
+async function getCacheStorage<T>(cacheStorageName: string): Promise<CacheStorageRecord<T> | undefined> {
+  const db = await cacheStorageDB;
+  
+  // 조회 요청도 비동기로 수행되기 때문에 Promise 객체를 반환한다.
+  return new Promise((resolve, reject) => {
+    const cacheObjectStore = db.transaction("cacheStorage", "readonly").objectStore("cacheStorage");
+    
+    // Cache Storage 객체 저장소에 매개변수로 전달된 데이터 조회 요청을 수행한다.
+    const cacheObjectStoreGetRequest = cacheObjectStore.get(cacheStorageName);
+    cacheObjectStoreGetRequest.onsuccess = () => resolve(cacheObjectStoreGetRequest.result as CacheStorageRecord<T> | undefined);
+    cacheObjectStoreGetRequest.onerror = () => reject(cacheObjectStoreGetRequest.error);
+  });
+}
+```
+
+먼저 `getCacheStorage` 로직을 살펴보겠습니다. 해당 로직은 반환값으로 `Promise<CacheStorageRecord<T> | undefined>` 형태의 **Promsie 객체를 반환**하며, **성공 이행 결과에 제네릭 타입(T)을 사용**하고 있습니다. 이렇게 구성한 이유는 다음과 같습니다.
+
+- cacheStorage에서 **데이터를 조회하는 과정은 비동기적으로 수행**되므로, 호출 측에서 동기적으로 값을 사용하려고 하면 실제 조회 결과가 아닌 `undefined`가 전달될 수 있습니다. 따라서 조회 결과를 Promise를 통해 전달하도록 구현했습니다.
+- 성공 이행 결과에 제네릭 타입을 사용한 이유는, `cacheStorage`에 저장되는 레코드 중 `data` 프로퍼티의 경우 **사용되는 위치에 따라 타입이 달라지기 때문**입니다. 이에 따라 **호출부에서 제네릭 타입 매개변수를 전달받아, 저장되는 데이터의 타입을 상황에 맞게 지정**할 수 있도록 제네릭을 사용했습니다.
+
+<br />
+
+```tsx
+/** Cache Storage 객체 저장소 삽입 요청 수행 */
+async function setCacheStorage<T>(cacheStorageName: string, data: T) {
+  const db = await cacheStorageDB;
+
+  // 삽입 요청도 비동기로 수행되기 때문에 Promise 객체를 반환한다.
+  return new Promise((resolve, reject) => {
+    const cacheObjectStore = db.transaction("cacheStorage", "readwrite").objectStore("cacheStorage");
+
+    const record: CacheStorageRecord<T> = {
+      cacheStorageName,
+      data,
+      expires: Date.now() + (1000 * 60 * 60 * 24 * 365),
+    }
+
+    // Cache Storage 객체 저장소에 매개변수로 전달된 데이터를 삽입 요청을 수행한다.
+    // 만일 동일한 기본 키에 대한 데이터가 존재하면 데이터 삽입이 아닌 갱신이 일어난다.
+    const cacheObjectStoreSetRequest = cacheObjectStore.put(record);
+    cacheObjectStoreSetRequest.onsuccess = () => resolve(cacheObjectStoreSetRequest.result);
+    cacheObjectStoreSetRequest.onerror = () => reject(cacheObjectStoreSetRequest.error);
+  });
+}
+```
+
+다음으로 `setCacheStorage` 로직을 살펴보겠습니다. 해당 로직도 마찬가지로 **Promise 객체를 반환**하며, **`data` 매개변수의 타입을 제네릭 타입(T)을 사용**하고 있습니다. 또한 `IDBObjectStore.add()`가 아닌 **`IDBObjectStore.put()`을 사용**하고 있습니다. 이렇게 구성한 이유는 다음과 같습니다.
+
+- IndexedDB API에서 `add()`, `put()`과 같은 데이터 삽입 요청은, **성공 시 해당 객체 저장소(Object Store)에 삽입된 레코드의 키를 반환**합니다. 이 때문에 단순 결과값만 사용한다면 Promise를 사용하지 않아도 되지만, 삽입 과정에서 **오류가 발생할 경우 이를 `onerror` 이벤트를 통해서만 처리**해야 합니다. 이러한 **예외 처리를 호출부에서 일관되게 관리**하기 위해, Promise를 사용해 오류를 `reject`로 전달하도록 구성했습니다.
+- data 매개변수의 타입을 제네릭 타입(T)을 사용한 이유는, **조회 로직과 동일한 레코드 구조를 유지**하면서, **실제 저장되는 데이터 타입은 유연하게 지정**할 수 있도록 제네릭을 사용했습니다.
+- 마지막으로 데이터 삽입 요청에 `add()` 대신 `put()`을 사용한 이유는, cacheStorageDB가 **캐시 저장소를 대체하기 위한 용도로 설계**되었기 때문입니다. **캐시된 데이터의 신선도(freshness)가 만료되어 기존 데이터를 교체해야 하는 상황**에서 `add()`를 사용할 경우, **동일한 키에 대한 삽입 요청으로 인해 ConstraintError가 발생**합니다. 반면 `put()`은 해당 **키에 대한 레코드가 존재하지 않으면 추가하고, 이미 존재하는 경우에는 기존 레코드를 갱신**하기 때문에 캐시 데이터 관리에 적합하기 때문입니다.
+
+이와 같이 IndexedDB 기반의 캐시 저장소를 설계한 뒤, 기존 로직을 다음과 같이 수정을 했습니다.
+
+```tsx
+useEffect(() => {
+  const fetchListTimeZone = async () => {
+    try {
+      const cached = await getCacheStorage<ListTimeZone[]>("listTimeZone"); // IndexedDB에 listTimeZone 데이터 조회 요청을 발생시킨다.
+
+      // List Time Zone 캐시 데이터가 존재하지 않거나, 캐시 기간이 만료된 경우
+      if(cached === undefined || cached.expires < Date.now()) {
+        const response = await getListTimeZone();
+
+        // TimeZoneDB 요청이 실패한 경우 -> TimeZoneDB에서 설정한 message 값으로 에러문을 출력한다.
+        if(response.data.status === "FAILED") {
+          throw new Error(response.data.message);
+        }
+
+        await setCacheStorage("listTimeZone", response.data.zones);
+      
+        setWorldTimeListData(response.data.zones); // 응답 결과를 바탕으로 상태를 갱신시켜 준다.
+        return;
+      }
+
+      setWorldTimeListData(cached.data); // List Time Zone 캐시 데이터가 존재하는 경우
+    } catch(error) {
+      // Axios 에러가 발생한 경우
+      if(error instanceof AxiosError) {
+        switch(error.code) {
+          case "ERR_NETWORK": {
+            console.error("Axios 요청에서 Network Error가 발생했습니다.", error);
+          }
+        }
+      }
+
+      console.error(error);
+    }
+  }
+
+  fetchListTimeZone();
+}, []);
+```
