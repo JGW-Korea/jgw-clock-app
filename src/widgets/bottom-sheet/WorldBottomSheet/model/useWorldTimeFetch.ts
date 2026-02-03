@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getListTimeZone, type ListTimeZone } from "../api";
 import { AxiosError } from "axios";
+import { getCacheStorage, setCacheStorage } from "@shared/db/cacheStorage";
 
 /**
  * World Bottom Sheet 컴포넌트 마운트 시 사이드 이펙트(Side-Effect) 발생시키기는 커스텀 훅
@@ -14,15 +15,24 @@ export default function useWorldTimeFetch() {
   useEffect(() => {
     const fetchListTimeZone = async () => {
       try {
-        const response = await getListTimeZone();
+        const cached = await getCacheStorage<ListTimeZone[]>("listTimeZone"); // IndexedDB에 listTimeZone 데이터 조회 요청을 발생시킨다.
 
-        // TimeZoneDB 요청이 실패한 경우 -> TimeZoneDB에서 설정한 message 값으로 에러문을 출력한다.
-        if(response.data.status === "FAILED") {
-          throw new Error(response.data.message);
+        // List Time Zone 캐시 데이터가 존재하지 않거나, 캐시 기간이 만료된 경우
+        if(cached === undefined || cached.expires < Date.now()) {
+          const response = await getListTimeZone();
+
+          // TimeZoneDB 요청이 실패한 경우 -> TimeZoneDB에서 설정한 message 값으로 에러문을 출력한다.
+          if(response.data.status === "FAILED") {
+            throw new Error(response.data.message);
+          }
+
+          await setCacheStorage("listTimeZone", response.data.zones);
+        
+          setWorldTimeListData(response.data.zones); // 응답 결과를 바탕으로 상태를 갱신시켜 준다.
+          return;
         }
 
-        // TimeZoneDB 요청이 성공적일 경우 -> 상태를 갱신하여 리렌더링을 발생시켜 사용자 화면에 리스트 목록을 나타낸다.
-        setWorldTimeListData(response.data.zones);
+        setWorldTimeListData(cached.data); // List Time Zone 캐시 데이터가 존재하는 경우
       } catch(error) {
         // Axios 에러가 발생한 경우
         if(error instanceof AxiosError) {
