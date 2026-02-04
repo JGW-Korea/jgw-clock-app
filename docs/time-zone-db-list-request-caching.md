@@ -674,10 +674,11 @@ useEffect(() => {
     console.log("Local Storage에 List Time Zone API의 응답 결과가 포함되어 있는가?");
 
     // Local Storage에 최초 요청 이후 저장된 List Time API의 응답 결과가 있는 경우
-    if(listTimeZoneDatas !== null) {
-      console.time("yes");
-      setWorldTimeListData(JSON.parse(listTimeZoneDatas));
-      console.timeEnd("yes");
+    // -> 저장이 안된 경우 데이터 조회 작업의 정확한 시간을 측정하지 못하기 때문에, 일부러 캐시된 자원이 있을 때 한 번 더 가져와서 이에 대한 시간을 측정한다.
+    if(listTimeZoneDatas) {
+      console.time("GET Cached(local storage)");
+      const datas = JSON.parse(localStorage.getItem("listTimeZone") as string)
+      console.timeEnd("GET Cached(local storage)");
       return;
     }
 
@@ -687,9 +688,9 @@ useEffect(() => {
 
       console.log("List Time Zone API 응답 개수:", response.data.zones.length);
 
-      console.time("no");
+      console.time("SET Cached(local storage)");
       localStorage.setItem("listTimeZone", JSON.stringify(response.data.zones));
-      console.timeEnd("no");
+      console.timeEnd("SET Cached(local storage)");
     } catch(error) {
       // ...
     }
@@ -703,16 +704,18 @@ useEffect(() => {
 
 ```md
 # Local Storage에 응답 결과가 없는 경우
+Local Storage에 List Time Zone API의 응답 결과가 포함되어 있는가?
 List Time Zone API 응답 개수: 418
-no: 0.16796875 ms
+SET Cached(local storage): 0.275146484375 ms
 
 # Local Storage에 응답 결과가 있는 경우
-yes: 0.299072265625 ms
+Local Storage에 List Time Zone API의 응답 결과가 포함되어 있는가?
+useWorldTimeFetch.ts:24 GET Cached(local storage): 0.25390625 ms
 ```
 
 > 위 코드 블록은 실제 출력된 로그를 보기 쉽게 Markdown 형식으로 정리한 내용입니다. 실제 개발자 도구에서의 출력 화면은 [여기](./images/time-zone-response-local-storage-cache.png)에서 확인할 수 있습니다.
 
-출력 결과를 확인하면, Local Storage에 응답 결과가 **없는 경우 약 0.17ms**, 응답 결과가 **이미 저장되어 있는 경우 약 0.3ms**의 시간이 소요된 것을 확인할 수 있습니다.
+출력 결과를 확인하면, Local Storage에 응답 결과가 **없는 경우 약 0.27ms**, 응답 결과가 **이미 저장되어 있는 경우 약 0.25ms**의 시간이 소요된 것을 확인할 수 있습니다.
 
 앞서 언급한 것처럼 JSON 빌트인 객체의 내부 알고리즘은 충분히 최적화되어 있기 때문에, 시간 수치만 놓고 보면 1ms도 걸리지 않는 매우 빠른 속도로 응답 결과의 저장 및 조회가 이루어지고 있음을 확인할 수 있습니다.
 
@@ -726,33 +729,40 @@ Performance 패널에서 JavaScript 메인 스레드 구간을 살펴보면, `lo
 
 이는 `localStorage.setItem()`이 **호출된 시점부터 종료되는 시점까지**를 하나의 막대(duration)로 표현하고 있다는 의미입니다. 즉, 해당 메서드가 **동기적으로 실행**되며, 호출이 끝나기 전까지는 다음 코드로 진행할 수 없다는 것을 보여줍니다.
 
-다시 말해 Local Storage의 메서드는 동기 방식으로 동작하기 때문에, 응답 결과를 저장하거나 조회하는 과정이 **완전히 종료된 이후**에야 다음 명령줄로 넘어가 작업을 수행할 수 있습니다. 물론 현재 측정 결과에서는 `localStorage.setItem()`의 지속 시간(duration)이 약 0.17ms 수준으로 매우 짧기 때문에, 즉시 문제로 이어지지는 않습니다.
+다시 말해 Local Storage의 메서드는 동기 방식으로 동작하기 때문에, 응답 결과를 저장하거나 조회하는 과정이 **완전히 종료된 이후**에야 다음 명령줄로 넘어가 작업을 수행할 수 있습니다. 물론 현재 측정 결과에서는 `localStorage.setItem()`의 지속 시간(duration)이 약 0.27ms 수준으로 매우 짧기 때문에, 즉시 문제로 이어지지는 않습니다.
 
 하지만 `JSON.stringify()`에 전달되는 데이터의 크기나 구조가 복잡해질수록 직렬화 비용이 증가하고, 그만큼 `localStorage.setItem()`의 수행 시간도 함께 늘어납니다. 또한 해당 시점에 화면 반영을 위한 렌더링 작업이 겹친다면, 메인 스레드가 블로킹되어 **렌더링 지연**으로 이어질 수 있습니다. 이를 확인하기 위해 다음과 같이 코드를 수정한 뒤 결과를 살펴보겠습니다.
 
 ```tsx
-const dummyDatas = Array.from({ length: 10000 }, () => response.data.zones[0]);
-
 console.log("List Time Zone API 응답 개수:", response.data.zones.length);
-console.time("no");
+
+const arr = Array.from({ length: 10000 }, () => response.data.zones[0]);
+
+console.time("SET Cached(local storage)");
 localStorage.setItem("listTimeZone", JSON.stringify(arr));
-console.timeEnd("no");
+console.timeEnd("SET Cached(local storage)");
 ```
 
 ```md
+# Local Storage에 응답 결과가 없는 경우
+Local Storage에 List Time Zone API의 응답 결과가 포함되어 있는가?
 List Time Zone API 응답 개수: 10000
-no: 2.43603515625 ms
-```
+SET Cached(local storage): 2.381103515625 ms
 
-<br />
+# Local Storage에 응답 결과가 있는 경우
+Local Storage에 List Time Zone API의 응답 결과가 포함되어 있는가?
+GET Cached(local storage): 1.840087890625 ms
+```
 
 > 위 코드 블록은 실제 출력된 로그를 보기 쉽게 Markdown 형식으로 정리한 내용입니다. 실제 개발자 도구에서의 출력 화면은 [여기](./images/local-storage-stress-test-console.png)에서 확인할 수 있습니다. _(원본 이미지의 응답 개수는 418로 나와있지만, 실제 테스트 데이터 크기는 10,000 입니다.)_
 
+<br />
+
 ![Local Storage Stress test](./images/local-storage-stress-test.png)
 
-이미지에서 확인할 수 있듯이, 실제 API 응답 결과가 418개인 경우에는 약 0.17ms 내에 직렬화 및 저장이 완료되었습니다.
+이미지에서 확인할 수 있듯이, 실제 API 응답 결과가 418개인 경우에는 약 0.27ms 내에 직렬화 및 저장이 완료되었습니다.
 
-반면, 배열 크기를 10,000개로 늘리고 각 요소를 동일한 응답 데이터로 채운 경우에는 **전체 시간이 약 2.5s가 소요**되고, `localStorage.setItem()` 자체의 **작업 시간은 약 1.43ms로 증가**한 것을 확인할 수 있습니다.
+반면, 배열 크기를 10,000개로 늘리고 각 요소를 동일한 응답 데이터로 채운 경우에는 **전체 시간이 약 2.3s가 소요**되고, `localStorage.setItem()` 자체의 **작업 시간은 약 1.54ms로 증가**한 것을 확인할 수 있습니다.
 
 즉, 최악의 상황을 가정하여 부하 테스트를 수행해보면, Local Storage 기반으로 응답 결과를 저장하는 방식은 다음과 같은 단점을 가지게 됩니다.
 
@@ -891,8 +901,17 @@ async function setCacheStorage<T>(cacheStorageName: string, data: T) {
 ```tsx
 useEffect(() => {
   const fetchListTimeZone = async () => {
+    const test = () => {
+      const arr = Array.from({ length: 10000 }, (_, idx) => idx + 1);
+    }
+
+    console.log("IndexedDB에 List Time Zone API의 응답 결과가 포함되어 있는가?");
+
     try {
+      console.time("GET Cached");
       const cached = await getCacheStorage<ListTimeZone[]>("listTimeZone"); // IndexedDB에 listTimeZone 데이터 조회 요청을 발생시킨다.
+      console.timeEnd("GET Cached");
+      console.log(cached);
 
       // List Time Zone 캐시 데이터가 존재하지 않거나, 캐시 기간이 만료된 경우
       if(cached === undefined || cached.expires < Date.now()) {
@@ -903,12 +922,19 @@ useEffect(() => {
           throw new Error(response.data.message);
         }
 
+        console.log("List Time Zone API 응답 개수:", response.data.zones.length);
+        
+        console.time("no");
         await setCacheStorage("listTimeZone", response.data.zones);
-      
+        console.timeEnd("no");
+        
+        test();
+        
         setWorldTimeListData(response.data.zones); // 응답 결과를 바탕으로 상태를 갱신시켜 준다.
         return;
       }
 
+      
       setWorldTimeListData(cached.data); // List Time Zone 캐시 데이터가 존재하는 경우
     } catch(error) {
       // Axios 에러가 발생한 경우
@@ -927,3 +953,75 @@ useEffect(() => {
   fetchListTimeZone();
 }, []);
 ```
+
+<br />
+
+```md
+# IndexedDB에 캐시된 데이터가 없어, 응답을 전달받고 캐시 데이터로 저장한 전체 시간
+IndexedDB에 List Time Zone API의 응답 결과가 포함되어 있는가?
+GET Cached: 7.85302734375 ms
+undefined
+List Time Zone API 응답 개수: 418
+SET Cached: 1.605224609375 ms
+```
+
+> 위 코드 블록은 실제 출력된 로그를 보기 쉽게 Markdown 형식으로 정리한 내용입니다. 실제 개발자 도구에서의 출력 화면은 [여기](./images/indexeddb-no-cached.png)에서 확인할 수 있습니다.
+
+**IndexedDB에 캐시된 데이터가 없는 경우**, 데이터베이스 해당 **데이터를 조회하려는 요청이 완료**되기까지 **약 7.85ms가 소요**되었으며, List Time Zone API의 응답을 전달받은 뒤 **해당 응답 결과를 IndexedDB 데이터베이스에 저장하는 요청이 완료**되기까지 **약 1.6ms가 소요**된 것을 확인할 수 있습니다.
+
+<br />
+
+```md
+# IndexedDB에 캐시된 데이터가 있어, 데이터를 가지고오는 전체 시간
+IndexedDB에 List Time Zone API의 응답 결과가 포함되어 있는가?
+GET Cached: 7.675048828125 ms
+{cacheStorageName: 'listTimeZone', data: Array(418), expires: 1801672412133}
+```
+
+> 위 코드 블록은 실제 출력된 로그를 보기 쉽게 Markdown 형식으로 정리한 내용입니다. 실제 개발자 도구에서의 출력 화면은 [여기](./images/indexeddb-cached.png)에서 확인할 수 있습니다.
+
+또한 IndexedDB에 **캐시된 데이터가 이미 존재하는 경우**에도, **데이터베이스 조회 요청이 완료**되기까지 **약 7.95ms가 소요**된 것을 확인할 수 있습니다.
+
+즉, 10,000개의 원소를 가진 배열을 생성하여 부하 테스트를 진행하기 이전의 **Local Storage 기반 저장소를 사용**했을 당시, **응답 결과가 없는 경우 해당 데이터를 직렬화 후 저장하는 데 약 0.27ms가 소요**되었고, **응답 결과가 캐시된 상태에서는 해당 결과를 역직렬화하여 재사용하는 데 약 0.25ms가 소요**되었습니다.
+
+이와 비교하면, IndexedDB를 이용한 방식은 **데이터 조회 및 저장 요청의 완료 시점까지의 경과 시간이 Local Storage에 비해 크게 증가한 것처럼 보이는 결과**를 확인할 수 있습니다. 그렇다면 이를 보다 자세히 확인하기 위해, IndexedDB를 초기화한 뒤 **"개발자 도구 > Performance"** 탭을 통해 데이터 조회 및 저장 요청이 완료되는 구간을 다시 측정해보겠습니다.
+
+<br />
+
+![Dev Tools > Performance - getCacheStorage](./images/performance-get-cache-storage.png)
+
+> 위 Performance 결과는 IndexedDB에 대한 데이터 조회 요청(getCacheStorage)이 수행되는 구간을 측정한 결과입니다.
+
+<br />
+
+![Dev Tools > Performance - setCacheStorage](./images/performance-set-cache-storage.png)
+
+> 위 Performance 결과는 IndexedDB에 대한 데이터 저장 요청(setCacheStorage)이 수행되는 구간을 측정한 결과입니다.
+
+<br />
+
+Performance 패널을 통해 각 요청 구간을 측정한 결과를 확인해보면, **데이터 조회 요청(getCacheStorage)이 발생했을 때 해당 함수의 지속 기간은 약 92μs**였으며, **데이터 저장 요청(setCacheStorage)이 발생했을 때도 함수의 지속 기간이 약 0.33ms**에 불과한 시점에서 작업(Task) 막대가 종료되고, **이후 다음 작업이 이어서 수행**되는 것을 확인할 수 있습니다.
+
+이 결과가 시사하는 바는, IndexedDB가 앞서 설명한 것처럼 **논블로킹(Non-blocking) 기반의 비동기 방식**으로 **"데이터 조회 요청"**과 **"데이터 저장 요청"**을 수행하고 있다는 점입니다.
+
+비동기 방식으로 작업이 수행되기 때문에, 콘솔에 출력된 시간은 **실제로 데이터가 조회되거나 저장되는 처리 시간만을 의미하지 않습니다.** 해당 시간에는 비동기 요청이 시작된 시점부터 작업이 완료되어 Promise가 이행되는 시점까지의 전체 경과 시간이 포함됩니다. 이로 인해 단순 콘솔 출력 결과만을 기준으로 성능을 비교할 경우, 실제 처리 시간보다 **훨씬 오래 걸린 것처럼 보이는 결과**가 나타날 수 있습니다.
+
+실제로 앞서 Performance 패널을 통해 각 요청 구간을 측정한 결과를 다시 확인해보면, **JavaScript 메인 스레드 구간에서 각 요청이 발생했을 때 메인 스레드를 점유하는 시간은 매우 짧다는 점**을 확인할 수 있습니다. 즉, IndexedDB 트랜잭션에서 수행되는 데이터 조회 및 저장 작업은 **브라우저 내부의 백그라운드 스레드에서 처리**되며, JavaScript 메인 스레드는 **요청을 전달하는 과정에서만 잠시 점유된 뒤 제어권을 반환**합니다. 이로 인해 메인 스레드는 블로킹되지 않고, **다음 작업들을 계속해서 이어서 수행할 수 있는 구조**를 가지게 됩니다.
+
+반면, **Local Storage**는 **직력화･역직렬화 과정**부터 **저장소에 대한 데이터 조회 및 저장 작업**까지 **모든 과정이 동기적으로 수행**됩니다. 이로 인해 모든 작업이 종료될 때까지 **다음 작업을 이어서 수행하지 못하는 구조**가 됩니다. 실제 앞서 Local Storage 기반으로 부하 테스트를 진행했을 때, **전체 시간이 약 2.3s가 소요**되었고, `localStorage.setItem()`이 **메인 스레드를 약 1.54s 동안 점유한 것을 확인**했습니다.
+
+이처럼 **동기 방식과 비동기 방식에서 JavaScript 메인 스레드가 점유되는 방식의 차이**가 **실제로 렌더링 흐름에 어떤 영향을 주는지 확인**하기 위해, **"개발자 도구 > Show frames per second meter"**를 활성화한 뒤 Local Storage와 IndexedDB를 통해 **10,000개의 데이터를 저장**하고, 실제 렌더링 흐름의 측정 지표인 **FPS 변화 과정을 다음과 같이 녹화**해보았습니다.
+
+<br />
+
+[![Local Storage fps](./images/local-storage-fps.png)](https://drive.google.com/file/d/1_m8kQjU5yRjbJKYvzupryNmUi8ywqqM1/view?usp=sharing)
+
+> Markdown은 비디오를 직접 삽입할 수 없기 때문에, 해당 이미지는 Local Storage 사용 시 FPS 변호 과정을 캡처한 화면입니다. 이미지를 클릭하면 Google Drive에 업로드된 비디오 공유 URL로 이동할 수 있습니다.
+
+<br />
+
+[![IndexedDB fps](./images/indexeddb-fps.png)](https://drive.google.com/file/d/1Vb1HyS43GO0d9tE-ZfHZjdLq9r6SeLTP/view?usp=sharing)
+
+> Markdown은 비디오를 직접 삽입할 수 없기 때문에, 해당 이미지는 IndexedDB 사용 시 FPS 변호 과정을 캡처한 화면입니다. 이미지를 클릭하면 Google Drive에 업로드된 비디오 공유 URL로 이동할 수 있습니다.
+
+<br />
