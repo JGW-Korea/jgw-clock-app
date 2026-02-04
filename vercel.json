@@ -1,5 +1,6 @@
 {
   "installCommand": "corepack enable && yarn install --immutable",
+  "devCommand": "yarn start",
   "buildCommand": "yarn build",
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
