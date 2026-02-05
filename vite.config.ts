@@ -13,6 +13,9 @@ export default defineConfig({
     }),
     svgr()
   ],
+  server: {
+    port: Number(process.env.PORT) || 5173,
+  },
   resolve: {
     alias: [
       { find: "@app", replacement: path.resolve(__dirname, "src/app") },
