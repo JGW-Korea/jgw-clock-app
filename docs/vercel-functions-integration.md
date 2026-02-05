@@ -107,3 +107,95 @@ export default async function handler(req, res) {
 ```
 
 <br />
+
+## III. Vercel 서버리스 함수 도입 이유
+
+지금까지 **프록시 서버(Proxy Server)를 구축한 환경에서의 웹 애플리케이션 구조**와 더불어, 서버를 배포하는 방식인 **클라우드 서비스를 이용하는 방법**과 **서버리스 함수를 이용한 방법 간의 차이점**, 그리고 **Vercel Functions를 활용한 서버리스 함수 구축 방법**에 대해 살펴보았습니다.
+
+그렇다면 **Clock 프로젝트**에서는 왜 **Vercel 서버리스 함수를 활용한 프록시 서버(Proxy Server)**를 구축하게 되었을까요? 그 이유는 매우 단순하게도 **보안상의 이유**였습니다. 아래 그림을 통해 **"개발자 도구 > Network 패널"** 에서 **List Time Zone API의 요청 경로**가 어떻게 구성되어 있는지 확인해보겠습니다.
+
+<br />
+
+![List Time Zone API 요청 경로](./images/list-time-zone-api-request-header.png)
+
+<br />
+
+이미지에서 확인할 수 있듯이, **List Time Zone API의 요청 경로**를 보면 `https://api.timezonedb.com/v2.1/list-time-zone?key=WIZL9AF2PJUK&format=json`와 같이 **공용 API(Open API)를 인증하기 위한 API Key가 그대로 노출**되어 있는 것을 확인할 수 있습니다.
+
+> ☝️ API Key 노출을 확인한 이후, 해당 Key는 즉시 재발급 받아 수정하였습니다.
+
+즉, 앞서 ["프록시 서버(Proxy Server)를 구축한 환경에서의 웹 애플리케이션 구조"](#i-프록시-서버proxy-server를-구축한-환경에서의-웹-애플리케이션-구조)에서 설명했던 것처럼, **환경 변수를 사용하더라도 브라우저 환경에서는 개발자 도구를 통해 민감 정보가 노출될 수 있기 때문에 이를 보호하기가 쉽지 않습니다.**
+
+물론 **List Time Zone API**는 무료로 제공되는 **공용 API(Open API)**이며, 직접적인 민감 데이터가 포함되어 있지는 않습니다. 그러나 동시에 과도한 요청이 발생할 경우 **요청 제한으로 인해 예외가 발생**할 수 있기 때문에, 비용 문제라기보다는 **서비스 운영 관점에서의 보안 및 안전성 측면의 취약점**이 될 수 있다고 판단했습니다.
+
+따라서 **API Key를 노출하지 않으면서도 정상적으로 요청을 처리할 수 있는 방법**을 고민하게 되었고, 그 과정에서 **프록시 서버(Proxy Server)를 도입하여 클라이언트 측에서는 프록시 서버로 요청을 보내고, 프록시 서버에서는 실제 원본 서버(List Time Zone API)로 요청을 전달하는 방식**을 고려하게 되었습니다.
+
+다만 **Clock 프로젝트**의 경우, 웹 서버나 WAS를 직접 구축하지 않은 **정적 웹 사이트 구조로 구현**되어 있었기 때문에, 프록시 서버를 도입하려면 **별도의 서버 인프라 구축 및 운영 비용이 추가로 발생**한다는 부담이 있었습니다.
+
+그러던 중 이전에 수강했던 패스트캠퍼스 [시그니처 프론트엔드: 웹 개발부터 웹앱까지 프론트엔드의 모든 것](https://fastcampus.co.kr/dev_online_fesignature) 강의에서, **Vercel을 통해 프로젝트를 배포한 뒤 Vercel Functions를 활용하여 API 로직을 구현했던 경험**이 떠올랐습니다.
+
+당시에는 **강의에서 제시된 방시에 따라 Vercel Functions를 사용**했지만, 프록시 서버 도입 방식을 고려하던 중 **Vercel Functions가 무엇이길래 무료로 API 로직을 구현할 수 있었던 것인지에 대한 의문**이 생겨 관련 자료를 찾아보게 되었습니다.
+
+관련 자료를 찾아본 결과, **앞서 살펴봤던 것처럼 Vercel Functions는 Vercel을 통해 배포한 프로젝트에서 사용할 수 있는 서버리스 함수(Serverless Functions) 실행 환경을 제공하는 기능**이며, **일정 사용량 범위 내에서는 무료로 사용할 수 있다는 점**을 확인할 수 있었습니다.
+
+따라서 **Vercel Functions를 이용하면 서버리스 기반의 프록시 서버를 무료로 구축할 수 있겠다는 생각이 들어**, 다음과 같이 직접 코드를 작성하여 테스트를 진행해 보았습니다.
+
+<br />
+
+```tsx
+// api/timezone/list.ts
+import type { VercelRequest, VercelResponse } from "@vercel/node";
+
+export default async function handler(req: VercelRequest, res: VercelResposne) {
+  // API 요청 시 GET 요청이 아니라면 405 Methods Not Allowed 실패 응답을 내려준다.
+  if(req.method !== "GET") {
+    return res.status(405)
+      .setHeader("Allow", "GET")
+      .end();
+  }
+
+  // API 요청 메서드가 GET인 경우, List Time Zone API를 요청하여 해당 응답을 반환한다.
+  try {
+    const response = await fetch(`https://api.timezonedb.com/v2.1/list-time-zone?key=${process.env.VITE_TIME_ZONE_API}&format=json`);
+    
+    const body = await response.text();
+
+    const headers = new Headers();
+    headers.set("Content-Type", response.headers.get("Content-Type") || "application/json");
+
+    return res.status(response.status).setHeaders(headers).send(body);
+  } catch(error) {
+    // Fetch API는 네트워크 오류만 실패로 처리된다.
+    return res.status(500).json({
+      status: "fail",
+      message: "Internal Server Error",
+      description: error instanceof Error ? error.message : "An unexpected error occurred"
+    });
+  }
+}
+```
+
+<br />
+
+이처럼 **GET 메서드를 제외한 다른 HTTP 메서드에 대해서는 예외 분기를 지정**하고, Fetch API 사용 시 **네트워크 오류만 `catch` 블록에서 처리**하도록 구성했습니다.
+
+또한 프록시 서버에서 **List Time Zone API의 응답 결과에 대한 별도의 가공이나 예외 처리를 수행하지 않고**, 응답을 그대로 반환함으로써 **클라이언트 측에서 후속 처리르 수행**할 수 있도록 **Vercel Functions를 이용한 서버리스 함수를 구축**했습니다.
+
+그 결과, **`api/timezone/list`로 요청**을 보내게 되면 **다음과 같은 응답을 전달**받는 구조로 구성하게 되었습니다.
+
+<br />
+
+```tsx
+const res = await axios.get("/api/timezone/list");
+console.log(res.data);
+```
+
+![Vercel Serverless 함수 요청 URL](./images/vercel-serverless-api-request.png)
+
+![Vercel Serverless 함수 요청 결과](./images/vercel-serverless-api-resposne.png)
+
+<br />
+
+이미지를 보면 알 수 있듯이 요청 URL 경로를 확인해보면, 기존에는 **`https://api.timezonedb.com/v2.1/list-time-zone?key=WIZL9AF2PJUK&format=json`**와 같이 **API Key가 노출된 상태로 요청**이 이루어졌습니다.
+
+하지만 현재는 **Vercel Functions를 이용한 서버리스 함수의 URL 경로**인 **`http://localhost:3000/api/timezone/list`로 요청을 전송**하고 있으며, 기존과 동일한 응답을 전달받는 것을 확인할 수 있습니다.
