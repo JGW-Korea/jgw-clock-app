@@ -70,7 +70,7 @@
 
 이러한 구조로 인해 **서버리스 기반 서버 환경**은 **실행된 함수 사용량만큼만 비용이 청구**되므로, 상시 서버를 운영하는 방식에 비해 **비용 효율성이 높은 서버 운영 방식이라 할 수 있습니다.**
 
-지금까지 **서버리스(Serverless)**가 기존 **온프레미스 서버(On-Premise Server)** 및 **클라우드 컴퓨팅 서비스(Cloud Server)**와 비교했을 때 어떤 차이점이 있는지 살펴보았습니다. 그렇다면 이제 **Vercel 서버리스 함수**가 무엇인지 알아보겠습니다.
+지금까지 **서버리스(Serverless)** 가 기존 **온프레미스 서버(On-Premise Server)** 및 **클라우드 컴퓨팅 서비스(Cloud Server)** 와 비교했을 때 어떤 차이점이 있는지 살펴보았습니다. 그렇다면 이제 **Vercel 서버리스 함수**가 무엇인지 알아보겠습니다.
 
 <br />
 
@@ -88,18 +88,16 @@
 
 프로젝트의 **루트 디렉토리 바로 하위에 `api/` 디렉토리를 생성**한 뒤, 해당 디렉토리 내부에 파일을 만들고 **`handler` 함수만 정의**하면 됩니다. 이후 클라이언트에서는 **확장자를 제외한 파일 경로로 API 요청을 전달**하기만 하면, **Vercel이 이를 서버리스 함수로 처리**합니다.
 
-또한 Vercel Functions를 사용하여 **요청(Response)과 응답(Response)을 처리**할 수 있으며, 이 방식은 Node.js 기반 **Express 프레임워크의 사용 구조와 유사**합니다.
-
-<br />
-
 ```md
 clock/
 ├─ api/
 │  └─ timezone/
-│     └─ list.ts
+│     └─ list.ts  # API 경로 - /api/timezone/list
 └─ src/
    └─ ...
 ```
+
+또한 Vercel Functions를 사용하여 **요청(Response)과 응답(Response)을 처리**할 수 있으며, 이 방식은 Node.js 기반 **Express 프레임워크의 사용 구조와 유사**합니다.
 
 ```tsx
 export default async function handler(req, res) {
@@ -109,4 +107,3 @@ export default async function handler(req, res) {
 ```
 
 <br />
-
