@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getListTimeZone, type ListTimeZone } from "../api";
-import { AxiosError } from "axios";
+import axios, { AxiosError } from "axios";
 import { getCacheStorage, setCacheStorage } from "@shared/db/cacheStorage";
 
 /**
@@ -16,6 +16,9 @@ export default function useWorldTimeFetch() {
     const fetchListTimeZone = async () => {
       try {
         const cached = await getCacheStorage<ListTimeZone[]>("listTimeZone"); // IndexedDB에 listTimeZone 데이터 조회 요청을 발생시킨다.
+
+        const res = await axios.get("/api/timezone/list");
+        console.log(res.data);
 
         // List Time Zone 캐시 데이터가 존재하지 않거나, 캐시 기간이 만료된 경우
         if(cached === undefined || cached.expires < Date.now()) {
