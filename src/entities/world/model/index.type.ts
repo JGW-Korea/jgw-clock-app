@@ -21,19 +21,6 @@ export interface TimeZoneListType {
   }
 }
 
-// Convert Time Zone API 타입 구성
-export interface ConvertTimeZoneType {
-  [key: string]: unknown;
-  data: {
-    [key: string]: unknown;
-    status: "OK" | "FAILED";
-    message: string;
-    fromZoneName: string;
-    toZoneName: string;
-    offset: number;
-  }
-}
-
 // ----------------------------------
 // 가공된 World Time 상태 데이터
 // ----------------------------------
