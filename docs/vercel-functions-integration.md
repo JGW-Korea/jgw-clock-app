@@ -199,3 +199,98 @@ console.log(res.data);
 이미지를 보면 알 수 있듯이 요청 URL 경로를 확인해보면, 기존에는 **`https://api.timezonedb.com/v2.1/list-time-zone?key=WIZL9AF2PJUK&format=json`** 와 같이 **API Key가 노출된 상태로 요청**이 이루어졌습니다.
 
 하지만 현재는 **Vercel Functions를 이용한 서버리스 함수의 URL 경로**인 **`http://localhost:3000/api/timezone/list`로 요청을 전송**하고 있으며, 기존과 동일한 응답을 전달받는 것을 확인할 수 있습니다.
+
+<br />
+
+## IV. List Time Zone API - HTTP 헤더를 통한 캐시 정책 적용
+
+기존 List Time Zone API의 공용 API(Open API)에 요청을 보내면, 응답 헤더에 **Cache-Control을 통한 캐시 정책이 설정되어 있지 않았기 때문에** 이를 브라우저 캐시에 저장하는 것이 불가능했습니다.
+
+<br />
+
+![Time Zone DB API Response header](./images/time-zone-db-response-header.png)
+
+<br />
+
+이로 인해 브라우저 캐시 저장소를 대체하기 위해 [｢Time Zone DB List 요청 캐시｣](./time-zone-db-list-request-caching.md) 문서에서 해당 내용을 주제로 다루었으며, **Local Storage와 IndexedDB**를 활용하여 **어떤 클라이언트 측 저장소 사용 방식이 더 적절한지에 대해 성능 분석을 진행**한 뒤, **최종적으로 IndexedDB를 이용하기로 결정**하였습니다.
+
+<br />
+
+[![Local Storage fps](./images/local-storage-fps.png)](https://drive.google.com/file/d/1_m8kQjU5yRjbJKYvzupryNmUi8ywqqM1/view?usp=sharing)
+
+> Markdown은 비디오를 직접 삽입할 수 없기 때문에, 해당 이미지는 Local Storage 사용 시 FPS 변호 과정을 캡처한 화면입니다. 이미지를 클릭하면 Google Drive에 업로드된 비디오 공유 URL로 이동할 수 있습니다.
+
+<br />
+
+[![IndexedDB fps](./images/indexeddb-fps.png)](https://drive.google.com/file/d/1Vb1HyS43GO0d9tE-ZfHZjdLq9r6SeLTP/view?usp=sharing)
+
+> Markdown은 비디오를 직접 삽입할 수 없기 때문에, 해당 이미지는 IndexedDB 사용 시 FPS 변호 과정을 캡처한 화면입니다. 이미지를 클릭하면 Google Drive에 업로드된 비디오 공유 URL로 이동할 수 있습니다.
+
+<br />
+
+하지만 이 문서에서 설명했던 것처럼, List Time Zone API의 **공용 API(Open API)는 인증을 위해 API Key가 필요**하며, 브라우저 개발자 도구를 활성화할 경우 **민감 정보를 보호하기 어렵기 때문에 API Key를 보호하기 위한 목적으로 Vercel Functions를 이용한 서버리스 함수를 도입**하게 되었습니다.
+
+즉, 현재는 List Time Zone API에 `Cache-Control`이 설정되어 있지 않아 **브라우저 캐시 저장소를 대체하기 위해 IndexedDB를 도입했던 상황과는 다소 달라졌습니다.** 왜냐하면 Vercel Functions를 이용해 서버리스 함수를 도입했다는 것은, **해당 요청에 대한 응답 헤더(Response Header)를 개발자가 직접 설정할 수 있게 되었음을 의미**하기 때문입니다.
+
+따라서 **해당 요청에 한해** 개발자가 **응답 헤더에 `Cache-Control` 헤더를 통해 캐시 정책을 설정**해 준다면, **브라우저 캐시 저장소를 활용할 수 있다는 의미**가 됩니다. 앞서 API Key를 보호하기 위해 **Vercel Functions를 이용하여 구성한 서버리스 함수(Serverless Functions) 로직**을 다시 한 번 살펴보겠습니다.
+
+<br />
+
+```tsx
+export default async function handler(req: VercelRequest, res: VercelResposne) {
+  try {
+    const response = await fetch(`https://api.timezonedb.com/v2.1/list-time-zone?key=${process.env.VITE_TIME_ZONE_API}&format=json`);
+    
+    const body = await response.text();
+
+    const headers = new Headers();
+    headers.set("Content-Type", response.headers.get("Content-Type") || "application/json");
+
+    return res.status(response.status).setHeaders(headers).send(body);
+  } catch(error) {
+    // Fetch API는 네트워크 오류만 실패로 처리된다.
+  }
+}
+```
+
+<br />
+
+현재 작성한 코드를 보면 알 수 있듯이, 요청에 대한 응답을 반환할 때 사용할 헤더 정보에 `header.set()`을 통해 **`Content-Type`을 설정**하고 있습니다. **List Time Zone API의 응답 결과에 Content-Type이 포함되어 있다면 해당 해석 방식을 그대로 사용**하고, **포함되어 있지 않다면 `application/json` 방식으로 해석할 수 있도록 응답 헤더를 지정**하고 있습니다.
+
+이 말은 결국 Clock 애플리케이션을 개발하고 있는 제가 `header.set()`에 **`Cache-Control` 응답 헤더와 이에 적절한 캐시 정책을 설정**해 준다면, **해당 요청의 응답 결과가 브라우저 캐시 저장소에 저장될 수 있음을 의미**합니다. 그렇기 때문에 실제로 현재 코드에 다음과 같이 헤더를 추가한 뒤 결과를 확인해 보겠습니다.
+
+<br />
+
+```tsx
+export default async function handler(req: VercelRequest, res: VercelResposne) {
+  try {
+    const response = await fetch(`https://api.timezonedb.com/v2.1/list-time-zone?key=${process.env.VITE_TIME_ZONE_API}&format=json`);
+    
+    const body = await response.text();
+
+    const headers = new Headers();
+    headers.set("Content-Type", response.headers.get("Content-Type") || "application/json");
+    
+    // Cache-Control 응답 헤더 설정
+    headers.set("Cache-Control", `private, max-age=${60 * 60 * 24 * 365}, immutable`);
+
+    return res.status(response.status).setHeaders(headers).send(body);
+  } catch(error) {
+    // Fetch API는 네트워크 오류만 실패로 처리된다.
+  }
+}
+```
+
+![Cache Control 적용 후 List Time Zone API 응답 헤더 정보](./images/list-time-zone-after-cache-control.png)
+
+![Cache Control 적용 후 List Time Zone API 재요청 시 disk cache](./images/list-time-zone-after-request-disk-cache.png)
+
+<br />
+
+위 이미지의 결과를 보면 알 수 있듯이, `headers.set()`에 **Cache-Control을 설정한 이후**에는 **List Time Zone API의 요청 결과가 브라우저 캐시 저장소에 저장**되어, 최초 요청 이후에는 요청을 전달하지 않고 **브라우저 캐시 저장소에서 해당 응답 결과를 재사용**하는 것을 볼 수 있습니다.
+
+즉 **Vercel Functions를 이용한 서버리스 함수를 도입하기 이전까지는** Local Storage와 IndexedDB 등을 이용하여 **브라우저 캐시 저장소를 대체하는 방법이 반드시 필요**했습니다. 하지만 **서버리스 함수를 도입한 이후에는 브라우저 캐시 저장소를 이용하여 요청 결과를 캐시할 수 있기 때문에** 브라우저 캐시 저장소를 대체할 이유가 사라졌습니다.
+
+또한, **브라우저 캐시 저장소를 이용한 방법은 캐싱 과정을 브라우저가 전적으로 관리**를 하기 때문에 별도로 코드를 작성하지 않아도 되며, IndexedDB가 논블로킹(Non-Blocking) 방식의 비동기 처리를 지원하지만 결국에는 요청 이후에 **IndexedDB에 접근하기 위해 JavaScript 이용이 반드시 필요**합니다. 반면 **브라우저 캐시 저장소를 이용할 경우**에는 **HTTP 요청 과정에서 캐시된 데이터를 가져오기 때문에 JavaScript 메인 스레드를 이용하지 않는다는 장점**도 있습니다.
+
+이로 인해, **브라우저 캐시 저장소를 지원하는 이상 IndexedDB를 이용하는 방법은 브라우저 캐시 저장소에 비해 특별한 장점이 있지 않기 때문에** 사용을 중단하고 **브라우저 캐시 저장소를 이용하는 방법으로 수정**을 하기로 결정했습니다.
