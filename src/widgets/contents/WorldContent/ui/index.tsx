@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import style from "./index.module.scss";
+import styles from "./index.module.scss";
 import WorldContentListItem from "./WorldContentListItem";
 import type { WordTimeListType } from "@entities/world";
 import type { EditMode } from "@features/list-edit";
@@ -15,16 +15,17 @@ export default function WorldContent({ worldTimeList, editMode, onDelete, onEdit
   const activeRef = useRef<HTMLLIElement>(null);
   
   return (
-    <main className={`${style["layout"]} ${worldTimeList.length === 0 ? style["layout-empty"] : ""}`}>
+    <main className={`${styles["layout"]} ${worldTimeList.length === 0 ? styles["layout-empty"] : ""}`}>
       {
         worldTimeList.length === 0
           ? <span>No World Clocks</span>
           : (
-              <ul className={`${style["layout-list"]}`} style={{ width: "100%" }}>
+              <ul className={`${styles["layout-list"]}`}>
                 {worldTimeList.map((world) => (
                   <WorldContentListItem
                     key={world.to}
                     activeRef={activeRef}
+                    styles={styles}
                     world={world}
                     editMode={editMode}
                     onDeleteListItem={onDelete}
