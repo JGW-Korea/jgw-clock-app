@@ -74,7 +74,7 @@ const handleAppendWorldTime: WorldAppendHandler = async (from, to) => {
 
 이때 많은 개발자가 **오해하는 부분 중 하나**는 **비동기 작업을 동기처럼 처리하기 위해 await를 사용한다는 점**입니다. 이로 인해 **async/await 기반으로 수행되는 비동기 작업 자체가 동기 작업으로 변경되어 처리된다고 이해하고 로직을 작성**하기도 합니다.
 
-하지만 await는 비동기 작업 자체를 동기 작업으로 변환하는 것이 아니라, **async 함수 내부 실행 흐름만 일시적으로 정지**시키고 비**동기 작업이 완료된 후에 다시 실행을 재개하도록 만드는 역할**을 합니다. 따라서 **async 함수 내부에서는 awiat 아래의 로직이 비동기 작업 완료 이후 실행**되지만, **async 함수 외부에 존재하는 동기 작업은 해당 비동기 작업의 완료 여부와 관계없이 먼저 수행**됩니다.
+하지만 await는 비동기 작업 자체를 동기 작업으로 변환하는 것이 아니라, **async 함수 내부 실행 흐름만 일시적으로 정지**시키고 **비동기 작업이 완료된 후에 다시 실행을 재개하도록 만드는 역할**을 합니다. 따라서 **async 함수 내부에서는 awiat 아래의 로직이 비동기 작업 완료 이후 실행**되지만, **async 함수 외부에 존재하는 동기 작업은 해당 비동기 작업의 완료 여부와 관계없이 먼저 수행**됩니다.
 
 <br />
 
@@ -84,8 +84,6 @@ const handleAppendWorldTime: WorldAppendHandler = async (from, to) => {
 
 따라서 **async/await 기반 비동기 로직의 동작 원리를 고려**했을 때, 기존 **Convert Time Zone API에 요청을 보내 시차를 계산하는 구조**에서는 해당 요청의 **응답을 전달받기 전까지 상태(State)를 갱신하거나 Local Storage에 정보를 반영할 수 없습니다.**
 
-또한 **`handleAppendWorldTime` 비동기 함수**의 **마지막 시점에 Bottom Sheet를 비활성화하는 함수를 호출**하고 있기 때문에 **API 응답을 전달받기 전까지는 Bottom Sheet가 닫히지 않게 됩니다.**
-
 <br />
 
 ![Convert Time Zone Async 비동기 함수 내부 testPerformance 함수 실행](./images/test-performance-function.png)
@@ -94,6 +92,19 @@ const handleAppendWorldTime: WorldAppendHandler = async (from, to) => {
 
 <br />
 
+또한 **`handleAppendWorldTime` 비동기 함수**의 **마지막 시점에 Bottom Sheet를 비활성화하는 함수를 호출**하고 있기 때문에 **API 응답을 전달받기 전까지는 Bottom Sheet가 닫히지 않게 됩니다.**
+
+<br />
+
+[![Convert Time Zone API 응답 대기로 인해 Bottom Sheet 비활성화 시점이 지연되는 화면](./images/convert-time-list-bottom-sheet-disabled.png)](https://drive.google.com/file/d/1M6jkI90TcNBSUUpYCkJxd7zSSdm_cGCE/view?usp=sharing)
+
+> Markdown은 비디오를 직접 삽입할 수 없기 때문에, 해당 이미지는 API 응답을 전달받기 전까지 Bottom Sheet가 닫히지 않는 과정을 캡처한 화면입니다. 이미지를 클릭하면 Google Drive에 업로도된 비디오 공유 URL로 이동할 수 있습니다.
+
+<br />
+
 이처럼 **Convert Time Zone API를 통해 시차를 계산하는 구조**에서는 **사용자의 네트워크 환경이 좋지 않을수록 응답 전달 시간이 더욱 지연**되고, **그만큼 상태 반영 및 UI 갱신 시점도 함께 늦어지게 됩니다.** 결과적으로 **사용자 입장에서는 렌더링이 지연되는 것처럼 인식될 수 있는 상황이 발생**하게 됩니다.
 
 <br />
+
+## II. Intl API 기반으로 두 도시 간의 시차 계산 로직 리팩토링
+
