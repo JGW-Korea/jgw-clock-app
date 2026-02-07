@@ -19,12 +19,6 @@ interface ListTimeZoneResponse {
  * - 요청 로직만 구성하고, 예외 처리는 함수를 호출하는 구간에서 처리를 한다.
 */
 export default async function getListTimeZone() {
-  const response = await axios.get<ListTimeZoneResponse>("https://api.timezonedb.com/v2.1/list-time-zone", {
-    params: {
-      key: import.meta.env.VITE_TIME_ZONE_API,
-      format: "json"
-    }
-  });
-
+  const response = await axios.get<ListTimeZoneResponse>("/api/timezone/list");
   return response;
 }
