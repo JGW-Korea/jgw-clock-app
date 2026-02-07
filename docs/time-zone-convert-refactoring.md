@@ -108,3 +108,117 @@ const handleAppendWorldTime: WorldAppendHandler = async (from, to) => {
 
 ## II. Intl API 기반으로 두 도시 간의 시차 계산 로직 리팩토링
 
+앞서 [｢I. 리팩토링 이전의 Convert Time Zone API를 이용한 시차 계산 로직｣](#i-리팩토링-이전의-convert-time-zone-api를-이용한-시차-계산-로직) 목차에서 **Convert Time Zone API를 통해 시차를 계산**할 경우, **네트워크 환경에 따라 렌더링이 지연**되는 것처럼 인식될 수 있는 문제 상황을 살펴보았습니다.
+
+또한 해당 목차에서는 이와 같은 **네트워크 의존 구조의 문제를 해결하기 위한 방법도 간략하게 언급**했습니다. 기존에는 Convert Time Zone API에서 제공하는 **`offset` 값을 기준으로 시차를 수동 계산하여 화면에 반영했지만, 보다 정확한 시간 반영을 위해 Intl API 기반으로 리팩토링을 진행**했다는 내용이었습니다.
+
+이 방식이 어떻게 문제를 해결하게 되는지 살펴보기 전에, 먼저 Convert Time Zone API를 호출하는 `handleAppendWorldTime` 함수에 **전달되는 매개변수**와 **응답 결과**를 **출력한 결과를 확인**해보겠습니다.
+
+<br />
+
+```tsx
+// 세계 시계 추가 이벤트 리스너 
+  const handleAppendWorldTime: WorldAppendHandler = async (targetCity, targetTimeZone) => {
+    const { data } = await axios.get(`http://api.timezonedb.com/v2.1/convert-time-zone?key=${import.meta.env.VITE_TIME_ZONE_API}&format=json&from=${Intl.DateTimeFormat().resolvedOptions().timeZone}&to=${targetTimeZone}`);
+
+    // 매개변수로 전달되는 값 출력
+    console.log("targetCity:", targetCity);
+    console.log("targetTimeZone:", targetTimeZone);
+
+    console.log("data:", data); // Convert Time Zone API 응답 결과
+    console.log("userTimeZone:", Intl.DateTimeFormat().resolvedOptions().timeZone); // 사용자 지역대
+
+    // 새로운 상태 데이터
+    const newData: WordTimeListType = {
+      name: targetCity,
+      from: data.fromZoneName,
+      to: data.toZoneName,
+      offset: data.offset
+    }
+
+    // 기존 로직 동일...
+  }
+```
+
+```json
+{
+  // 매개변수로 전달되는 값
+  "targetCity": "Algiers, Algeria",
+  "targetTimeZone": "Africa/Algiers",
+  
+  // Convert Time Zone API 전체 응답 결과
+  "data": {
+    "status": "OK",
+    "message": "",
+    "fromZoneName": "Asia/Seoul",
+    "fromAbbreviation": "KST",
+    "fromTimestamp": 1770468611,
+    "toZoneName": "Africa/Algiers",
+    "toAbbreviation": "CET",
+    "toTimestamp": 1770439811,
+    "offset": -28800
+  },
+  
+  // 사용자 지역대
+  "userTimeZone": "Asia/Seoul",
+}
+```
+
+> 위 결과는 `console`을 통해 출력된 값을 JSON 구조로 재구성하여 가독성 있게 표현한 것입니다. 실제 출력 결과는 [여기](./images/convert-time-zone-console-result.png)에서 확인할 수 있습니다.
+
+<br />
+
+출력 결과를 보면 알 수 있듯이, 사용자가 선택한 도시에 대한** 새로운 데이터를 정의할 때 필요한 값은 다음과 같습니다.**
+
+- `name`: 화면에 표시될 사용자가 선택한 도시
+- `from`: 사용자 시간대를 의미하는 지역대(Time Zone)
+- `to`: 사용자가 선택한 지역대(Time Zone)
+- `offset`: 사용자 지역과 선택한 지역 간 시차 값
+
+하지만 코드를 보면 **`name`은 매개변수로 전달되는 `targetCity` 값을 그대로 사용**하고 있으며, **`from` 또한 Intl API를 통해 구성할 수 있음에도 Convert Time Zone API 요청 시 쿼리 매개변수에 Intl API 값을 전달한 뒤, 응답 결과의 `fromZoneName` 값을 다시 사용**하고 있습니다.
+
+또한 **`to` 역시 매개변수로 전달되는 `targetTimeZone` 값을 사용할 수 있음에도, 응답 결과에 포함된 `toZoneName` 값을 사용**하고 있습니다. **실제로 Convert Time Zone API 응답 결과를 통해 직접적으로 활용되는 값은 `offset` 하나뿐**입니다.
+
+그러나 앞서 설명한 것처럼 **두 도시 간 시차 게산**은 **이미 Intl API를 통해 네트워크 요청 없이 클라이언트 환경에서 계산하여 반영할 수 있는 상태**입니다.
+
+만약 시차 계산에 필요한 **대상 지역대(Time Zone) 정보를 확보할 수 없다면 Convert Time Zone API 사용이 필요**하겠지만, 이 또한 세계 도시 목록을 조회하기 위해 사용된 **List Time Zone API에서 지역대 정보를 함께 제공**하고 있습니다. 따라서 해당 API를 통해 구성된 List 컴포넌트에서 클릭 이벤트가 발생할 경우, **비교 대상 지역대 정보를 확보**할 수 있으며 **사용자 지역대 또한 Intl API를 통해 구성**할 수 있습니다.
+
+결과적으로 Convert Time Zone API에 의존하는 구조는 **비동기 네트워크 요청 특성상 네트워크 환경이 좋지 않을 경우 응답 지연이 발생**할 수 있으며, 이는 **UI 반영 시점 지연으로 이어질 수 있습니다.** 반면 **두 도시 간 시차**를 **Intl API 기반으로 클라이언트에서 직접 계산**하도록 리팩토링할 경우 **네트워크 의존성을 제거할 수 있으며, 해당 문제를 보다 단순한 구조로 해결**할 수 있습니다.
+
+<br />
+
+```tsx
+const handleAppendWorldTime: WorldAppendHandler = async (targetCity, targetTimeZone) => {
+  const now = new Date(); // 기준이 될 현재 시간을 구한다.
+  
+  const fromDate = new Date(now.toLocaleString("en-US")).getTime(); // timeZone 옵션을 지정을 안하면 자동으로 사용자 지역대로 시간을 계산한다.
+  const toDate = new Date(now.toLocaleString("en-US", { timeZone: targetTimeZone })).getTime();
+
+  const newData: WordTimeListType = {
+    from: Intl.DateTimeFormat().resolvedOptions().timeZone,     // 사용자 도시
+    name: targetCity,                                           // 선택한 도시의 전체 이름
+    to: targetTimeZone,                                         // 선택한 도시의 Time Zone 이름
+    offset: Math.round((toDate - fromDate) / (1000 * 60 * 60))  // 두 도시 간 시차(시(hours) 단위)
+  }
+
+  // 기존 로직 동일...
+}
+```
+
+<br />
+
+이처럼 현재 시간(now)을 먼저 구한 뒤, 해당 값을 기준으로 `Date` 인스턴스 메서드인 **`toLocaleString()`을 사용**하면 **Intl API 기반으로 특정 지역대(Time Zone)의 시간을 구성**할 수 있습니다.
+
+이때 날짜 포맷을 **`en-US` 방식으로 지정한 이유는 `Date` 객체가 안정적으로 해석할 수 있는 날짜 문자열 포맷을 보장하기 위함**입니다. 또한 **옵션을 지정하지 않을 경우 기본값으로 사용자의 지역대를 기준으로 시간이 구성되며, `timeZone` 옵션을 명시하면 해당 지역대 기준의 시간을 가져올 수 있습니다.**
+
+이렇게 **생성된 두 지역대의 시간을 각각 밀리초 단위로 변환한 뒤 그 차이를 계산**하면, **네트워크 요청 없이도 클라이언트 환경에서 두 지역 간 시차(offset)를 계산**할 수 있습니다. 따라서 시차 계산 과정이 더 이상 **네트워크 응답에 의존하지 않고 로컬 계산 로직에 의해 처리되도록 개선**됩니다.
+
+<br />
+
+[![Convert Time Zone Refactoring Performance 결과](./images/convert-time-zone-refactoring-performance.png)](https://drive.google.com/file/d/1u0DgtJ0ycr_k_9gok7V8yR-VPoqsv1Kc/view?usp=sharing)
+
+> Markdown은 비디오를 직접 삽입할 수 없기 때문에, 해당 이미지는 네트워크 요청 없이 클라이언트 환경에서 두 지역 간 시차(offset)를 계산하도록 리팩토링한 이후, 네트워크 성능을 3G로 제한한 상태에서 Bottom Sheet가 닫히는 과정을 캡처한 화면입니다. 이미지를 클릭하면 Google Drive에 업로드된 비디오 공유 URL로 이동할 수 있습니다.
+
+<br />
+
+영상을 보면 알 수 있듯이, 시차 계산을 위한 네트워크 요청이 제거되었기 때문에 **이전과 동일하게 네트워크 성능을 3G로 제한한 상태**에서 **세계 도시 시간을 추가하더라도 네트워크 환경에 따른 UI 반영 지연 문제가 발생하지 않는 것을 확인**할 수 있습니다.
