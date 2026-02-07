@@ -18,14 +18,14 @@ export default function useWorldTimeList(handleCloseBottomSheet: () => void, han
   const handleAppendWorldTime: WorldAppendHandler = async (targetCity, targetTimeZone) => {
     const now = new Date(); // 기준이 될 현재 시간을 구한다.
     
-    const fromDate = new Date(now.toLocaleString("en-US", { timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone })).getTime();
+    const fromDate = new Date(now.toLocaleString("en-US")).getTime(); // timeZone 옵션을 지정을 안하면 자동으로 사용자 지역대로 시간을 계산한다.
     const toDate = new Date(now.toLocaleString("en-US", { timeZone: targetTimeZone })).getTime();
 
     const newData: WordTimeListType = {
-      from: Intl.DateTimeFormat().resolvedOptions().timeZone, // 사용자 도시
-      name: targetCity,   // 선택한 도시의 전체 이름
-      to: targetTimeZone, // 선택한 도시의 Time Zone 이름
-      offset: Math.round((toDate - fromDate) / 1000)
+      from: Intl.DateTimeFormat().resolvedOptions().timeZone,     // 사용자 도시
+      name: targetCity,                                           // 선택한 도시의 전체 이름
+      to: targetTimeZone,                                         // 선택한 도시의 Time Zone 이름
+      offset: Math.round((toDate - fromDate) / (1000 * 60 * 60))  // 두 도시 간 시차(시(hours) 단위)
     }
 
     // 사용자가 등록한 세계 시계 리스트 정보를 포함하고 있는 상태를 업데이트하여, UI를 갱신한다. (UI 갱신용)

@@ -25,7 +25,7 @@ export default function WorldContentListItem({ activeRef, world, editMode, onDel
         
         <div className={`${styles["world-list-item__content"]}`}>
           <div className={`${styles["world-list-item__content-city"]}`}>
-            <p>{timeStatus?.day}, {Math.floor(world.offset / 3600)}hour</p>
+            <p>{timeStatus?.day}, {world.offset}hour</p>
             <h3>{world.name}</h3>
           </div>
 
