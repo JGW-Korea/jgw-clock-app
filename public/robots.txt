@@ -1,2 +1,4 @@
 User-Agent: *
 Allow: /
+
+Sitemap: https://jgw-clock-app.vercel.app/sitemap.xml
