@@ -386,3 +386,171 @@ Sitemap: https://jgw-clock-app.vercel.app/sitemap.xml
 ![Google Search Result](./images/google-search-result.png)
 
 <br />
+
+## 번외. 프로젝트 구조 특성상 SEO에 상대적으로 취약한 구조
+
+지금까지 **Lighthouse SEO 점수를 높이기 위한 과정**과 **검색 엔진에 사이트를 노출**시키기 위한 전반적인 내용을 문서로 작성했습니다.
+
+하지만 Clock 프로젝트는 **React 기반의 SPA(Single-Page Application) + CSR(Client-Side Rendering) 구조**의 웹 애플리케이션입니다. 즉, **프로젝트 구조 특성상 SEO에 상대적으로 취약할 수밖에 없는 구조**를 가지게 됩니다.
+
+이러한 이유를 이해하기 위해, 해당 목차에서는 **SPA와 CSR 구조**에 대한 전반적인 개념을 함께 살펴보겠습니다.
+
+<br />
+
+### A. SPA(Single-Page Application)
+
+SPA(Single-Page Application)는 **단일 페이지(Single Page)로 구성된 웹 애플리케이션**을 의미합니다. 즉, 하나의 페이지를 기반으로 페이지 간 이동과 같은 사용자 흐름을 처리하는 구조입니다.
+
+다만 처음 접할 경우 **"하나의 페이지로만 구성되어 있는데 페이지 간 이동은 어떻게 처리되는 것일까?"** 라는 의문이 생길 수 있습니다. 이는 **URL 구조의 프래그먼트(Fragment)를 활용**하거나, **Web API에서 제공하는 History API를 통해 브라우저의 주소와 히스토리를 동적으로 조작**하기 때문입니다.
+
+하지만 이러한 동작 방식을 이해하기 위해서는 **CSR(Client-Side Rendering)에 대한 이해가 필요**합니다. 그렇기 때문에 해당 내용은 [｢B. CSR(Client-Side Rendering)｣](#b-csrclient-side-rendering) 목차에서 별도로 설명하겠습니다.
+
+다시 본론으로 돌아와서, 앞서 **프로젝트 구조 특성상 SEO에 상대적으로 취약할 수밖에 없다고 언급**했습니다. **핵심적인 이유는 SPA 자체의 렌더링 방식**에 있습니다. SPA는 브라우저 동작 과정에서 최초 요청 시 다음과 같이 구성된 **하나의 HTML 페이지만 전달받기 때문**입니다.
+
+<br />
+
+```html
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Vite + React</title>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+```
+
+<br />
+
+즉, SPA 구조에서는 여러 개의 라우트가 존재하더라도 **실제로 검색 엔진이 최초로 전달받는 문서는 단일 HTML 문서 하나**입니다. 이 문서에는 **공통 메타데이터만 정의**되어 있으며, **본문에는 `<div id="root">`와 같은 비어 있는 컨테이너 요소만 존재**합니다.
+
+따라서 각 페이지(라우트)별 **메타데이터는 JavaScript를 통해 동적으로 변경**되며, **본문의 실제 콘텐츠 또한 CSR(Client-Side Rendering) 방식으로 브라우저에서 렌더링**됩니다.
+
+이로 인해 **검색 엔진 크롤러가 특정 경로의 페이지를 수집하는 시점**에, SPA 구조에서는 라우트가 여러 개 존재하더라도 **초기 HTML 기준 메타데이터는 공통 정보만 존재**하고, **본문 콘텐츠 역시 비어 있는 상태**이기 때문에 페이지의 실제 정보를 온전히 수집하지 못하게 됩니다.
+
+**최근 검색 엔진은 JavaScript를 통해 동적으로 변경되는 메타데이터와 일부 콘텐츠까지 일정 수준 수집**할 수 있게 되었지만, **모든 정보를 완전하게 수집한다고 보장하기는 어렵습니다**. 또한 **본문 콘텐츠는 CSR 기반으로 렌더링되기 때문에, 크롤링 시점이나 실행 환경에 따라 실제 콘텐츠가 충분히 반영되지 않을 수 있어 SEO 최적화에 한계가 발생**합니다.
+
+이 때문에 페이지 단위 SEO가 중요한 서비스의 경우 SPA 구조를 그대로 사용하기보다, **MPA(Multi-Page Application) 구조로 전환**하거나 **Next.js, Nuxt.js와 같은 하이브리드 렌더링 프레임워크를 도입**하게 됩니다. 또한 **Vite와 같은 최신 프론트엔드 빌드 도구 환경에서는 SSR(Server-Side Rendering)로 구성할 수 있는 설정을 제공**하여 SEO 대응 구조로 확장하는 것이 가능합니다.
+
+<br />
+
+### B. CSR(Client-Side Rendering)
+
+**CSR(Client-Side Rendering)**은 **렌더링의 주체가 클라이언트(브라우저)가 담당하는 렌더링 기법**을 의미합니다. 즉, 서버가 아닌 브라우저가 화면 구성 및 콘텐츠 렌더링 과정을 처리하는 구조입니다.
+
+앞서 [｢A. SPA(Single-Page Application)｣](#a-spasingle-page-application)에서 **SPA는 하나의 페이지로 구성되어 있음에도 페이지 간 이동을 처리**할 수 있다고 설명했습니다. 이는 **URL 구조의 프래그먼트(Fragment)** 또는 **Web API인 History API를 활용하여 브라우저가 주소와 히스토리를 조작하고, 그에 따라 화면 렌더링을 수행**하기 때문입니다. 이러한 동작 방식은 보다 정확히 **Client-Side Routing** 기법이라고 부릅니다.
+
+이처럼 **CSR 렌더링 기법을 활용**하면 **JavaScript를 통해 브라우저가 렌더링을 직접 수행**할 수 있게 됩니다. 이러한 구조가 가능해진 배경에는 **AJAX(Asynchronous JavaScript and XML)**를 기반으로 **서버와 클라이언트 간 비동기 통신이 가능**해졌기 때문입니다.
+
+**기존 전통적인 웹 애플리케이션 구조**에서는 비동기 통신이 보편화되지 않았기 때문에, **요청이 발생하면 서버가 해당 요청을 처리한 뒤 렌더링이 완료된 HTML 문서를 생성하여 클라이언트에 전달하는 SSR(Server-Side Rendering) 방식이 주로 사용**되었습니다. 그러나 이 구조는 요청이 발생할 때마다 **서버가 HTML을 생성해야 하므로, 페이지 전환 시 화면이 일시적으로 중단**되는 문제가 발생했고 이는 **사용자 경험(UX)을 저하시키는 요인**으로 작용했습니다.
+
+이후 **AJAX 기반 비동기 통신이 가능**해지면서 **CSR 렌더링 기법을 활용**할 수 있게 되었고, 이를 통해 **페이지 전환 시 전체 문서를 다시 받아오지 않더라도 필요한 데이터만 요청하여 화면을 동적으로 갱신**할 수 있게 되었습니다.
+
+다만 이러한 구조는 항상 장점만 가지는 것은 아니며, **전형적인 트레이드오프(Trade-off) 관계**를 가지게 됩니다. CSR 구조에서는 서버와 클라이언트 간 비동기 요청･응답을 통해 콘텐츠가 동적으로 구성되지만, **검색 엔진 크롤러가 페이지를 수집하는 시점에는 해당 콘텐츠가 아직 렌더링되지 않은 상태**일 수 있기 때문입니다.
+
+<br />
+
+```html
+<!-- CSR 방식의 HTML 구성 -->
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Vite + React</title>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <script defer>
+      async function fetchListDatas() {
+        try {
+          const response = await fetch("https://example.com/users", {
+            method: "GET"
+          });
+
+          if(!response.ok) {
+            throw new Error("에러가 발생했습니다.");
+          }
+
+          const ulEl = document.querySelector("ul");
+          const users = await response.json();
+
+          users.forEach((user) => {
+            const liEl = document.createElement("li");
+            liEl.textContent = user.name;
+            ulEl.appendChild(liEl);
+          });
+        } catch(error) {
+          // 예외 처리
+        }
+      }
+
+      fetchListDatas();
+    </script>
+  </head>
+  <body>
+    <ul>
+      <!-- JavaScript 비동기 렌더링 -> 초기 크롤링 시점에는 콘텐츠가 존재하지 않음 -->
+    </ul>
+  </body>
+</html>
+```
+
+```html
+<!-- SSR 방식의 HTML 구성 -->
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Vite + React</title>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  </head>
+  <body>
+    <ul>
+      <!-- 서버에서 렌더링된 HTML이 전달되므로 초기 크롤링 시점에 콘텐츠가 존재 -->
+      <li>Vito</li>
+      <li>Michael</li>
+      <li>Arthur</li>
+      <li>John</li>
+    </ul>
+  </body>
+</html>
+```
+
+<br />
+
+이처럼 **CSR(Client-Side Rendering) 방식**에서는 **검색 엔진 크롤러가 페이지를 수집하는 시점**에 **본문 콘텐츠가 충분히 반영되지 않았을 가능성이 존재하며, 이로 인해 SEO 최적화에 한계가 발생**하게 됩니다.
+
+즉, 종합해보면 Clock 프로젝트와 같은 **React 기반의 SPA + CSR 구조**는 여러 개의 라우트가 존재하더라도 **단일 HTML 문서의 메타데이터는 공통 정보로 구성**되어 있고, **본문 콘텐츠는 JavaScript 실행 이후 동적으로 렌더링되는 구조**입니다.
+
+따라서 **검색 엔진 크롤러가 페이지를 수집하는 시점**에는 **HTML 문서의 정보 밀도가 낮은 상태**일 수 있어 **SEO에 상대적으로 취약한 구조로 동작**하게 됩니다.
+
+<br />
+
+### C. SPA + CSR 구조에서 SEO를 개선하는 방법
+
+앞서 SPA + CSR 기반 프로젝트 구조 특성상 SEO에 상대적으로 취약한 구조를 가진다는 점을 설명했습니다. 그렇다면 이러한 구조에서 **SEO를 개선할 수 있는 방법은 없는지 고민해볼 필요**가 있습니다.
+
+다만 개인적으로는 개선 방법을 찾는 것보다, **SEO 개선이 실제로 필요한 서비스인지에 대한 필요성을 먼저 판단하는 것이 더 중요**하다고 생각합니다. 왜냐하면 SEO 개선을 위해 **프로젝트의 기술 스택이나 렌더링 기법을 변경**하게 되면 유지보수 비용이 증가하는 문제를 떠나, 모든 기술 선택에는 **트레이드오프(Trade-off) 관계가 필연적으로 발생하기 때문**입니다.
+
+예를 들어 SEO 개선을 목적으로 **SSR(Server-Side Rendering)**, **SSG(Static Site Generation)**, **ISR(Incremental Static Regeneration)** 과 같은 **렌더링 방식으로 전환할 경우 각각의 장단점이 존재**합니다.
+
+먼저 **SSR을 도입**하면 페이지 전환이나 요청이 발생할 때마다 서버에서 **해당 요청에 맞는 HTML 문서를 생성하여 반환**하게 됩니다. 이 과정에서 **메타데이터와 본문 콘텐츠가 함께 구성되므로 SEO 측면에서는 개선 효과**를 기대할 수 있습니다. 그러나 **매 요청마다 서버 렌더링 과정이 개입**되기 때문에 **화면 전환 시 일시적인 지연이 발생할 수 있으며, 이는 사용자 경험(UX) 저하 요인으로 작용**할 수 있습니다.
+
+다음으로 **SSG나 ISR을 도입**할 경우, **빌드 단게에서 HTML 문서가 미리 생성**됩니다. 따라서 검색 엔진 크롤러는 요청 시점에 서버가 즉시 생성한 결과물이 아닌, **사전에 생성된 완성된 HTML 문서를 수집**하게 되므로 **SEO 측면에서는 SSR보다도 안정적인 수집 구조**를 가질 수 있습니다.
+
+다만 이러한 방식은 **동적 데이터 반영 측면에서 한계**를 가집니다. 데이터 변경이 발생할 경우 **SSG는 전체 재빌드가 필요**하며, **ISR은 일정 주기 또는 조건에 따라 일부 페이지만 재생성할 수 있어 SSG보다 유연하지만, 실시간 데이터 반영에는 구조적 제약이 존재**합니다.
+
+반면 Clock 프로젝트는 **모바일 브라우저 환경에 최적화된 웹 애플리케이션을 제공하는 서비스**입니다. 즉, **페이지 전환과 인터랙션이 즉각적으로 이루어져야 하는 모바일 퍼스트(Mobile First) 전략**을 기반으로 설계되어 있습니다.
+
+이러한 구조에서 **SSR을 도입**하여 페이지 전환, 세계 도시 시간 추가, 알림 추가 등의 **요청이 발생할 때마다 서버가 HTML을 생성하여 반환하는 방식은 화면 전환 지연을 유발**할 수 있으며, 이는 **모바일 퍼스트 전략을 유지하는 서비스 특성과 맞지 않을 수 있습니다.**
+
+또한 **SSG 또는 ISR을 도입**할 경우 스톱워치, 타이머와 같이 정적 성격이 강한 라우트에서는 장점이 될 수 있으나, 세계 도시 시간 추가나 알림 추가와 같이 **사용자 입력에 따라 데이터가 실시간으로 변경되는 기능에서는 사전 생성된 HTML만으로는 변화를 즉시 반영하기 어렵습니다.** 이 역시 사용자 흐름을 저해하는 요소로 작용할 수 있습니다.
+
+결과적으로 Clock 프로젝트는 **SEO가 핵심 목적이 되는 서비스가 아닙니다.** iOS 시계 앱을 기반으로 한 클론 프로젝트 특성상, **각 페이지가 검색 유입을 목적으로 독립적인 메타데이터를 가지기보다는 하나의 공통된 서비스 맥락 안에서 기능 중심으로 동작하는 구조**이기 때문입니다. 따라서 서비스 이용 과정에서 **메타데이터가 동적으로 변경되더라도 SEO 측면에서 치명적인 문제가 발생하는 유형의 서비스는 아닙니다.**
+
+즉, Clock 프로젝트는 **렌더링 기법을 변경**하거나 **Next.js, Nuxt.js와 같은 프레임워크를 도입하는 등 기술 스택 자체를 전환**해야 할 필요성은 크지 않습니다. 그럼에도 불구하고 SEO를 일부 보완하고자 한다면 **React Helmet Async와 같은 라이브러리를 활용**하거나, **라우트 이동 시 JavaScript를 통해 메타데이터를 동적으로 갱신**하는 수준의 대응으로도 충분할 것으로 판단됩니다.
