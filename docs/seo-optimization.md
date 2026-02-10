@@ -162,7 +162,7 @@ HTML 문서에 제목과 내용을 파악할 수 있는 메타데이터를 작�
 
 ![robots.txt](./images/robots-txt.webp)
 
-> `robots.txt`의 자세한 내용은 저의 노션 [SEO | `robots.txt`](https://gye-won.notion.site/robots-txt-30388bd9c3fa80849d59d9866faf250c?pvs=74)에서 확인할 수 있습니다.
+> `robots.txt`의 자세한 내용은 저의 노션 [SEO | robots.txt](https://gye-won.notion.site/robots-txt-30388bd9c3fa80849d59d9866faf250c?pvs=74)에서 확인할 수 있습니다.
 
 <br />
 
