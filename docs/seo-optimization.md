@@ -230,3 +230,27 @@ Google Search Console은 **Google 검색엔진**에 **사이트를 직접 등록
 <br />
 
 **② Naver Search Advisor**
+
+Naver Search Advisor은 **Naver 검색엔진**에 **사이트를 직접 등록하여 검색 결과에 노출될 수 있도록 관리**할 수 있는 서비스입니다.
+
+즉 **Naver 검색엔진**에 제가 만든 Clock 서비스의 URL 존재를 인지할 수 있는 조건이 충분히 형성되지 않더라도, **사이트 등록을 통해 검색 결과 노출 기회를 확보할 수 있다는 의미**입니다.
+
+그렇다면 왜 **Naver 검색 결과**에 Clock 서비스를 **노출시키려는지에 대한 이유를 살펴볼 필요가 있습니다.**
+
+<br />
+
+![StatCounter GlobalStats | Search Engine Market Share Republic Of Korea](./images/statcounter-global-stats-search-engine-market-share-republic-of-korea.png)
+
+<br />
+
+[StatCounter GlobalStats](https://gs.statcounter.com/search-engine-market-share/all/south-korea)에 올라온 **2025년 1월 ~ 2026년 1월까지 대한민국 검색엔진 사용률 통계**를 확인해보면, **2026년 1월 기준 Naver는 대한민국 검색엔진 사용률 중 약 48.76%를 차지**하는 것을 확인할 수 있습니다.
+
+반면 **Google은 약 42.75%를 차지**하는 것을 확인할 수 있습니다. 즉 **대한민국에서는 검색엔진 사용률이 Naver와 Google이 거의 비슷**하지만, **Naver를 사용하는 사용자 수가 소폭 더 많다는 것을 확인**할 수 있습니다.
+
+그렇기 때문에 **개발한 서비스가 대한민국 시장을 목표**로 한다면, **Google과 Naver 두 검색엔진에 노출시키는 과정은 중요한 요소**가 될 수 있습니다.
+
+다만 **Clock 서비스**는 **별도의 수익 창출이나 실제 운영을 목적으로 하는 서비스는 아니지만,** Naver Search Advisor를 이용해 **검색엔진 노출 과정을 경험해보는 것 자체가 개발자로서 하나의 경험이 될 수 있다고 판단하여 등록을 진행**했습니다.
+
+<br />
+
+## V. Google Search Console 및 Naver Search Advisor 사이트 등록
