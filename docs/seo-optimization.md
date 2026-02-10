@@ -162,7 +162,7 @@ HTML 문서에 제목과 내용을 파악할 수 있는 메타데이터를 작�
 
 ![robots.txt](./images/robots-txt.webp)
 
-> `robots.txt`의 자세한 내용은 저의 노션 [SEO | robots.txt](https://gye-won.notion.site/robots-txt-30388bd9c3fa80849d59d9866faf250c?pvs=74)에서 확인할 수 있습니다.
+> `robots.txt`의 자세한 내용은 저의 노션 [｢SEO | robots.txt｣](https://gye-won.notion.site/robots-txt-30388bd9c3fa80849d59d9866faf250c?pvs=74)에서 확인할 수 있습니다.
 
 <br />
 
@@ -187,11 +187,9 @@ Allow: /
 
 ## IV. 검색 결과 노출을 위한 검색엔진 도구 선정 기준
 
-Lighthouse SEO 점수를 100점으로 개선한 후, Vercel을 통해 배포를 진행했기 때문에 **최종적으로 Google과 Naver 검색엔진**에 **제가 만든 Clock 서비스를 노출**시키기 위해 **Google Search Console**과 **Naver Search Advisor**에 **사이트를 등록**해보겠습니다.
+Lighthouse SEO 점수를 100점으로 개선한 후, Vercel을 통해 배포를 진행했기 때문에 **최종적으로 Google과 Naver 검색엔진**에 **제가 만든 Clock 서비스를 노출**시키기 위해 **Google Search Console**과 **Naver Search Advisor**에 **사이트를 등록하기에 앞서,** 수많은 검색엔진 중 이 **두 가지를 선택한 이유**에 대해 설명하겠습니다.
 
 > 참고로 검색엔진 크롤러는 외부 링크, 내부 링크 구조 등 다양한 요인을 통해 URL의 존재를 인지할 수 있는 조건이 갖추어지면 이러한 검색엔진에 사이트를 직접 등록하징 않더라도 검색 결과에 노출될 수 있습니다. 다만 검색엔진에 직접 등록하는 경우, 해당 조건이 충분히 형성되지 않았더라도 사이트의 존재를 알릴 수 있기 때문에 검색 결과 노출이 목적이라면 등록하는 것이 좋습니다.
-
-먼저 **Google Search Console**과 **Naver Search Advisor**에 **사이트를 등록하기 전**에, 수많은 검색엔진 중 이 **두 가지를 선택한 이유에 대해 설명**하겠습니다.
 
 <br />
 
@@ -218,8 +216,6 @@ Google Search Console은 **Google 검색엔진**에 **사이트를 직접 등록
 <br />
 
 또한 [Statista](https://www.statista.com/statistics/1560762/global-internet-users-annual-number/#:~:text=Global%20annual%20number%20of%20internet%20users%202015%2D2025&text=As%20of%20October%202025%2C%20the%20number%20of,has%20steadily%20increased%20over%20the%20past%20decade.)의 **2015년 ~ 2025년 전 세계 인터넷 사용자 수 통계**를 보면, **2025년 기준 약 60억 명으로 전 세계 인구의 약 74% 수준에 달하는 것을 확인**할 수 있습니다.
-
-<br />
 
 즉 **전 세계 인구의 약 74%에 달하는 인터넷 사용자들이 가장 높은 점유율을 가진 검색엔진으로 Google을 사용**하고 있다는 것을 통계를 통해 파악할 수 있습니다. 이로 인해 Google 검색엔진에 서비스가 노출된다는 것은 Google을 사용하는 사용자들에게 잠재적으로 노출될 수 있음을 의미합니다.
 
@@ -254,3 +250,139 @@ Naver Search Advisor은 **Naver 검색엔진**에 **사이트를 직접 등록�
 <br />
 
 ## V. Google Search Console 및 Naver Search Advisor 사이트 등록
+
+앞서 [｢IV. 검색 결과 노출을 위한 검색엔진 도구 선정 기준｣](#iv-검색-결과-노출을-위한-검색엔진-도구-선정-기준)에서 Clock 서비스를 노출시키기 위해 **Google Search Console**과 **Naver Search Advisor**를 **선정한 이유를 설명**했습니다.
+
+다만 두 검색엔진에 **사이트를 등록하는 과정은 전반적으로 유사**하기 때문에, 본 문서에서는 **Google Search Console을 기준**으로 **사이트 등록 과정을 설명**하겠습니다.
+
+<br />
+
+**① Google Seacrh Console 사이트 접속**
+
+먼저 Google Search Console에 사이트를 등록하기 위해 **해당 [사이트](https://search.google.com/search-console/welcome?utm_source=about-page)에 접속**해야 합니다.
+
+<br />
+
+![Google Search Console Main Page](./images/google-search-console-main-page.png)
+
+<br />
+
+Google Search Console 사이트에 접속하면 등록할 서비스를 **"도메인"** 또는 **"URL 접두어"** 유형 중 어떤 방식으로 등록할지 선택할 수 있습니다.
+
+여기서 **"도메인" 유형은 별도의 도메인을 보유하고 있으며, DNS 레코드 설정을 통해 도메인 소유권 인증이 가능한 경우 선택**하는 속성입니다. 반면 **"URL 접두어" 유형은 특정 URL 경로 단위로 속성을 등록하는 방식**입니다. Clock 프로젝트의 경우 **별도의 도메인을 보유하고 있지 않고 Vercel에서 배포할 도메인을 사용**하고 있기 때문에 **"URL 접두어" 유형을 통해 사이트를 등록**해보겠습니다.
+
+<br />
+
+**② 인증 확인 후 서비스 소유권 확인**
+
+Google Search Console에 사이트를 등록하기 위한 유형을 선택하면, **해당 경로의 대한 인증 절차를 진행**하게 됩니다. 이후 인증이 완료되면 **등록하려는 사이트**의 **실제 소유자인지를 검증하기 위해 소유권 확인 절차를 거치야 합니다.**
+
+<br />
+
+![Google Search Console Ownership](./images/google-search-console-ownership.png)
+
+<br />
+
+소유권 확인 절차는 **"HTML 파일 업로드"**, **"HTML 메타 태그 추가"** 등 여러 방법이 있지만, 저는 **권장 확인 방법인 "HTML 파일 업로드" 방식을 사용**했습니다. **제공된 인증 파일을 다운로드한 후 `public` 디렉토리에 위치시키고 재배포를 진행**했습니다.
+
+이후 **해당 파일이 정상적으로 배포되었다면 `https://example.com/googlexxxxxxxx.html` 경로로 접속했을 때 인증 코드가 표시**됩니다. 이는 **소유권 확인을 위한 파일이 정상 등록**되었음을 의미하며, 이후 **"확인" 버튼을 눌러 소유권 인증을 완료**하면 됩니다.
+
+소유권 인증이 완료되면 **"속성으로 이동"** 버튼을 눌러 Google Search Console에 등록한 서비스 속성 화면으로 이동하면 됩니다.
+
+<br />
+
+![Google Search Console Attributes](./images/google-search-console-attributes.png)
+
+<br />
+
+**③ 사이트맵(Sitemap) 추가**
+
+모든 인증 절차가 완료된 이후에는 Google 검색엔진 크롤러가 제가 만든 Clock 서비스를 수집할 수 있도록 색인(Indexing)을 생성해야 합니다. 다만 **색인을 생성하기에 앞서 서비스 페이지의 전체 구조를 전달**하기 위한 **사이트맵(Sitemap)을 먼저 추가**하겠습니다.
+
+<br />
+
+> 사이트맵(Sitemap)의 자세한 내용은 저의 노션 [｢SEO | 사이트맵(Sitemap)｣](https://gye-won.notion.site/sitemap-30388bd9c3fa8029932bea8020a81851?pvs=74)에서 확인할 수 있습니다.
+
+<br />
+
+Google Search Console에 사이트맵(Sitemap)을 추가하기 위해 먼저 **`sitemap.xml` 파일에 Clock 서비스의 전체 페이지 구조를 XML 형식으로 계층적으로 구성한 뒤 `public` 디렉토리에 위치**시켰습니다. **이후 기존에 생성한 `robots.txt` 파일에 사이트맵 파일의 위치를 명시하여 크롤러가 수집 과정에서 사이트맵 경로를 인지할 수 있도록 수정**한 후 **재배포를 진행**했습니다.
+
+<br />
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://jgw-clock-app.vercel.app/</loc>
+    <lastmod>2026-02-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://jgw-clock-app.vercel.app/alarm</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://jgw-clock-app.vercel.app/stopwatch</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://jgw-clock-app.vercel.app/timer</loc>
+    <priority>0.8</priority>
+  </url>
+</urlset>
+```
+
+```
+User-Agent: *
+Allow: /
+
+# 사이트맵 파일 위치 추가
+Sitemap: https://jgw-clock-app.vercel.app/sitemap.xml
+```
+
+<br />
+
+이후 해당 파일이 정상적으로 배포되었다면 **`https://example.com/sitemap.xml` 경로로 접속했을 때 XML 구조가 표시**됩니다. 이후 Google Search Console에 등록한 서비스 속성 화면에 접속한 뒤 **Sitemaps 페이지로 이동**하여 **Clock 서비스에 포함된 사이트맵을 제출**했습니다.
+
+<br />
+
+![Google Search Console Sitemaps](./images/google-search-console-sitemap.png)
+
+<br />
+
+**④ Google Search Console 색인(Indexing) 생성**
+
+이제 **Google Search Console 색인을 생성하기 위한 모든 작업이 완료**되었기 때문에 **색인 생성을 요청**하기 위해 Google Search Console에 등록한 서비스 속성 화면에 접속한 뒤 **"URL 검사 메뉴"로 이동**하겠습니다.
+
+<br />
+
+![Google Search Console Indexing X](./images/google-search-console-indexing-x.png)
+
+<br />
+
+`https://jgw-clock-app.vercel.app/` URL 검사 결과를 보면 **"URL이 Google에 등록되어 있지 않음" 문구를 확인**할 수 있습니다. 그렇다면 **"색인 생성 요청"을 진행하기에 앞서 "실제 URL 테스트"를 통해 해당 URL이 Google에 등록 가능한 상태인지 먼저 확인**해보겠습니다.
+
+<br />
+
+![Google Search Console Indexing Test](./images/google-search-console-indexing-test.png)
+
+<br />
+
+위 결과를 보면 "실제 URL 테스트"를 통해 **Clock 서비스의 URL이 정상적으로 등록 가능한 상태**임을 확인할 수 있습니다. **이제 실제로 "색인 생성 요청"을 진행**하겠습니다.
+
+<br />
+
+![Google Search Console Indexing Request](./images/google-search-console-indexing-request.png)
+
+<br />
+
+**색인 생성을 요청하면 "색인 생성 요청됨"이라는 결과가 표시**됩니다. 이후 **일정 시간이 지나면 페이지 색인이 생성**되며, Google에 **"JGW Clock"을 검색했을 때 최종적으로 서비스가 검색 결과에 노출**되는 것을 확인할 수 있습니다.
+
+<br />
+
+![Google Search Console Indexing Success](./images/google-search-console-indexing-success.png)
+
+![Google Search Result](./images/google-search-result.png)
+
+<br />
