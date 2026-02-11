@@ -7,7 +7,7 @@ JGW Clock App은 iPhone 시계 앱의 UI/X를 모바일 웹 환경에 맞게 구
 
 <br />
 
-![Clock Demo Video](./docs/images/clock-project-demo-video.gif)
+<img src="./docs/images/clock-project-demo-video.gif" width="364px" />
 
 <br />
 
