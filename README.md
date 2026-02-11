@@ -16,20 +16,20 @@
 <table>
   <thead>
     <tr>
-      <th><img width="84px" alt="React icon" src="https://www.svgrepo.com/show/452092/react.svg" /></th>
-      <th><img width="84px" alt="TypeScript icon" src="https://www.svgrepo.com/show/303600/typescript-logo.svg" /></th>
-      <th><img width="84px" alt="SCSS icon" src="https://www.svgrepo.com/show/374068/scss.svg" /></th>
-      <th><img width="84px" alt="Vite icon" src="https://www.svgrepo.com/show/354521/vitejs.svg" /></th>
-      <th><img width="84px" alt="Vercel icon" src="https://www.svgrepo.com/show/354512/vercel.svg" /></th>
+      <th><img width="128px" alt="React icon" src="https://www.svgrepo.com/show/452092/react.svg" /></th>
+      <th><img width="128px" alt="TypeScript icon" src="https://www.svgrepo.com/show/303600/typescript-logo.svg" /></th>
+      <th><img width="128px" alt="SCSS icon" src="https://www.svgrepo.com/show/374068/scss.svg" /></th>
+      <th><img width="128px" alt="Vite icon" src="https://www.svgrepo.com/show/354521/vitejs.svg" /></th>
+      <th><img width="128px" alt="Vercel icon" src="https://www.svgrepo.com/show/354512/vercel.svg" /></th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td>React</td>
-      <td>TypeScript</td>
-      <td>SCSS</td>
-      <td>Vite</td>
-      <td>Vercel</td>
+      <td align="center"><b>React</b></td>
+      <td align="center"><b>TypeScript</b></td>
+      <td align="center"><b>SCSS</b></td>
+      <td align="center"><b>Vite</b></td>
+      <td align="center"><b>Vercel</b></td>
     </tr>
   </tbody>
 </table>
