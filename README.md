@@ -1,13 +1,13 @@
 ## ⏰ JGW Clock App
 
-JGW Clock App은 iPhone 시계 앱 UI/UX를 참고해 모바일 웹 환경에 맞게 구현한 프로젝트입니다. <br />
-프로젝트 개발 이후, 완성도를 높이기 위해 기존 코드를 분석하고 **리팩토링**, **성능 최적화**, **보안성 개선**을 중심으로 구조를 개선해 나간 과정을 문서로 정리했습니다.
+> 🔗 [JGW Clock](https://jgw-clock-app.vercel.app/) 링크를 클릭하시면 Vercel을 통해 배포된 사이트로 이동하실 수 있습니다.
+
+**JGW Clock App**은 **iPhone 시계 앱 UI/UX**를 참고해 **모바일 웹 환경**에 맞게 구현한 프로젝트입니다. <br />
+프로젝트 개발 이후, **완성도를 높이기 위해 기존 코드를 분석**하고 **리팩토링**, **성능 최적화**, **보안성 개선**을 중심으로 **개선해 나간 과정**을 문서로 정리했습니다.
 
 <br />
 
-<p align="center">
-  <img alt="JGW Clock App 시연 영상" src="./docs/images/clock-project-demo-video.gif" width="364px" />
-</p>
+<img alt="JGW Clock App 시연 영상" src="./docs/images/clock-project-demo-video.gif" width="280px" />
 
 <br />
 
