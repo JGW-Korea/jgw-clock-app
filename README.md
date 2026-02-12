@@ -19,7 +19,7 @@
 
 ## 📱 Live Demo
 
-<img alt="JGW Clock App 시연 영상" src="./docs/images/clock-project-demo-video.gif" width="280px" />
+<img alt="JGW Clock App 시연 영상" src="./docs/images/clock-live-demo.gif" width="280px" />
 
 <br />
 
