@@ -55,8 +55,12 @@ export default function useWorldTimeList(handleCloseBottomSheet: () => void, han
     handleCloseBottomSheet(); // Bottom Sheet를 비활성화 시킨다.
   }
 
-  const handleDelete = (id: number | string) => {
+  const handleDelete = (id: number | string, type?: keyof EditMode) => {
     const afterDelete = worldTimeList.filter(({ to }) => id !== to);
+
+    if(type === "swipe") {
+      handleEditModeActive("swipe");
+    }
 
     if(afterDelete.length === 0) {
       handleEditModeActive("click");

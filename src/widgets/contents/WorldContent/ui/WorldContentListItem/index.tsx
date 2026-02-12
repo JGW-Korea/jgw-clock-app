@@ -20,7 +20,7 @@ export default function WorldContentListItem({ activeRef, styles, world, editMod
   const { timeStatus } = useTimeContinue(world);
   
   return (
-    <SwipeToDelete activeRef={activeRef} id={world.to} editMode={editMode} padding={4} onEditModeActive={onEditModeActive} onDeleteListItem={onDeleteListItem}>
+    <SwipeToDelete activeRef={activeRef} id={world.to} editMode={editMode} padding={4} onEditModeActive={onEditModeActive} onDeleteListItem={() => onDeleteListItem(world.to, "swipe", onEditModeActive)}>
       <article className={`${styles["layout-list-item"]} ${editMode.click ? styles["edit-mode"] : ""}`}>
         <button className={`${styles["layout-list-item__delete-btn"]}`} onClick={() => onDeleteListItem(world.to, undefined, onEditModeActive)} />
         
