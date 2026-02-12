@@ -36,4 +36,72 @@ Google에서 제작한 Chrome 개발자 도구에서는 Lighthouse라는 분석 
 
 <br />
 
-## II. 
+## II. Clock 사이트 Lighthouse 결과
+
+Lighthouse 측정은 **프로젝트 개발 완료 이후 일부 성능 최적화를 적용**한 뒤, Vercel을 통해 **배포한 Clock 사이트를 대상**으로 **진행**했습니다.
+
+또한 Google Lighthouse는 앞서 [｢Google Lighthouse란?｣](#i-google-lighthouse란) 목차에서 설명했듯이 **다양한 외부 요인이 반영된 정량적 결과 보고서를 제공**합니다. 이에 따라 **Google Chrome 시크릿 모드를 통해 외부 요인을 최대한 배제한 환경에서 측정을 진행**했습니다.
+
+<br />
+
+![Clock Lighthouse 개선 이전 결과](./images/clock-optimization-befor-lighthouse-result.png)
+
+<br />
+
+위 사진에서 확인할 수 있듯이 **Lighthouse 개선 이전 결과**는 **모든 항목이 90~100점 범위로 측정**되어 예상보다 양호한 점수로 나타났습니다.
+
+하지만 Performnace와 Accessibility 점수가 100점이 아닌 90점대로 유지되는 원인을 살펴보기 전에, Vercel을 통해 **배포한 사이트 환경**에서 **Lighthouse 결과를 측정하는 이유에 대해 먼저 설명**한 뒤, **각 점수가 90점대로 유지되는 원인을 이어서 살펴보겠습니다.**
+
+<br />
+
+### A. 배포한 사이트 환경에서 Lighthosue 결과 측정 이유
+
+Node.js의 등장은 프론트엔드 개발 환경에 큰 변화를 가져왔습니다. 그중 하나가 바로 **모듈 시스템(Module System)의 등장**입니다. 본래 JavaScript는 자체적인 모듈 시스템을 제공하지 않았습니다. 하지만 Node.js는 브라우저 외부 환경에서 JavaScript 코드를 해석할 수 있도록 설계된 런타임 환경입니다.
+
+이로 인해 JavaScript를 활용한 서버 사이드 개발이 가능해졌습니다. 다만 기존 JavaScript는 모듈 시스템을 제공하지 않았기 때문에, **Node.js 런타임 환경에서는 자체적으로 CommonJS 모듈 시스템을 제공**하여 **모듈 기반 프로젝트를 구성**할 수 있도록 지원했습니다.
+
+<br />
+
+![CommonJS Module System](./images/commonjs-module-system.webp)
+
+<br />
+
+이후 프론트엔드 개발 규모가 점차 커지면서, 하나의 HTML 문서 실행 컨텍스트 내에서 동작하던 JavaScript 구조는 **"전역 변수 오염"과 "의존성 관리의 복잡성" 문제를 야기**하게 되었고, 이에 따라 **브라우저 환경에서도 모듈 시스템의 필요성이 점차 커지게 되었습니다.**
+
+이 과정에서 브라우저 환경의 **비동기 로딩을 지원하는 AMD**, 그리고 **CommonJS와 AMD를 모두 지원하는 UMD** 모듈 시스템이 등장했습니다. 다만 이들은 JavaScript 표준이 아닌 **패키지 형태**였기 때문에 ((버전 변화에 따른 사용 방식 차이, 그리고 장기 지원에 대한 불확실성이라는 한계가 존재))했습니다.
+
+결국 ES6 표준안에서 **ESModule(ESM) 방식이 공식 모듈 시스템으로 채택**되면서, **브라우저 환경에서도 표준 기반 모듈 시스템을 사용**할 수 있게 되었습니다. 그러나 모듈이 증가한다는 것은 곧 **하나의 페이지에서 로드해야 할 JavaScript 파일 수가 늘어난다는 의미**이기도 합니다.
+
+<br />
+
+![ESModule Module System](./images/esm-module-system.webp)
+
+<br />
+
+또한 **UI/UX 및 디자인 요소의 중요성이 커지면서**, CSS, 폰트, 이미지 등 **다양한 정적 자원의 수가 함께 증가**하게 되었습니다. 그 결과 **프로젝트 규모가 커질수록 다수의 JavaScript, CSS, 폰트, 이미지 파일 요청이 발생**하게 되었고, DX(Developer Experience)는 향상된 반면 **초기 로딩 성능 저하로 UX(User Experience)가 감소하는 문제**가 발생했습니다.
+
+이러한 문제를 해결하기 인해 빌드 과정에서 다수의 파일을 하나로 묶어주는 **번들링 도구(Webpack, Parcel, ESBuild, Rollup 등)가 등장**하게 되었습니다. 번들링 도구는 단순 파일 결합을 넘어 압축, 난독화, 트리 셰이킹 등의 **최적화 과정을 수행하여 파일의 크기를 감소시키는 역할도 수행**합니다.
+
+이로 인해 Node.js 기반 개발 서버 환경에서 Lighthouse 결과를 측정할 경우, 다음 이미지와 같이 **번들링이 수행되지 않은 상태**에서 **다수의 자원을 네트워크로 로드한 뒤 렌더링이 이루어지기 때문에 Performance 결과가 상대적으로 낮게 측정**됩니다.
+
+<br />
+
+![Dev Server Network Result](./images/dev-server-network-result.png)
+
+![Dev Server Lighthouse Result](./images/dev-server-lighthouse-result.png)
+
+<br />
+
+따라서 Lighthouse 결과를 측정할 때에는 개발 서버 환경이 아닌, 빌드 및 최적화가 완료된 **실제 사용자 이용 환경을 기준으로 측정하는 것이 정량적 지표를 보다 현실적으로 반영**할 수 있습니다. 이러한 이유로 배포된 사이트 환경에서 Lighthouse 측정을 진행했습니다.
+
+<br />
+
+![Product Server Network Result](./images/product-server-network-result.png)
+
+![Product Server Lighthouse Result](./images/product-server-lighthouse-result.png)
+
+<br />
+
+### B. Performance 측정 결과가 94점인 이유
+
+### C. Accessibility 측정 결과가 93점인 이유
