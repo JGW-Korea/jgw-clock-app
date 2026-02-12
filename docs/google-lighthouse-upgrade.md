@@ -102,6 +102,91 @@ Node.js의 등장은 프론트엔드 개발 환경에 큰 변화를 가져왔습
 
 <br />
 
-### B. Performance 측정 결과가 94점인 이유
+### B. Lighthouse Performance 점수 94점 측정 원인
 
-### C. Accessibility 측정 결과가 93점인 이유
+![Clock Lighthouse Performance Summary Result](./images/clock-lighthouse-performance-summary-result.png)
+
+<br />
+
+먼저 Lighthouse의 Performance 요약 결과를 살펴보면 **여러 개의 측정 지표**가 있습니다. 해당 지표들의 의미는 다음과 같습니다.
+
+- **First Contentful Paint**: 최초 로딩 시 **첫 번째 콘텐츠가 화면에 표시되는 시점**을 의미합니다. (🟡 결과: 2.4s)
+- **Largest Contentful Paint**: 최초 로딩 시 **주요 콘텐츠가 화면에 표시되는 시점**을 의미합니다. (🟢 결과: 2.5s)
+- **Total Blocking Time**: FCP 이후 JavaScript 실행 등으로 인해 **메인 스레드가 차단되어 사용자 입력에 즉시 반응하지 못한 누적 시간**을 의미합니다. (🟢 결과: 0ms)
+- **Cumulative Layout Shift**: **페이지 로딩 과정에서 발생한 레이아웃 이동의 누적 횟수**를 의미합니다. (🟢 결과: 0)
+- **Speed Index**: 페이지 콘텐츠가 **시각적으로 표시되는 속도를 종합적으로 평가한 지표**를 의미합니다. (🟢 결과: 2.4s)
+
+<br />
+
+![Clock Lighthouse Performance Summary Result](./images/clock-lighthouse-performance-list-result)
+
+<br />
+
+다음으로 Lighthouse의 Performance 감점 요인 리스트를 살펴보면, **다음과 같은 항목이 감점 요인으로 반영**된 것을 확인할 수 있습니다.
+
+- Render blocking requests
+- Network dependency tree
+- Reduce unused JavaScript
+
+다만 리스트 결과만으로는 정확한 감점 원인을 파악하기 어렵기 때문에, **각 감점 항목의 탭을 활성화하여 세부 원인을 살펴보겠습니다.**
+
+<br />
+
+**① Render blocking requests**
+
+![Clock Lighthouse Performance Render blocking requests](./images/clock-lighthouse-performance-render-blocking-requests.png)
+
+<br />
+
+"Render blocking requests"를 번역하면 **"렌더링 흐름을 차단하는 네트워크 요청 자원이 존재한다."** 는 의미입니다.
+
+이를 이해하고 탭을 활성화하여 세부 원인을 살펴보면, **vercel.app에서 전달받은 `/assets/index.xxx.css` 번들 CSS 파일**과 **JSDelivr CDN에서 제공되는 `reset-css@5.0.2/reset.min.css`**이 **초기 렌더링 과정에서 렌더링 흐름을 지연시키는 요인으로 반영**된 것을 확인할 수 있습니다.
+
+또한 세부 원인 우측에 **FCP**, **LCP**, **Unscored**라는 **Chip UI가 표시**되는 것을 확인할 수 있으며, 각 항목의 의미는 다음과 같습니다.
+
+- **FCP**: Lighthouse Performnace 지표 중 **FCP(First Contentful Paint)에 영향을 줄 수 있음**을 의미합니다.
+- **LCP**: Lighthouse Performnace 지표 중 **LCP(Largest Contentful Paint)에 영향을 줄 수 있음**을 의미합니다.
+- **Unscored**: 해당 항목은 Lighthouse 보고서에 포함되지만, **전체 점수 산정에는 직접 반영되지 않음**을 의미합니다.
+
+<br />
+
+**② Network dependency tree**
+
+![Clock Lighthouse Performance Network dependency tree](./images/clock-lighthouse-performance-network-dependency-tree.png)
+
+<br />
+
+"Network dependency tree"를 번역하면 **"네트워크 요청 간 의존 관계 구조를 나타낸다."** 라는 의미입니다.
+
+이를 이해하고 탭을 활성화하여 **경고(노란색)로 표시된 항목**을 확인해보면, JGW Clock 페이지 최초 접속 시 **브라우저가 웹 서버에 HTML 문서를 요청**한 뒤, 해당 문서에 연결된 **스크립트 파일을 JavaScript 엔진이 해석하는 과정**에서 **`GET /timezone/list` API 요청이 발생**하는 것을 확인할 수 있습니다. 또한 **해당 API 요청의 응답이 완료되기까지**의 **전체 소요 시간이 약 733ms로 측정**된 것을 확인할 수 있습니다.
+
+또한 세부 원인 우측에 **LCP**, **Unscored**라는 **Chip UI가 표시**되는 것을 확인할 수 있으며, 각 항목의 의미는 다음과 같습니다.
+
+- **LCP**: Lighthouse Performnace 지표 중 **LCP(Largest Contentful Paint)에 영향을 줄 수 있음**을 의미합니다.
+- **Unscored**: 해당 항목은 Lighthouse 보고서에 포함되지만, **전체 점수 산정에는 직접 반영되지 않음**을 의미합니다.
+
+<br />
+
+**③ Reduce unused JavaScript**
+
+![Clock Lighthouse Performance Reduce unused JavaScript](./images/clock-lighthouse-performance-reduce-unused-JavaScript.png)
+
+<br />
+
+"Reduce unused JavaScript"를 번역하면 **"사용되지 않는 JavaScript 코드가 존재한다."** 라는 의미입니다.
+
+이를 이해하고 탭을 활성화하여 세부 원인을 살펴보면, **`/assets/index-DPSVK2o6.js` 번들 파일**에서 **사용되지 않는 JavaScript 코드가 포함되어 있어 불필요한 네트워크 전송이 발생**하고 있음을 확인할 수 있습니다. 따라서 **사용되지 않는 코드를 제거**하거나, **필요 시점까지 스크립트 로딩을 지연(defer)**시켜 **불필요한 네트워크 사용량을 줄일 것을 권장**하는 항목입니다.
+
+또한 세부 원인 우측에 **FCP**, **LCP**, **Unscored**라는 **Chip UI가 표시**되는 것을 확인할 수 있으며, 각 항목의 의미는 다음과 같습니다.
+
+- **FCP**: Lighthouse Performnace 지표 중 **FCP(First Contentful Paint)에 영향을 줄 수 있음**을 의미합니다.
+- **LCP**: Lighthouse Performnace 지표 중 **LCP(Largest Contentful Paint)에 영향을 줄 수 있음**을 의미합니다.
+- **Unscored**: 해당 항목은 Lighthouse 보고서에 포함되지만, **전체 점수 산정에는 직접 반영되지 않음**을 의미합니다.
+
+<br />
+
+### C. Lighthouse Accessibility 점수가 93점으로 측정된 원인
+
+![Clock Lighthouse Accessibility Result](./images/clock-lighthouse-accessibility-result.png)
+
+<br />
