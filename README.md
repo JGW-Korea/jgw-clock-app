@@ -7,6 +7,18 @@
 
 <br />
 
+**■ JGW Clock - KPI(Key Performance Indicator)**
+
+- **SCSS 구조 리팩토링**을 통해 **CSS 번들 크기**를 **23.72kB → 22.23kB**로 약 **6% 감소**
+- **Vercel 서버리스 함수 도입**을 통해 **Time Zone API 요청 과정에서의 API Key 노출 문제 해결**
+- 두 도시 간 시차 계산 로직을 **Intl API 기반**으로 전환하여 **네트워크 의존성 제거**하고, 3G 환경에서 약 **2.04s 발생하던 UI 반영 지연 문제 개선**
+- **`Cache-Control` 기반 브라우저 캐시 전략**으로 전환하여 **동일 List Time Zone API 재요청 구조 개선**
+- **Lighthouse SEO 점수 100점 달성** 및 **Google Search Console**, **Naver Search Advisor** 사이트 등록
+
+<br />
+
+## 📱 Live Demo
+
 <img alt="JGW Clock App 시연 영상" src="./docs/images/clock-project-demo-video.gif" width="280px" />
 
 <br />
