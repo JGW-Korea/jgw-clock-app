@@ -185,8 +185,26 @@ Node.js의 등장은 프론트엔드 개발 환경에 큰 변화를 가져왔습
 
 <br />
 
-### C. Lighthouse Accessibility 점수가 93점으로 측정된 원인
+### C. Lighthouse Accessibility 점수 93점 측정 원인
 
 ![Clock Lighthouse Accessibility Result](./images/clock-lighthouse-accessibility-result.png)
+
+<br />
+
+Lighthouse의 Accessibility 감점 요인 리스트를 살펴보면, **"Buttons do not have an accessible name"** 항목 하나만 **감점 요인으로 반영**된 것을 확인할 수 있습니다.
+
+다만 리스트 제목만으로는 정확한 감점 원인을 파악하기 어렵기 때문에, 해당 **감점 항목의 탭을 활성화하여 세부 원인을 살펴보겠습니다.**
+
+<br />
+
+**① Buttons do not have an accessible name**
+
+![Clock Lighthouse Accessibility Buttons do not have an accessible name](./images/clock-lighthouse-accessibility-buttons-do-not-have-an-accessible-name.png)
+
+<br />
+
+"Buttons do not have an accessible name"를 번역하면 **"버튼 요소에 접근 가능한 이름(Accessible Name)이 존재하지 않는다"** 는 의미입니다.
+
+이를 이해하고 탭을 활성화하여 세부 원인을 살펴보면, **`button._header-button_1g6qn_8.undefined.liquid-glass.fast` 클래스를 가진 `<button>` 요소**가 **스크린 리더**에서 단순히 **"button"으로만 인식**될 수 있기 때문에, 해당 **버튼의 역할을 명확히 전달할 수 있는 접근성 이름을 제공**해야 한다는 것을 확인할 수 있습니다.
 
 <br />
