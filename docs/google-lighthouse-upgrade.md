@@ -20,7 +20,7 @@ Google에서 제작한 Chrome 개발자 도구에서는 Lighthouse라는 분석 
 
 하지만 주의해야 될 점은 **Google Lighthouse 보고서가 100% 정확한 결과를 제공하는 것은 아니라는 점**입니다. 해당 출처(Origin)에 저장된 쿠키, 캐시 정보와 사용자의 방문 기록, 확장 프로그램 등과 같은 **외부 요인의 영향을 받을 수 있습니다.** 또한 이러한 외부 요인을 제외하더라도 **보고서 결과는 어디까지나 정량적 기준에 따라 산출**됩니다.
 
-예를 들어 SEO 우선순위를 높이기 위해서는 [｢Lighthouse SEO 점수 개선 및 Google Search Console 사이트 등록｣](./seo-optimization.md) 문서에서 확인할 수 있듯이, 개발 관점만으로 달성할 수 있는 영역이 아닙니다. 보유한 백링크 규모, 브랜드 신뢰도 등** 마케팅･브랜딩 영역과의 협업이 함께 이루어져야 실제 검색 노출 우선순위를 높일 수 있습니다.** 하지만 Google Lighthouse는 **HTML 문서의 메타데이터 구성, `robots.txt` 파일 존재 여부** 등 **개발 관점의 요소를 중심으로만 점수를 산정**합니다.
+예를 들어 SEO 우선순위를 높이기 위해서는 [｢Lighthouse SEO 점수 개선 및 Google Search Console 사이트 등록｣](./seo-optimization.md) 문서에서 확인할 수 있듯이, 개발 관점만으로 달성할 수 있는 영역이 아닙니다. 보유한 백링크 규모, 브랜드 신뢰도 등 **마케팅･브랜딩 영역과의 협업이 함께 이루어져야 실제 검색 노출 우선순위를 높일 수 있습니다.** 하지만 Google Lighthouse는 **HTML 문서의 메타데이터 구성, `robots.txt` 파일 존재 여부** 등 **개발 관점의 요소를 중심으로만 점수를 산정**합니다.
 
 이처럼 Lighthouse 결과는 절대적 지표가 아니며, 이러한 한계를 이해한 상태에서 활용할 필요가 있습니다. 실제 운영 중인 대규모 서비스의 경우 프로젝트 규모와 구조가 복잡하기 때문에, Lighthouse와 같은 정량적 지표보다 **실제 사용자에게 제공되는 런타임 성능을 더욱 중요하게 고려**합니다. 이로 인해 Lighthouse 점수를 측정하더라도 **모든 항목에서 100점을 달성한 사례는 드문 편**입니다.
 
@@ -118,7 +118,7 @@ Node.js의 등장은 프론트엔드 개발 환경에 큰 변화를 가져왔습
 
 <br />
 
-![Clock Lighthouse Performance Summary Result](./images/clock-lighthouse-performance-list-result)
+![Clock Lighthouse Performance Summary Result](./images/clock-lighthouse-performance-list-result.png)
 
 <br />
 
@@ -140,7 +140,7 @@ Node.js의 등장은 프론트엔드 개발 환경에 큰 변화를 가져왔습
 
 "Render blocking requests"를 번역하면 **"렌더링 흐름을 차단하는 네트워크 요청 자원이 존재한다."** 는 의미입니다.
 
-이를 이해하고 탭을 활성화하여 세부 원인을 살펴보면, **vercel.app에서 전달받은 `/assets/index.xxx.css` 번들 CSS 파일**과 **JSDelivr CDN에서 제공되는 `reset-css@5.0.2/reset.min.css`**이 **초기 렌더링 과정에서 렌더링 흐름을 지연시키는 요인으로 반영**된 것을 확인할 수 있습니다.
+이를 이해하고 탭을 활성화하여 세부 원인을 살펴보면, **vercel.app에서 전달받은 `/assets/index.xxx.css` 번들 CSS 파일**과 **JSDelivr CDN에서 제공되는 `reset-css@5.0.2/reset.min.css`** 이 **초기 렌더링 과정에서 렌더링 흐름을 지연시키는 요인으로 반영**된 것을 확인할 수 있습니다.
 
 또한 세부 원인 우측에 **FCP**, **LCP**, **Unscored**라는 **Chip UI가 표시**되는 것을 확인할 수 있으며, 각 항목의 의미는 다음과 같습니다.
 
@@ -175,7 +175,7 @@ Node.js의 등장은 프론트엔드 개발 환경에 큰 변화를 가져왔습
 
 "Reduce unused JavaScript"를 번역하면 **"사용되지 않는 JavaScript 코드가 존재한다."** 라는 의미입니다.
 
-이를 이해하고 탭을 활성화하여 세부 원인을 살펴보면, **`/assets/index-DPSVK2o6.js` 번들 파일**에서 **사용되지 않는 JavaScript 코드가 포함되어 있어 불필요한 네트워크 전송이 발생**하고 있음을 확인할 수 있습니다. 따라서 **사용되지 않는 코드를 제거**하거나, **필요 시점까지 스크립트 로딩을 지연(defer)**시켜 **불필요한 네트워크 사용량을 줄일 것을 권장**하는 항목입니다.
+이를 이해하고 탭을 활성화하여 세부 원인을 살펴보면, **`/assets/index-DPSVK2o6.js` 번들 파일**에서 **사용되지 않는 JavaScript 코드가 포함되어 있어 불필요한 네트워크 전송이 발생**하고 있음을 확인할 수 있습니다. 따라서 **사용되지 않는 코드를 제거**하거나, **필요 시점까지 스크립트 로딩을 지연(defer)** 시켜 **불필요한 네트워크 사용량을 줄일 것을 권장**하는 항목입니다.
 
 또한 세부 원인 우측에 **FCP**, **LCP**, **Unscored**라는 **Chip UI가 표시**되는 것을 확인할 수 있으며, 각 항목의 의미는 다음과 같습니다.
 
