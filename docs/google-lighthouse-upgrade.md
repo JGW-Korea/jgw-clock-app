@@ -50,6 +50,8 @@ Lighthouse 측정은 **프로젝트 개발 완료 이후 일부 성능 최적화
 
 위 사진에서 확인할 수 있듯이 **Lighthouse 개선 이전 결과**는 **모든 항목이 90~100점 범위로 측정**되어 예상보다 양호한 점수로 나타났습니다.
 
+> Lighthouse SEO 점수를 100점으로 개선한 과정은 [｢Lighthouse SEO 점수 개선 및 Google Search Console 사이트 등록｣](./seo-optimization.md) 문서에서 확인할 수 있습니다.
+
 하지만 Performnace와 Accessibility 점수가 100점이 아닌 90점대로 유지되는 원인을 살펴보기 전에, Vercel을 통해 **배포한 사이트 환경**에서 **Lighthouse 결과를 측정하는 이유에 대해 먼저 설명**한 뒤, **각 점수가 90점대로 유지되는 원인을 이어서 살펴보겠습니다.**
 
 <br />
@@ -175,7 +177,7 @@ Node.js의 등장은 프론트엔드 개발 환경에 큰 변화를 가져왔습
 
 "Reduce unused JavaScript"를 번역하면 **"사용되지 않는 JavaScript 코드가 존재한다."** 라는 의미입니다.
 
-이를 이해하고 탭을 활성화하여 세부 원인을 살펴보면, **`/assets/index-DPSVK2o6.js` 번들 파일**에서 **사용되지 않는 JavaScript 코드가 포함되어 있어 불필요한 네트워크 전송이 발생**하고 있음을 확인할 수 있습니다. 따라서 **사용되지 않는 코드를 제거**하거나, **필요 시점까지 스크립트 로딩을 지연(defer)** 시켜 **불필요한 네트워크 사용량을 줄일 것을 권장**하는 항목입니다.
+이를 이해하고 탭을 활성화하여 세부 원인을 살펴보면, **`/assets/index-xxx.js` 번들 파일**에서 **사용되지 않는 JavaScript 코드가 포함되어 있어 불필요한 네트워크 전송이 발생**하고 있음을 확인할 수 있습니다. 따라서 **사용되지 않는 코드를 제거**하거나, **필요 시점까지 스크립트 로딩을 지연(defer)** 시켜 **불필요한 네트워크 사용량을 줄일 것을 권장**하는 항목입니다.
 
 또한 세부 원인 우측에 **FCP**, **LCP**, **Unscored**라는 **Chip UI가 표시**되는 것을 확인할 수 있으며, 각 항목의 의미는 다음과 같습니다.
 
@@ -208,3 +210,42 @@ Lighthouse의 Accessibility 감점 요인 리스트를 살펴보면, **"Buttons 
 이를 이해하고 탭을 활성화하여 세부 원인을 살펴보면, **`button._header-button_1g6qn_8.undefined.liquid-glass.fast` 클래스를 가진 `<button>` 요소**가 **스크린 리더**에서 단순히 **"button"으로만 인식**될 수 있기 때문에, 해당 **버튼의 역할을 명확히 전달할 수 있는 접근성 이름을 제공**해야 한다는 것을 확인할 수 있습니다.
 
 <br />
+
+## III. Lighthouse Performance 성능 개선
+
+먼저 Lighthouse Performance 성능 개선을 진행하기에 앞서, [｢Lighthouse Performance 점수 94점 측정 원인｣](#b-lighthouse-performance-점수-94점-측정-원인)에서 확인한 **감점 요인 리스트를 간단히 다시 살펴보겠습니다.**
+
+- vercel.app과 JSDelivr CDN에서 전달받은 CSS 파일로 인해 **초기 렌더링 과정에서 렌더링 흐름이 지연** _(Render blocking requests)_
+- `GET /timezone/list` **API 요청 응답이 완료되기까지**의 **전체 소요 시간이 약 733ms로 측정** _(Network dependency tree)_
+- `index-xxx.js` 번들 파일에 사용되지 않는 JavaScript 코드가 포함되어 **불필요한 네트워크 전송 발생** _(Reduce unused JavaScript)_
+
+하지만 여기서 중요한 점은, 앞서 확인해듯이 **해당 감점 요인 리스트는 모두 Unscored 항목**이라는 것입니다. 즉, 이 항목들은 **Lighthouse 전체 점수 산정에 반영되지 않기 때문에 Performance 점수가 100점에서 93점으로 감점된 직접적인 원인이 되지는 않습니다.**
+
+따라서 Lighthouse Performance 결과가 100점이 아닌 **93점으로 측정된 원인을 파악할 필요**가 있습니다. 이를 확인하기 위해 **Performance 요약 결과를 다시 한 번 살펴보겠습니다.**
+
+<br />
+
+![Clock Lighthouse Performance Summary Result](./images/clock-lighthouse-performance-summary-result.png)
+
+<br />
+
+Performance 요약 결과를 살펴보면 여러 측정 지표 중 **First Contentful Paint만 🟡로 표시**되는 것을 확인할 수 있습니다.
+
+즉, 앞서 확인한 감점 요인 리스트가 100점에서 93점으로 감점된 직접적인 원인이라기보다는, **FCP 시점이 Lighthouse 점수 산정 기준에서 약 50~89점 구간으로 계산**되고 있기 때문에 **감점 요인으로 반영되었음을 의미**합니다. 따라서 **Performance 점수를 93점에서 100점으로 개선하기 위해서**는 **현재 FCP 결과인 2.4s 수치를 일정 수준 단축**할 필요가 있습니다.
+
+다만 감점 요인 리스트의 각 항목 탭을 활성화하여 세부 원인을 확인해보면, **Network dependency tree는 LCP와 Unscored 항목에 해당**하므로 **현재 상황에서 점수 감점의 직접적인 원인으로 보기는 어렵습니다.**
+
+결과적으로 FCP 항목에 영향을 주는 **Render blocking requests** 또는 **Reduce unused JavaScript**가 **직접적인 감점 원인임을 유추**할 수 있었습니다. 따라서 FCP 시점을 개선하기 위해 **개발자 도구 Performance 패널을 활용**하여 **FCP 이전 구간을 측정**해보겠습니다.
+
+<br />
+
+![Performance Panel Result](./images/lighthouse-performance-fcp-performance-result.png)
+
+<br />
+
+개발자 도구 Performance 패널을 활용하여 FCP 이전 구간을 측정해보면, **Network 항목에서 4건의 요청이 발생**했으며 **약 1.24 시점에 FCP가 측정**된 것을 확인할 수 있습니다.
+
+이 결과만 놓고 보면 **CSS 파일 응답 이후 CSSOM을 구축하는 과정에서 실질적인 렌더링 블로킹이 발생**하고 있다는 점을 직접적인 원인으로 판단할 수도 있고, **FCP 직전 구간에서 다수의 함수 호출이 발생**하고 있기 때문에 해당 구간 역시 주요 원인으로 해석할 수 있습니다.
+
+**개인적으로는 렌더링 흐름에 직접적인 영향을 주는 CSS 렌더링 블로킹 구간을 주요 원인으로 보고 있기 때문에 해당 항목부터 먼저 확인**해보겠습니다. 만약 이 구간이 **주요 원인으로 확인될 경우, Reduce unused JavaScript 항목은 본 문서에서 다루지 않을 수도 있습니다.**
+
