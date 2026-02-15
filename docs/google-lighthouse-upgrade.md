@@ -120,7 +120,7 @@ Node.js의 등장은 프론트엔드 개발 환경에 큰 변화를 가져왔습
 
 <br />
 
-![Clock Lighthouse Performance Summary Result](./images/clock-lighthouse-performance-list-result.png)
+![Clock Lighthouse Performance List Result](./images/clock-lighthouse-performance-list-result.png)
 
 <br />
 
@@ -231,11 +231,13 @@ Lighthouse의 Accessibility 감점 요인 리스트를 살펴보면, **"Buttons 
 
 Performance 요약 결과를 살펴보면 여러 측정 지표 중 **First Contentful Paint만 🟡로 표시**되는 것을 확인할 수 있습니다.
 
-즉, 앞서 확인한 감점 요인 리스트가 100점에서 93점으로 감점된 직접적인 원인이라기보다는, **FCP 시점이 Lighthouse 점수 산정 기준에서 약 50~89점 구간으로 계산**되고 있기 때문에 **감점 요인으로 반영되었음을 의미**합니다. 따라서 **Performance 점수를 93점에서 100점으로 개선하기 위해서**는 **현재 FCP 결과인 2.4s 수치를 일정 수준 단축**할 필요가 있습니다.
+즉, 앞서 확인한 감점 요인 리스트가 100점에서 93점으로 감점된 직접적인 원인이라기보다는, **FCP 시점이 Lighthouse 점수 산정 기준에서 약 50~89점 구간으로 계산**되고 있기 때문에 **감점 요인으로 반영된 것을 의미**합니다. 따라서 **Performance 점수를 93점에서 100점으로 개선하기 위해서**는 **현재 FCP 결과인 2.4s 수치를 일정 수준 단축**할 필요가 있습니다.
 
-다만 감점 요인 리스트의 각 항목 탭을 활성화하여 세부 원인을 확인해보면, **Network dependency tree는 LCP와 Unscored 항목에 해당**하므로 **현재 상황에서 점수 감점의 직접적인 원인으로 보기는 어렵습니다.**
+하지만 감점 요인 리스트의 각 항목 탭을 활성화하여 세부 원인을 확인해보면, **Network dependency tree는 LCP와 Unscored 항목에 해당**하므로 **현재 상황에서 점수 감점의 직접적인 원인으로 보기는 어렵습니다.**
 
 결과적으로 FCP 항목에 영향을 주는 **Render blocking requests** 또는 **Reduce unused JavaScript**가 **직접적인 감점 원인임을 유추**할 수 있었습니다. 따라서 FCP 시점을 개선하기 위해 **개발자 도구 Performance 패널을 활용**하여 **FCP 이전 구간을 측정**해보겠습니다.
+
+다만 **Lighthouse의 경우 디바이스 환경을 모바일로 제한하면 Chrome이 모바일 환경 기준에 맞춰 성능을 측정**하여 전체 보고서를 생성합니다. 반면 Performance 패널은 기본적으로 **디바이스 환경을 고려하지 않기 때문에**, **CPU Throttling을 4x slowdown, Network를 Slow 4G, Disabled cache로 설정**하여 모바일 환경에 맞게 **성능을 저하시킨 뒤 측정을 진행**하겠습니다.
 
 <br />
 
@@ -243,14 +245,14 @@ Performance 요약 결과를 살펴보면 여러 측정 지표 중 **First Conte
 
 <br />
 
-개발자 도구 Performance 패널을 활용하여 FCP 이전 구간을 측정해보면, **Network 항목에서 4건의 요청이 발생**했으며 **약 1.24 시점에 FCP가 측정**된 것을 확인할 수 있습니다.
+개발자 도구 Performance 패널을 활용하여 FCP 이전 구간을 측정해보면, **Network 항목에서 4건의 요청이 발생**했으며 **약 2.57s 시점에 FCP가 측정**된 것을 확인할 수 있습니다.
 
 이 결과만 놓고 보면 **CSS 파일 응답 이후 CSSOM을 구축하는 과정에서 실질적인 렌더링 블로킹이 발생**하고 있다는 점을 직접적인 원인으로 판단할 수도 있고, **FCP 직전 구간에서 다수의 함수 호출이 발생**하고 있기 때문에 해당 구간 역시 주요 원인으로 해석할 수 있습니다.
 
-**개인적으로는 렌더링 흐름에 직접적인 영향을 주는 CSS 렌더링 블로킹 구간**을 **주요 원인**으로 보고 있기 때문에 해당 항목부터 먼저 확인해보겠습니다. 만약 이 구간이 **주요 원인으로 확인될 경우, Reduce unused JavaScript 항목은 본 문서에서 다루지 않을 수도 있습니다.**
+개인적으로는 **FCP 직전 구간에서 다수의 함수 호출이 발생하는 구간을 FCP 지연의 주요 원인**으로 보고 있습니다. 다만 이 경우 **JavaScript 로직을 직접 분석하고 수정 방안을 검토해야 하기 때문에 시간 소요가 클 수 있어**, 우선 **Render blocking requests 항목을 먼저 확인**해보겠습니다.
 
 <br />
 
 ### A. Render blocking requests
 
-개인적으로는 Render blocking requests가 **FCP 측정 시점을 지연시키는 주요 원인**으로 보고 있다고 설명했습니다. 다만, 해당 내용을 작성하기 위해 서론, 본론, 결론에 대한 **내용이 매우 길어질 것 같아 [｢FCP 개선을 위한 CSS 최적화｣](./fcp-css-optimization.md) 문서에서 별도로 다루겠습니다.**
+**"렌더링 흐름을 차단하는 네트워크 자원이 존재한다(Render blocking requests)"** 항목은 **FCP 측정 시점을 지연시키는 주요 원인에 해당**합니다. 해당 내용은 먼저 다루되, **개선 과정이 비교적 길어질 것으로 판단**되어 [**｢FCP 개선을 위한 CSS 최적화｣**](./fcp-css-optimization.md) 문서에서 **별도로 정리**하겠습니다.
