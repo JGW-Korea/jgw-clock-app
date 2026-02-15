@@ -47,11 +47,11 @@
 
 <br />
 
-![jsDelivr CDN reset-min-css request](./images/js-delivr-cdn-reset-min-css-request.png);
+![jsDelivr CDN reset-min-css request](./images/js-delivr-cdn-reset-min-css-request.png)
 
-![Bundle css request](./images/bundle-css-request.png);
+![Bundle css request](./images/bundle-css-request.png)
 
-![Bundle css request after Recalculator](./images/bundle-css-request-after-recalculator.png);
+![Bundle css request after Recalculator](./images/bundle-css-request-after-recalculator.png)
 
 <br />
 
@@ -61,7 +61,7 @@
 
 즉 **CSSOM을 구축하는 과정에서 DOM 파싱이 일시적으로 차단되어 렌더링 흐름이 지연**되기도 하지만, 최초 로드 시 화면에 출력할 수 있는 Render Tree가 완성되지 않은 상태이므로 **CSS 파일을 불러오는 과정에서 요청을 보내는 시간과 응답을 받기까지 소요되는 시간 또한 결과적으로 렌더링 지연의 원인**이 될 수 있습니다.
 
-이처럼 종합적인 이유로 인해 CSS 파일은 **"렌더링 흐름을 차단하는 네트워크 자원(Render blocking request)"**에 속하게 됩니다. 따라서 **CSS 파일 자체를 해당 자원에서 제외하는 것은 불가능**하지만, **불러와야 하는 CSS 파일의 수를 줄이거나 파일 크기를 축소**하는 등의 방법을 통해 **CSSOM 구축 시간** 또는 **네트워크 응답 시간을 단축**시켜 **CSS로 인해 지연되는 FCP 시점을 앞당길 수 있습니다.**
+이처럼 종합적인 이유로 인해 CSS 파일은 **"렌더링 흐름을 차단하는 네트워크 자원(Render blocking request)"** 에 속하게 됩니다. 따라서 **CSS 파일 자체를 해당 자원에서 제외하는 것은 불가능**하지만, **불러와야 하는 CSS 파일의 수를 줄이거나 파일 크기를 축소**하는 등의 방법을 통해 **CSSOM 구축 시간** 또는 **네트워크 응답 시간을 단축**시켜 **CSS로 인해 지연되는 FCP 시점을 앞당길 수 있습니다.**
 
 <br />
 <br />
