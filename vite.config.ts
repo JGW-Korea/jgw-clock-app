@@ -1,8 +1,7 @@
-import { defineConfig, type PluginOption } from 'vite'
+import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import svgr from "vite-plugin-svgr";
 import path from 'path';
-import purgecss from "vite-plugin-purgecss";
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -13,11 +12,6 @@ export default defineConfig({
       },
     }),
     svgr(),
-    purgecss({
-      content: ["./src/**/*.tsx", "./src/**/*.jsx", "./index.html"],
-      defaultExtractor: (content) => content.match(/[\w-/:]+(?<!:)/g) || [],
-      safelist: ["html", "body"]
-    }) as PluginOption,
   ],
   server: {
     port: Number(process.env.PORT) || 5173,
