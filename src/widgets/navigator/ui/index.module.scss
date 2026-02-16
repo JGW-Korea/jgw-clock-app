@@ -9,7 +9,7 @@ footer {
     // 단순, Tab Nativgation 레이아웃 패딩, 테두리 경계선 지정
     padding: 2.5rem 3rem;
     box-sizing: border-box;
-    border-radius: map.get($rounded, full);
+    border-radius: 9999px;
 
     // 전역에 구성한 Liquid-Glass 스타일 합성
     // @include mixin-liquid-glass(
@@ -44,7 +44,7 @@ footer {
         // width: calc((100% / 4) - 3rem);
         top: 1.2rem;
         height: calc(100% - 2.5rem);
-        border-radius: map.get($rounded, full);
+        border-radius: 9999px;
         z-index: -1;
         
         @include mixin-liquid-glass(
@@ -91,7 +91,7 @@ footer {
     &__item {
       flex: 1;
       height: 100%;
-      border-radius: map.get($rounded, full);
+      border-radius: 9999px;
       opacity: 1;
       transition: all 160ms;
     }

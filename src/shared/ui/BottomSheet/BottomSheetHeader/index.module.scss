@@ -10,7 +10,7 @@
   // Bottom Sheet Header 내부에서 사용되는 Button 스타일
   &__button {
     padding: 2rem;
-    border-radius: map.get($rounded, full);
+    border-radius: 9999px;
     display: flex;
     justify-content: center;
     align-items: center;

@@ -9,7 +9,7 @@
   transform: translateX(-50%);
   width: 412px;
   padding: 4.8rem 6rem;
-  border-radius: map.get($rounded, full);
+  border-radius: 9999px;
   box-sizing: border-box;
   background-color: map.get($bg-colors, secondary);
   box-shadow: 0 2px 4px rgba(86, 84, 84, 0.5);
@@ -47,7 +47,7 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%) rotate(45deg);
-      border-radius: map.get($rounded, full);
+      border-radius: 9999px;
     }
     &::after {
       content: "";
@@ -59,7 +59,7 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%) rotate(-45deg);
-      border-radius: map.get($rounded, full);
+      border-radius: 9999px;
     }
   }
 }
