@@ -11,7 +11,7 @@ export default defineConfig({
         plugins: [['babel-plugin-react-compiler']],
       },
     }),
-    svgr()
+    svgr(),
   ],
   server: {
     port: Number(process.env.PORT) || 5173,
