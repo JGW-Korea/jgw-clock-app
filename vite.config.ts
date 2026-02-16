@@ -16,6 +16,14 @@ export default defineConfig({
   server: {
     port: Number(process.env.PORT) || 5173,
   },
+  css: {
+    transformer: "lightningcss",
+    lightningcss: {
+      cssModules: {
+        dashedIdents: true
+      }
+    }
+  },
   resolve: {
     alias: [
       { find: "@app", replacement: path.resolve(__dirname, "src/app") },
@@ -25,5 +33,8 @@ export default defineConfig({
       { find: "@entities", replacement: path.resolve(__dirname, "src/entities") },
       { find: "@shared", replacement: path.resolve(__dirname, "src/shared") },
     ]
+  },
+  build: {
+    cssMinify: "lightningcss"
   }
 })
