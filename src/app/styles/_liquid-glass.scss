@@ -1,0 +1,13 @@
+@use "@shared/styles" as *;
+
+.liquid-glass {
+  --transition: "";
+
+  &.fast { --transition: 200ms cubic-bezier(0.5, 0, 0, 1); }
+  &.slow { --transition: background-color 400ms cubic-bezier(1, 0, 0.4, 1), box-shadow 400ms cubic-bezier(1, 0, 0.4, 1); }
+
+  @include mixin-liquid-glass(
+    $boxShadow: "strong",
+    $transition: var(--transition)
+  );
+}
