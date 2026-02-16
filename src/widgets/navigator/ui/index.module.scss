@@ -35,8 +35,6 @@ footer {
       $tab-width: calc(100% / 4); // 탭 개수만큼 백분율 단위를 나눈 width 값을 구한다.
 
       &::after {
-        $transition: 400ms cubic-bezier(1, 0, 0.4, 1);
-
         content: "";
         display: block;
         position: absolute;
@@ -47,30 +45,23 @@ footer {
         border-radius: 9999px;
         z-index: -1;
         
-        @include mixin-liquid-glass(
-          $colorKey: content,
-          $colorPercent: 18%,
-          $boxShadow: "soft",
-          $transition: (
-            box-shadow $transition,
-            transform $transition
-          )
-        );
+        // Liquid-Glass Style
+        background-color: color-mix(in srgb, #e1e1e1 18%, transparent);
+        backdrop-filter: blur(2rem) saturate(150%);
+        -webkit-backdrop-filter: blur(2rem) saturate(150%);
 
-        // background-color: color-mix(in srgb, map.get($colors, "content") 36%, transparent);
-        // box-shadow: 
-        //   inset 0 0 0 1px
-        //   color-mix(in srgb, map.get($colors, "light") calc($glass-reflex-light * 10%), transparent),
-        //   inset 2px 1px 0px -1px color-mix(in srgb, map.get($colors, "light") calc($glass-reflex-light * 10%), transparent),
-        //   inset -1.5px -1px 0px -1px color-mix(in srgb, map.get($colors, "light") calc($glass-reflex-light * 10%), transparent),
-        //   inset -2px -6px 1px -5px color-mix(in srgb, map.get($colors, "light") calc($glass-reflex-light * 10%), transparent),
-        //   inset -1px 2px 3px -1px color-mix(in srgb, map.get($colors, "dark") calc($glass-reflex-dark * 20%), transparent),
-        //   inset 0px -4px 1px -2px color-mix(in srgb, map.get($colors, "dark") calc($glass-reflex-dark * 20%), transparent),
-        //   0px 3px 6px 0px color-mix(in srgb, map.get($colors, "dark") calc($glass-reflex-dark * 20%), transparent);
+        box-shadow: 
+          inset 0 0 0 1px color-mix(in srgb, #ffffff calc(0.3 * 10%), transparent),
+          inset 2px 1px 0px -1px color-mix(in srgb, #ffffff calc(0.3 * 10%), transparent),
+          inset -1.5px -1px 0px -1px color-mix(in srgb, #ffffff calc(0.3 * 10%), transparent),
+          inset -2px -6px 1px -5px color-mix(in srgb, #ffffff calc(0.3 * 10%), transparent),
+          inset -1px 2px 3px -1px color-mix(in srgb, #000000 calc(2 * 20%), transparent),
+          inset 0px -4px 1px -2px color-mix(in srgb, #000000 calc(2 * 20%), transparent),
+          0px 3px 6px 0px color-mix(in srgb, #000000 calc(2 * 20%), transparent);
         
-        // transition:
-        //   box-shadow 400ms cubic-bezier(1, 0, 0.4, 1),
-        //   transform 400ms cubic-bezier(1, 0, 0.4, 1);
+        transition:
+          box-shadow 400ms cubic-bezier(1, 0, 0.4, 1),
+          transform 400ms cubic-bezier(1, 0, 0.4, 1);
       }
 
       &:has(a[href="/"][aria-current="page"])::after {
