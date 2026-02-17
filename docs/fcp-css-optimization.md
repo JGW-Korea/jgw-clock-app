@@ -548,3 +548,164 @@ Mixin 문법을 통해 정의한 liquid-glass 스타일은 여러 곳에서 재�
 따라서 이번 리팩토링은 **CSS 빌드 결과물 크기 감소를 기대하며 DX(Developer Experience)를 일부 포기하고 진행**했던 작업이었으나, **실질적인 번들 감소 효과가 없었기 때문에 해당 로직은 기존 방식으로 다시 되돌려 적용**했습니다.
 
 <br />
+
+**③ CSS 처리 엔진 Lightning CSS**
+
+SCSS를 CSS 전처리기 언어가 아닌 번들링 도구처럼 인식하고 **파일 분할(Partial) 기법을 적용**하거나, **변수 및 Mixin 로직을 제거하는 방식으로 리팩토링을 진행**했음에도 불구하고 **최종적으로 번들링된 CSS 결과물 자체는 동일하게 생성**되었기 때문에 **CSS 번들 크기를 줄이지는 못했습니다.**
+
+또한 앞서 언급했듯이, FCP 측정 시점을 앞당기기 위한 SCSS 리팩토링을 진행하기 이전 단계에서 [｢SCSS 구조 리팩토링｣](./scss-refactoring.md)을 통해 **CSS 번들 크기를 23.72kB -> 22.23kB로 약 6% 감소시킨 상태**였습니다.
+
+현재 기준에서도 **최종 CSS 번들 결과물의 크기가 크게 부담되는 수준은 아니기 때문에**, 전체 스타일시트 로직을 다시 분석하여 **사용되지 않는 SCSS 코드를 추가로 제거하는 과정은 오히려 불필요한 시간을 소모**할 가능성이 높고, **번들 크기 또한 유의미하게 감소하지는 않을 것으로 판단**했습니다. 이에 따라 전체 스타일시트 로직을 분석하는 과정은 불필요하다고 판단하여 진행하지 않기로 했습니다.
+
+다만 FCP 측정 시점을 지연시키는 또 다른 항목인 **"사용되지 않는 JavaScript 코드가 존재(Reduce unused JavaScript)"로 넘어가기 전**에, 리팩토링이 아닌 **빌드 설정을 변경하는 방식을 마지막으로 검토**해보기로 했습니다.
+
+왜냐하면 Vite는 단순 번들링 도구가 아닌 빌드 도구이기 때문에, 내부적으로 ESBuild와 Rollup을 기반으로 동작하지만 그 외에도 **다양한 빌드 옵션을 설정할 수 있기 때문**입니다. 따라서 **Vite에서 CSS 처리와 관련해 제공되는 빌드 설정 항목들을 확인**해보았습니다.
+
+<br />
+
+![Vite 빌드 옵션 - cssMinify](./images/vite-document-build-options-cssminify.png)
+
+<br />
+
+Vite는 다양한 설정을 지원하기 때문에 먼저 공식 문서의 [｢Vite 설정 > 빌드 옵션｣](https://ko.vite.dev/config/build-options.html) 페이지로 이동했습니다. 여러 설정 항목이 존재했지만, 그 중 **`build.cssMinify` 설정**은 직역하면 **"CSS 파일 압축"**이라는 의미이기 때문에 해당 설정을 먼저 확인했습니다.
+
+<br />
+
+```tsx
+interface ViteBuild {
+	cssMinify: boolean | "esbuild" | "lightningcss";
+	// ...
+}
+```
+
+<br />
+
+해당 설정 값을 보면 **CSS 파일 압축 여부 제어하는 `boolean`** 값과, **압축 방식을 `esbuild` 또는 `lightningcss`로 지정**할 수 있다고 공식 문서에 설명되어 있습니다.
+
+공식 문서를 확인해보면 **"이 옵션을 사용하면 기본값이 `build.minify`로 설정되는 대신 CSS 축소화를 구체적으로 재정의할 수 있으므로, JS와 CSS를 별도로 축소화할 수 있습니다. Vite는 기본적으로 esbuild를 사용해 CSS를 축소화하지만, ..."** 라고 명시되어 있습니다.
+
+즉 `build.cssMinify의` 기본값은 `build.minify` 설정을 따르며, 해당 **기본 압축 방식은 esbuild**이자만 **CSS 압축 방식을 수정할 수 있는 옵션**이라는 의미입니다.
+
+따라서 별도 설정을 하지 않은 **현재 프로젝트는 기본값인 esbuild 기반 CSS 압축 방식을 사용하고 있는 상태**였다는 의밉니다. 그래서 다른 압축 방식인 **Lightning CSS**가 무엇인지 궁금하여 이에 대해 확인해보게 되었습니다.
+
+하지만 Lightning CSS는 NPM Registry 기준 **약 3년 전에 등록된 비교적 최근 도구**이기 때문에 자료가 많지는 않습니다. 그러나 **NPM Trends 기준 2025년 시점부터 가파른 다운로드 증가 추이**를 보이고 있다는 점을 확인할 수 있었습니다.
+
+<br />
+
+![NPM Trends | Lightning CSS](./images/npm-trends-lightning-css.png)
+
+<br />
+
+가파른 다운로드 증가 추이에 대한 이유가 궁금하여 추가로 관련 정보를 찾던 중 **[｢GeekNews | Lightning CSS - Rust로 작성된 초고속 CSS 파서｣](https://news.hada.io/topic?id=10522) 포스트를 확인**했으며, 주요 내용은 다음과 같습니다.
+
+<br />
+
+- Parcel과 함께 사용하기 위해 만든 초고속 CSS 파서/트랜스포머/번들러/미니파이어
+- CSSNano 에 비해서 100배 이상, ESBuild 보다 4배 이상 빠름
+- 매우 최적화된 Minification
+
+<br />
+
+즉 **Parcel 번들러와 함께 사용하기 위해 제작된 CSS 처리 엔진**이지만, **CSSNano나 ESBuild 대비 더 높은 처리 성능을 제공하는 도구**입니다. 다만 현재 기준에서 중요한 것은 처리 속도보다는 번들 사이즈였기 때문에 **공식 문서의 벤치마킹 결과를 추가로 확인**했습니다.
+
+<br />
+
+![Lightning CSS - Bundle Size Results](./images/lightning-css-bundle-size-results.png)
+
+<br />
+
+벤치마킹 결과를 보면 **다른 CSS 처리 엔진 대비 더 작은 번들 결과물을 생성**하다는 점을 확인할 수 있었고, 이에 따라 해결 방법이 될 수 있다고 판단하여 **`vite.config.ts`에서 CSS 처리 엔진 설정을 다음과 같이 수정**했습니다.
+
+<br />
+
+```tsx
+// vite.config.ts 변경 이후
+export default defineConfig({
+  plugins: [
+    react({
+      babel: {
+        plugins: [['babel-plugin-react-compiler']],
+      },
+    }),
+    svgr(),
+  ],
+  server: {
+    port: Number(process.env.PORT) || 5173,
+  },
+  css: {
+    transformer: "lightningcss",
+    lightningcss: {
+      cssModules: {
+        dashedIdents: true
+      }
+    }
+  },
+  resolve: {
+    alias: [
+      { find: "@app", replacement: path.resolve(__dirname, "src/app") },
+      { find: "@pages", replacement: path.resolve(__dirname, "src/pages") },
+      { find: "@widgets", replacement: path.resolve(__dirname, "src/widgets") },
+      { find: "@features", replacement: path.resolve(__dirname, "src/features") },
+      { find: "@entities", replacement: path.resolve(__dirname, "src/entities") },
+      { find: "@shared", replacement: path.resolve(__dirname, "src/shared") },
+    ]
+  },
+  build: {
+    cssMinify: "lightningcss"
+  }
+});
+```
+
+<br />
+
+Vite의 빌드 설정을 위와 같이 변경한 뒤, **재빌드를 진행한 결과**는 다음과 같습니다.
+
+<br />
+
+```md
+22:01:25.989 | dist/index.html                              2.27 kB │ gzip:   0.87 kB
+22:01:25.990 | dist/assets/SF_Pro-Bold-7QsjyyjH.woff2      98.32 kB
+22:01:25.994 | dist/assets/SF_Pro-Regular-D7lx-8SM.woff2  102.66 kB
+22:01:25.994 | dist/assets/SF_Pro-Light-CWkfg6lM.woff2    113.46 kB
+22:01:25.995 | dist/assets/index-LFWnB243.css              22.25 kB │ gzip:   4.48 kB
+22:01:25.995 | dist/assets/index-CS81rpM8.js              592.40 kB │ gzip: 203.65 kB
+...
+```
+
+> 위 코드 블록은 Vite 빌드 설정 변경 이후의 Deployment 로그를 보기 쉽게 Markdown 형식으로 정리한 내용입니다. 실제 Deployment 결과는 [여기](./images/vite-config-update-after-deployment-logs.png)에서 확인할 수 있습니다.
+
+<br />
+
+**Lightning CSS로 변경 이후 결과**를 보면 **전체 CSS 빌드 크기는 23.34kB -> 22.25kB로 약 1.09kB 감소**했고, **압축 크기는 4.72kB -> 4.48kB로 약 0.24kB 감소**했습니다.
+
+즉 **스타일 초기화 로직을 포함하기 이전 CSS 빌드 결과물(22.58kB / gzip 4.38kB)과 거의 유사한 수준까지 감소한 결과**였습니다. 이에 따라 FCP 측정 시점 또한 기존 1.8s보다 더 단축되었을 것이라 판단하고, Vercel 배포 환경에서 Lighthouse 측정을 다시 진행했습니다.
+
+<br />
+
+![Vite Lightning CSS after Lighthouse Performance Summary Result](./images/vite-lightning-css-after-lighthouse-performance-summary-result.png)
+
+![Vite Lightning CSS after Lighthouse Performance List Result](./images/vite-lightning-css-after-lighthouse-performance-list-result.png)
+
+<br />
+
+그러나 결과를 확인해보면 CSS 번들 크기가 감소했음에도 감소 폭이 크지 않았기 때문에, **네트워크 응답 완료 시점 또한 크게 단축되지는 않았을 것으로 보이며, CSSOM을 구축하는 과정 역시 눈에 띄게 줄어들지는 않았을 것으로 판단**됩니다. 그 결과 **FCP 측정 시점은 여전히 약 1.8s 수준에 머무르고 있습니다.**
+
+다만 Lighthouse 감점 요인을 보면 Render blocking request 항목이 기존 위험 수준(🔴)에서 경고 수준(🟡)으로 완화된 것을 확인할 수 있습니다. 그러나 이는 CSS 번들 크기 감소 영향이라기보다는, **jsDelivr CDN을 통한 스타일 초기화 파일 요청이 제거된 영향이 더 크다고 볼 수 있습니다.**
+
+또한 `build.cssMinify`로 제공되는 Lightning CSS 처리 엔진은 **Vite 표준 기능이 아니라 v4.4부터 도입된 실험적 기능**입니다. 현재 Clock 서비스는 **Vite v7.1.7 버전을 사용**하고 있음에도 **여전히 실험적 기능으로 분류**되어 있습니다. 즉 향후 **Vite 버전 변경 시 설정 방식이 달라지거나, 최악의 경우 지원이 중단될 가능성도 존재**합니다.
+
+<br />
+
+![Vite Documents Lightning CSS Temporal Features](./images/vite-documents-lightning-css-temporal-features.png)
+
+<br />
+
+현재 최종적인 목표는 CSS 번들 크기를 줄이거나, CSSOM 구축 시간을 단축하여 **Render blocking request로 인해 발생하는 FCP 측정 시점을 앞당기는 것**입니다. 그러나 **Lightning CSS는 실험적 기능이기 때문에 향후 빌드 안정성이 저하될 가능성이 있는 상황은 바람직하지 않다고 판단**했습니다.
+
+또한 **CSS 번들 크기를 줄이기 위한 방법은 대부분 시도한 상태**이며, 결과적으로 jsDelivr CDN 스타일 초기화 파일 요청을 제거함으로써 **빌드 결과물 크기는 다소 증가했음에도 FCP 측정 시점을 약 2.4s -> 1.8s 수준까지 단축시킨 상태**입니다.
+
+즉 번들 크기 축소도 중요하지만, **Lightning CSS를 적용하기 이전에도 번들 결과물의 크기가 과도하게 큰 수준은 아니었으며,** 사용자에게 서비스를 제공하는 프론트엔드 개발자 입장에서는 일정 수준 번들 크기가 증가하더라도 **런타임 성능을 최적화하는 것이 더 나은 트레이드오프(Trade-off) 결과**라고 판단했습니다.
+
+또한 **Render blocking request로 인한 FCP 지연을 줄이기 위해 SCSS 구조를 수정했던 본래 목적을 고려**했을 때, 해당 **목적 자체는 이미 달성된 상태**입니다. 다만 FCP 측정 시점을 지연시키는 또 다른 항목인 "사용되지 않는 JavaScript 코드가 존재(Reduce unused JavaScript)"로 넘어가지 않고, CSS 번들 크기를 조금이라도 더 줄였을 경우 **네트워크 응답 완료 시점을 약 0.1s 수준이라도 단축시킨다면 FCP 측정 기준을 안정 수준(🟢)으로 개선할 가능성이 있었기 때문에 CSS 번들 크기 축소를 추가로 시도**했던 것입니다.
+
+결과적으로 **CSS 번들 크기는 일정 수준 증가했지만, FCP 측정 시점을 앞당기는 목표 자체는 달성한 상태**이므로 Lightning CSS와 같은 실험적 기능으로 인해 **빌드 안정성이 저하되는 선택지는 현재 상황에서 적합하지 않다고 판단**했습니다. 이에 따라 최종적으로 Vite 설정을 이전 상태로 되돌렸습니다.
