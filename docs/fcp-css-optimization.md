@@ -381,11 +381,170 @@ footer, header, hgroup, main, menu, nav, section {
 
 <br />
 
-**② SCSS Mixin 로직 제거**
+**② SCSS 변수 및 Mixin 로직 제거**
+
+먼저 숫자 값으로 사용되는 전역 토큰은 [｢SCSS 구조 리팩토링｣](./scss-refactoring.md) 문서에서 작성했듯이, 크기(width), 높이(height), 여백(padding, margin)처럼 값 자체에 **명확한 의미가 없는 속성들을 전역 토큰으로 관리하는 방식**이 `rem`, `em`과 같은 **상대 단위를 사용하는 방식**과 **큰 차이가 없다고 판단하여 별도로 정의하지 않았다고 설명**했습니다.
+
+다만 `border-radius: 9999px`처럼 값 자체를 조정할 필요가 없고, "완전한 라운드"처럼 **의미론적인 값만 전역 토큰으로 정의**했다고 했습니다. 그러나 **의미론적인 값을 가지는 전역 토큰**이 **사실상 `border-radius: 9999px` 하나뿐**이었고, **실제 사용되는 스타일 또한 많지 않았습니다.**
+
+이로 인해 **전역 토큰 값을 정의한 `_values.scss` 파일을 제거**하면, CSS 번들링 과정에서 포함되는 **SCSS 파일 수를 줄일 수 있다고 판단**하여 **해당 파일을 제거하고, 전역 토큰 값을 사용하던 스타일에는 제거된 변수가 아닌 단순 숫자 값을 직접 적용하는 방식으로 수정**했습니다.
+
+<br />
 
 ```scss
-
-
+// _values.scss 파일 제거 이전
+&__button {
+	padding: 2rem;
+	border-radius: map.get($rounded, full);
+	// ...
+}
 ```
+
+```scss
+// _values.scss 파일 제거 이후
+&__button {
+	padding: 2rem;
+	border-radius: 9999px;
+	// ...
+}
+```
+
+<br />
+
+다음으로 **웹 폰트(Web Font)를 지정하는 스타일 로직이 동일한 구조로 반복**되고 있었기 때문에, 이를 **`_font-face.scss` 파일에서 SCSS의 Mixin 문법을 활용해 구성**했었습니다.
+
+그러나 Mixin 문법을 활용한 **`_font-face.scss` 파일을 제거**하고 **`_font.scss` 내부에서 `@font-face` 규칙을 직접 선언하는 방식으로 수정**하면 **동일한 결과를 유지함과 동시에 SCSS 파일을 제거하여 CSS 번들 크기를 줄일 수 있다고 판단**했습니다. 따라서 `_font-face.scss` 파일을 제거한 뒤, `_font.scss`에서 여러 개의 웹 폰트를 직접 선언하도록 로직을 수정했습니다.
+
+<br />
+
+```scss
+// font-face Mixin 로직 제거 이전 _font.scss 로직
+@include mixin-font-face("SF Pro", "SF_Pro-Light", 300);
+@include mixin-font-face("SF Pro", "SF_Pro-Regular", 400);
+@include mixin-font-face("SF Pro", "SF_Pro-Bold", 700);
+```
+
+```scss
+// font-face Mixin 로직 제거 이후 _font.scss 로직
+@font-face {
+  font-family: "SF Pro";
+  src: url("/src/shared/assets/fonts/SF_Pro-Light.woff2") format("woff2");
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "SF Pro";
+  src: url("/src/shared/assets/fonts/SF_Pro-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "SF Pro";
+  src: url("/src/shared/assets/fonts/SF_Pro-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+}
+```
+
+<br />
+
+Mixin 문법을 통해 정의한 liquid-glass 스타일은 여러 곳에서 재사용하기보다는, **SPA 특성을 활용해 전역 스타일로 구성**하여 **해당 클래스 이름을 가진 HTML 요소에 liquid-glass 스타일이 적용되도록 로직을 작성**했습니다.
+
+하지만 웹 폰트(Web Font)를 지정하던 **`_font-face.scss` 파일을 제거한 이유와 동일한 맥락**으로, Mixin 문법을 통해 정의된 liquid-glass 스타일을 별도의 `_liquid-glass.scss` 파일로 분리해두기보다는 **전역 스타일 파일인 `app/styles/_liquid-glass.scss` 내부에서 직접 선언**하면 **동일한 스타일을 유지하면서**도 **SCSS 파일 하나를 제거할 수 있기 때문에, CSS 번들 크기를 줄일 수 있는 방법**이라고 생각했습니다.
+
+이로 인해 Mixin 문법으로 정의되어 있던 **`_liquid-glass.scss` 파일을 제거하고, 전역 스타일 내부에 기존 Mixin 로직을 직접 작성하도록 수정**했습니다.
+
+<br />
+
+```scss
+// shared/styles/mixin/_liquid-glass.scss 제거 이전
+@use "@shared/styles" as *;
+
+.liquid-glass {
+  --transition: "";
+
+  &.fast { --transition: 200ms cubic-bezier(0.5, 0, 0, 1); }
+  &.slow { --transition: background-color 400ms cubic-bezier(1, 0, 0.4, 1), box-shadow 400ms cubic-bezier(1, 0, 0.4, 1); }
+
+  @include mixin-liquid-glass(
+    $boxShadow: "strong",
+    $transition: var(--transition)
+  );
+}
+```
+
+```scss
+// shared/styles/mixin/_liquid-glass.scss 제거 이후
+.liquid-glass {
+  --transition: "";
+
+  &.fast { --transition: 200ms cubic-bezier(0.5, 0, 0, 1); }
+  &.slow { --transition: background-color 400ms cubic-bezier(1, 0, 0.4, 1), box-shadow 400ms cubic-bezier(1, 0, 0.4, 1); }
+
+  background-color: color-mix(in srgb, #bbbbbc 12%, transparent);
+  backdrop-filter: blur(2rem) saturate(150%);
+  -webkit-backdrop-filter: blur(2rem) saturate(150%);
+
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, #ffffff calc(0.3 * 10%), transparent),
+    inset 1.8px 3px 0px -2px color-mix(in srgb, #ffffff calc(0.3 * 90%), transparent),
+    inset -2px -2px 0px -2px color-mix(in srgb, #ffffff calc(0.3 * 80%), transparent),
+    inset -3px -8px 1px -6px color-mix(in srgb, #ffffff calc(0.3 * 60%), transparent),
+    inset -0.3px -1px 4px 0px color-mix(in srgb, #000000 calc(2 * 12%), transparent),
+    inset -1.5px 2.5px 0px -2px color-mix(in srgb, #000000 calc(2 * 12%), transparent),
+    inset 0px 3px 4px -2px color-mix(in srgb, #000000 calc(2 * 12%), transparent),
+    inset 2px -6.5px 1px -4px color-mix(in srgb, #000000 calc(2 * 12%), transparent),
+    0px 1px 5px 0px color-mix(in srgb, #000000 calc(2 * 12%), transparent),
+    0px 6px 16px 0px color-mix(in srgb, #000000 calc(2 * 12%), transparent);
+
+  transition: var(--transition);
+}
+```
+
+<br />
+
+이와 같이 기존에 사용하던 변수 및 Mixin 로직을 제거하는 방향으로 **SCSS 로직을 리팩토링한 뒤 재빌드를 진행**했습니다.
+
+<br />
+
+```md
+10:17:58.981 | dist/index.html                              2.27 kB │ gzip:   0.87 kB
+10:17:58.982 | dist/assets/SF_Pro-Bold-7QsjyyjH.woff2      98.32 kB
+10:17:58.984 | dist/assets/SF_Pro-Regular-D7lx-8SM.woff2  102.66 kB
+10:17:58.984 | dist/assets/SF_Pro-Light-CWkfg6lM.woff2    113.46 kB
+10:17:58.985 | dist/assets/index-ns878Gv0.css              23.39 kB │ gzip:   4.75 kB
+10:17:58.985 | dist/assets/index-8hbTcXjk.js              592.54 kB │ gzip: 203.81 kB
+...
+```
+
+> 위 코드 블록은 파일 분할(Partial) 이후의 Deployment 로그를 보기 쉽게 Markdown 형식으로 정리한 내용입니다. 실제 Deployment 결과는 [여기](./images/scss-partial-after-deployment-logs.png)에서 확인할 수 있습니다.
+
+<br />
+
+```md
+21:26:22.172 | dist/index.html                              2.27 kB │ gzip:   0.87 kB
+21:26:22.173 | dist/assets/SF_Pro-Bold-7QsjyyjH.woff2      98.32 kB
+21:26:22.173 | dist/assets/SF_Pro-Regular-D7lx-8SM.woff2  102.66 kB
+21:26:22.173 | dist/assets/SF_Pro-Light-CWkfg6lM.woff2    113.46 kB
+21:26:22.173 | dist/assets/index-CaEg3Dvi.css              23.34 kB │ gzip:   4.72 kB
+21:26:22.174 | dist/assets/index-BocHY1oC.js              592.53 kB │ gzip: 203.79 kB
+...
+```
+
+> 위 코드 블록은 SCSS 변수 및 Mixin 로직 제거 이후의 Deployment 로그를 보기 쉽게 Markdown 형식으로 정리한 내용입니다. 실제 Deployment 결과는 [여기](./images/scss-variables-mixin-remove-after-deployment-logs.png)에서 확인할 수 있습니다.
+
+<br />
+
+하지만 결과를 보면 알 수 있듯이, **전체 CSS 빌드 크기는 23.39kB -> 23.34kB로 약 0.05kB 감소**했으며, **압축 크기는 4.75kB -> 4.72kB로 약 0.03kB가 감소**했습니다.
+
+즉, 이와 같이 수정을 진행하더라도 유의미한 변화는 발생하는 않았습니다. **① SCSS 파일 분할(Partial) 기법 활용**에서 정리했던 것처럼 **실제 CSS 본문 내용 자체는 변경되지 않았기 때문**입니다. 이에 대한 내용은 이는 [｢SCSS 구조 리팩토링｣](./scss-refactoring.md) 문서에서 서술했지만, FCP 측정 시점 단축에 집중하는 과정에서 해당 내용을 잊어버리고 진행했던 것이었습니다.
+
+정확히 말하면 **SCSS는 CSS 전처리기 언어**이기 때문에, **SCCS 문법으로 작성한 스타일시트는 빌드 과정에서 먼저 CSS로 트랜스파일된 이후, 에러가 없다면 개별 CSS 파일로 생성**됩니다. 즉, **변수나 Mixin 로직을 제거하기 전과 이후 모두 결과적으로 동일한 CSS 로직이 적용**되고 있는 구조입니다.
+
+그렇기 때문에 **트랜스파일된 CSS 파일의 실제 내용에 변화가 없기 때문에, 이후 번들링을 진행하더라도 결과물에는 차이가 발생하지 않으며,** 결국 **CSS 빌드 결과물 크기 역시 유의미하게 달라지지 않게 됩니다.**
+
+따라서 이번 리팩토링은 **CSS 빌드 결과물 크기 감소를 기대하며 DX(Developer Experience)를 일부 포기하고 진행**했던 작업이었으나, **실질적인 번들 감소 효과가 없었기 때문에 해당 로직은 기존 방식으로 다시 되돌려 적용**했습니다.
 
 <br />
