@@ -17,7 +17,7 @@ export default defineConfig({
     {
       name: "replace-preload-with-script",
       transformIndexHtml(html) {
-        const preloadRegex = /<link rel="modulepreload" [^>]*href="([^"]*vendor-animation[^"]*)"[^>]*>/g;
+        const preloadRegex = /<link rel="modulepreload" [^>]*href="([^"]*vendor-[^"]*)"[^>]*>/g;
         return html.replace(preloadRegex, (_, href) => `<script type="module" crossorigin src="${href}"></script>`);
       }
     }
