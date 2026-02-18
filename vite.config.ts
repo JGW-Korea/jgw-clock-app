@@ -33,10 +33,10 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
-          if(id.includes("react-modal-sheet") || id.includes("motion")) {
-            return "vendor-modal-sheet";
-          }
-          if(id.includes("react") || id.includes("scheduler")) {
+          // if(id.includes("react-modal-sheet") ) {
+          //   return "vendor-modal-sheet";
+          // }
+          if(id.includes("react") || id.includes("motion") || id.includes("scheduler")) {
             return;
           }
           if(id.includes("gsap")) {
