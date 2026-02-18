@@ -9,8 +9,6 @@ interface Props {
   onClickAppendWorld: WorldAppendHandler;
 }
 
-// const BottomSheet = lazy(() => import("@shared/ui").then((moduel) => ({ default: moduel.BottomSheet })));
-
 /**
  * World Route 내에서 독립적으로 사용되는 Bottom Sheet 컴포넌트
  * 

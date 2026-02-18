@@ -1,17 +1,17 @@
 import Check from "@shared/assets/icons/check.svg?react";
 import styles from "./index.module.scss";
 import { BottomSheet } from "@shared/ui";
-import { TimePicker } from "@features/time-picker";
+// import { TimePicker } from "@features/time-picker";
 import { useAlarmSchedule, useTimePickerDraggable } from "../model";
 import { ALARM_WEEKDAYS } from "../consts";
+import { lazy } from "react";
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
 }
 
-// const BottomSheet = lazy(() => import("@shared/ui").then((moduel) => ({ default: moduel.BottomSheet })));
-// const TimePicker = lazy(() => import("@features/time-picker").then((moduel) => ({ default: moduel.TimePicker })));
+const TimePicker = lazy(() => import("@features/time-picker").then((moduel) => ({ default: moduel.TimePicker })));
 
 export default function AlarmBottomSheet({ isOpen, onClose }: Props) {
   const { alarmState, dispatch, handleTimeChange, handleToggleWeekday, handleAddAlarm } = useAlarmSchedule();
