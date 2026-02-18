@@ -12,8 +12,6 @@ import Draggable from "gsap/Draggable";
 import InertiaPlugin from "gsap/InertiaPlugin";
 // import { registerDraggable } from "../lib/draggable";
 
-gsap.registerPlugin(Draggable, InertiaPlugin);
-
 export default function useTimePickerAnimation(updateTimePicker: (isPM: boolean, hours: number, minutes: number) => void) {
   const meridiemRef = useRef<HTMLUListElement>(null);
   const hoursRef = useRef<HTMLUListElement>(null);
@@ -37,6 +35,8 @@ export default function useTimePickerAnimation(updateTimePicker: (isPM: boolean,
   // 단순히 useEffect와 동일한 것이 아닌 GSAP을 통해 등록한 애니메이션을 "자동으로 해제"하여 메모리 낭비를 방지한다.
   useGSAP(() => {
     if(!meridiemRef.current || !hoursRef.current || !minutesRef.current) return;
+
+    gsap.registerPlugin(Draggable, InertiaPlugin);
 
     // 실제 DOM에 연결한 참조 객체를 배열로 관리한다.
     const controllers: TimePickerController[] = [

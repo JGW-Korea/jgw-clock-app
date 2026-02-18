@@ -14,6 +14,13 @@ export default defineConfig({
     }),
     svgr(),
     visualizer(),
+    {
+      name: "replace-preload-with-script",
+      transformIndexHtml(html) {
+        const preloadRegex = /<link rel="modulepreload" [^>]*href="([^"]*vendor-animation[^"]*)"[^>]*>/g;
+        return html.replace(preloadRegex, (_, href) => `<script type="module" crossorigin src="${href}"></script>`);
+      }
+    }
   ],
   server: {
     port: Number(process.env.PORT) || 5173,
