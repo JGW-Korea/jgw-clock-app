@@ -31,10 +31,16 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          "vendor-react": ["react", "react-dom", "react-router", "react-modal-sheet"],
-          "vendor-animation": ["gsap", "@gsap/react", "motion"],
-          "vendor-utils": ["axios"]
+        manualChunks(id) {
+          if(id.includes("node_modules/react") || id.includes("node_modules/react-dom") || id.includes("node_modules/react-router")) {
+            return "vendor-react";
+          }
+          if(id.includes("node_modules/gsap") || id.includes("node_modules/motion")) {
+            return "vendor-animation";
+          }
+          if(id.includes("node_modules")) {
+            return "vendor-libs";
+          }
         }
       }
     }
