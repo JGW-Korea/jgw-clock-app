@@ -32,13 +32,13 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
-          if(id.includes("node_modules/react") || id.includes("node_modules/react-dom") || id.includes("node_modules/react-router")) {
-            return "vendor-react";
+          if(id.includes("react") || id.includes("scheduler")) {
+            return;
           }
-          if(id.includes("node_modules/gsap") || id.includes("node_modules/motion")) {
+          if(id.includes("gsap") || id.includes("motion")) {
             return "vendor-animation";
           }
-          if(id.includes("node_modules")) {
+          if(id.includes("node_modules") || id.includes(".yarn")) {
             return "vendor-libs";
           }
         }
