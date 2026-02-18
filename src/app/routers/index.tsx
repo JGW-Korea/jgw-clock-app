@@ -1,17 +1,9 @@
-import React from "react";
-import { Route, Routes } from "react-router";
 import Layout from "@app/layout";
+import { AlarmPage } from "@pages/alarm";
+import { StopwatchPage } from "@pages/stopwatch";
+import { TimerPage } from "@pages/timer";
 import { WorldPage } from "@pages/world";
-
-// import { AlarmPage } from "@pages/alarm";
-// import { StopwatchPage } from "@pages/stopwatch";
-// import { TimerPage } from "@pages/timer";
-
-
-
-const AlarmPage = React.lazy(() => import("@pages/alarm").then(module => ({ default: module.AlarmPage })));
-const StopwatchPage = React.lazy(() => import("@pages/stopwatch").then(module => ({ default: module.StopwatchPage })));
-const TimerPage = React.lazy(() => import("@pages/timer").then(module => ({ default: module.TimerPage })));
+import { Route, Routes } from "react-router";
 
 /**
  * History API를 이용한 클라이언트 사이드 라우팅 하위의 URL과 1:1 매칭을 해주는 라우트 그룹 컴포넌트
