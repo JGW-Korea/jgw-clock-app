@@ -1,4 +1,4 @@
-import Check from "@shared/assets/icons/check.svg?react";
+// import Check from "@shared/assets/icons/check.svg?react";
 import styles from "./index.module.scss";
 import BottomSheet from "@shared/ui/BottomSheet";
 import { useAlarmSchedule, useTimePickerDraggable } from "../model";
@@ -11,6 +11,7 @@ interface Props {
 }
 
 const TimePicker = lazy(() => import("@features/time-picker").then((moduel) => ({ default: moduel.TimePicker })));
+const CheckSVGComponent = lazy(() => import("@shared/assets/icons/check.svg?react"));
 
 export default function AlarmBottomSheet({ isOpen, onClose }: Props) {
   const { alarmState, dispatch, handleTimeChange, handleToggleWeekday, handleAddAlarm } = useAlarmSchedule();
@@ -41,7 +42,7 @@ export default function AlarmBottomSheet({ isOpen, onClose }: Props) {
               <button>
                 {weekday.label}
                 {selectedWeekdays.includes(weekday.id) && (
-                  <Check width={24} height={24} />
+                  <CheckSVGComponent width={24} height={24} />
                 )}
               </button>
             </li>

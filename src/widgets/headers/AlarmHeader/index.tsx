@@ -1,7 +1,7 @@
 import style from "./index.module.scss";
-import Check from "@shared/assets/icons/check.svg?react";
-import PlusIcon from "@shared/assets/icons/plus.svg?react";
-import { useContext } from "react";
+// import Check from "@shared/assets/icons/check.svg?react";
+// import PlusIcon from "@shared/assets/icons/plus.svg?react";
+import { lazy, useContext } from "react";
 import { AlarmContext, type AlarmContextType } from "@entities/alarm";
 import Header from "@shared/ui/Header";
 import type { EditMode } from "@features/list-edit";
@@ -11,6 +11,9 @@ interface Props {
   onClickEditModeActive: (type: keyof EditMode) => void;
   onClickOpenSheet: () => void;
 }
+
+const PlusIconSVGComponent = lazy(() => import("@shared/assets/icons/plus.svg?react"));
+const CheckSVGComponent = lazy(() => import("@shared/assets/icons/check.svg?react"));
 
 export default function AlarmHeader({ editMode, onClickEditModeActive, onClickOpenSheet }: Props) {
   const { alarmList } = useContext<AlarmContextType | null>(AlarmContext)!;
@@ -22,10 +25,10 @@ export default function AlarmHeader({ editMode, onClickEditModeActive, onClickOp
           className={`${style["header-button"]} ${style["header-button__text"]} ${alarmList.length === 0 && style["header-button__hidden"]} liquid-glass fast`}
           onClick={() => onClickEditModeActive("click")}
           >
-          {(editMode.click || editMode.swipe) ? <Check /> : "Edit" }
+          {(editMode.click || editMode.swipe) ? <CheckSVGComponent /> : "Edit" }
         </button>
         <button className={`${style["header-button"]} ${style["header-button__icon"]} liquid-glass fast`} onClick={onClickOpenSheet}>
-          <PlusIcon />
+          <PlusIconSVGComponent />
         </button>
       </div>
     </Header>

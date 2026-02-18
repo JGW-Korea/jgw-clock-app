@@ -1,8 +1,9 @@
 import style from "./index.module.scss";
-import PlusIcon from "@shared/assets/icons/plus.svg?react";
-import Check from "@shared/assets/icons/check.svg?react";
+// import PlusIcon from "@shared/assets/icons/plus.svg?react";
+// import Check from "@shared/assets/icons/check.svg?react";
 import Header from "@shared/ui/Header";
 import type { EditMode } from "@features/list-edit";
+import { lazy } from "react";
 
 interface Props {
   worldTimeList: object[];
@@ -10,6 +11,9 @@ interface Props {
   onClickEditModeActive: (type: keyof EditMode) => void;
   onClickOpenSheet: () => void;
 }
+
+const PlusIconSVGComponent = lazy(() => import("@shared/assets/icons/plus.svg?react"));
+const CheckSVGComponent = lazy(() => import("@shared/assets/icons/check.svg?react"));
 
 /**
  * -------------------------------------
@@ -26,12 +30,12 @@ export default function WorldHeader({ worldTimeList, editMode, onClickOpenSheet,
           className={`${style["header-button"]} ${style["header-button__text"]} ${worldTimeList.length === 0 ? style["header-button__hidden"] : ""} liquid-glass fast`}
           onClick={() => onClickEditModeActive("click")}
         >
-          {(editMode.click || editMode.swipe) ? <Check /> : "Edit" }
+          {(editMode.click || editMode.swipe) ? <CheckSVGComponent /> : "Edit" }
         </button>
         
         {/* Bottom Sheet 활성화 버튼 */}
         <button className={`${style["header-button"]} ${style["header-button__icon"]} liquid-glass fast`} onClick={onClickOpenSheet}>
-          <PlusIcon />
+          <PlusIconSVGComponent />
         </button>
       </div>
     </Header>

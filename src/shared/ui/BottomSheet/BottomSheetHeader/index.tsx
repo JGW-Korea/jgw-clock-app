@@ -1,7 +1,11 @@
 import { Sheet } from "react-modal-sheet";
 import styles from "./index.module.scss";
-import Cancel from "@shared/assets/icons/plus.svg?react"
-import Check from "@shared/assets/icons/check.svg?react"
+import { lazy } from "react";
+// import Cancel from "@shared/assets/icons/plus.svg?react"
+// import Check from "@shared/assets/icons/check.svg?react"
+
+const CancelSVGComponent = lazy(() => import("@shared/assets/icons/plus.svg?react"));
+const CheckSVGComponent = lazy(() => import("@shared/assets/icons/check.svg?react"));
 
 // BottomSheetHeader가 기본적으로 가져야 하는 Props 구성
 interface Props {
@@ -23,7 +27,7 @@ export default function BottomSheetHeader({ sheetTitle, onClose, showRightButton
   return (
     <Sheet.Header className={`${styles["bottom-sheet-header"]}`}>
       <button className={`${styles["bottom-sheet-header__button"]} ${styles["bottom-sheet-header__button-left"]} liquid-glass`} onClick={onClose}>
-        <Cancel width={24} height={24} style={{ transform: "rotate(45deg)" }} className={`${styles["bottom-sheet-header__button-svg-stroke"]}`} />
+        <CancelSVGComponent width={24} height={24} style={{ transform: "rotate(45deg)" }} className={`${styles["bottom-sheet-header__button-svg-stroke"]}`} />
       </button>
       
       <h3 className={`${styles["bottom-sheet-header__title"]}`}>{sheetTitle}</h3>
@@ -34,7 +38,7 @@ export default function BottomSheetHeader({ sheetTitle, onClose, showRightButton
         style={{ visibility: showRightButton ? "visible" : "hidden" }}
         onClick={onRightButtonClick}
       >
-        <Check width={24} height={24} className={`${styles["bottom-sheet-header__button-svg-fill"]}`} />
+        <CheckSVGComponent width={24} height={24} className={`${styles["bottom-sheet-header__button-svg-fill"]}`} />
       </button>
     </Sheet.Header>
   );
