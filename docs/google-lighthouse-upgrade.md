@@ -255,4 +255,14 @@ Performance 요약 결과를 살펴보면 여러 측정 지표 중 **First Conte
 
 ### A. Render blocking requests
 
-**"렌더링 흐름을 차단하는 네트워크 자원이 존재한다(Render blocking requests)"** 항목은 **FCP 측정 시점을 지연시키는 주요 원인에 해당**합니다. 해당 내용은 먼저 다루되, **개선 과정이 비교적 길어질 것으로 판단**되어 [**｢FCP 개선을 위한 CSS 최적화｣**](./fcp-css-optimization.md) 문서에서 **별도로 정리**하겠습니다.
+FCP 측정 시점을 지연시키는 주요 원인 중 하나인 **"렌더링 흐름을 차단하는 네트워크 자원이 존재한다(Render blocking requests)"** 항목을 개선하는 과정이 길어져, [**｢FCP 개선을 위한 CSS 최적화｣**](./fcp-css-optimization.md) 문서로 **별도 정리**했습니다.
+
+Render blocking requests 항목을 개선하기 위해 **jsDelivr CDN 스타일 초기화 파일 요청 제거**, **CSS 파일 빌드 크기 감소**를 위한 **SCSS 파일 분할(Partial) 기법 활용**, **SCSS 변수 및 Mixin 로직 제거**, **CSS 처리 엔진 Lightning CSS 교체** 등 **다양한 방법을 적용**했습니다.
+
+결과적으로 CSS 파일 빌드 크기 감소 자체는 큰 효과가 없었지만, **jsDelivr CDN 스타일 초기화 파일 요청 제거**를 통해 **FCP 측정 시점을 약 2.4s -> 1.8s로 단축**시켰으며, **Lighthouse Performnace 점수 또한 94점 -> 98점으로 상승**했습니다.
+
+<br />
+
+### B. Reduce unused JavaScript
+
+FCP 측정 시점을 지연시키는 주요 원인 중 하나인 **"사용되지 않는 JavaScript 코드가 존재(Reduce unused JavaScript)"** 항목을 개선하는 과정이 길어져, [**｢FCP 개선을 위한 JavaScript 최적화｣**](./fcp-javascript-optimization.md) 문서로 **별도 정리**했습니다.
