@@ -1,5 +1,5 @@
 import Layout from "@app/layout";
-import { AlarmPage } from "@pages/alarm";
+// import { AlarmPage } from "@pages/alarm";
 import { StopwatchPage } from "@pages/stopwatch";
 import { TimerPage } from "@pages/timer";
 import { WorldPage } from "@pages/world";
@@ -13,7 +13,7 @@ export default function AppRouter() {
     <Routes>
       <Route element={<Layout />}>
         <Route index element={<WorldPage />}  />
-        <Route path="/alarm" element={<AlarmPage />}  />
+        {/* <Route path="/alarm" element={<AlarmPage />}  /> */}
         <Route path="/stopwatch" element={<StopwatchPage />}  />
         <Route path="/timer" element={<TimerPage />}  />  
       </Route>
