@@ -1,9 +1,12 @@
 import { useWorldTimeList } from "@entities/world";
 import { useBottomSheetControls } from "@features/bottom-sheet";
 import { useListEditControls } from "@features/list-edit";
-import { WorldBottomSheet } from "@widgets/bottom-sheet";
+// import { WorldBottomSheet } from "@widgets/bottom-sheet";
 import { WorldContent } from "@widgets/contents";
 import { WorldHeader } from "@widgets/headers";
+import { lazy } from "react";
+
+const WorldBottomSheet = lazy(() => import("@widgets/bottom-sheet").then((moduel) => ({ default: moduel.WorldBottomSheet })));
 
 export default function WorldPage() {
   const { editMode, handleEditModeActive } = useListEditControls();
