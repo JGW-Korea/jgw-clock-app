@@ -7,11 +7,13 @@ import { AxiosError } from "axios";
  * - 컴포넌트가 렌더링 이후 Time Zone DB API를 호출한다.
  * - 이후 worldTimeListData 상태를 갱신하여 리렌더링을 발생시켜 사용자 화면에 반영시킨다.
 */
-export default function useWorldTimeFetch() {
+export default function useWorldTimeFetch(isOpen: boolean) {
   const [worldTimeListData, setWorldTimeListData] = useState<ListTimeZone[]>([]);
   
   // 최초 렌더링(마운트) 시 한 번만 API를 호출하면 되기 때문에 의존성 배열을 비워둔다.
   useEffect(() => {
+    if(!isOpen) return;
+
     const fetchListTimeZone = async () => {
       try {
         const response = await getListTimeZone();

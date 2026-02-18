@@ -17,7 +17,7 @@ interface Props {
  * @param {WorldAppendHandler} props.onClickAppendWorld - List Time Zone 리스트 클릭 시 세계 시간 추가를 위한 클릭 이벤트 리스너
 */
 export default function WorldBottomSheet({ isOpen, onClose, onClickAppendWorld }: Props) {
-  const { worldTimeListData } = useWorldTimeFetch();
+  const { worldTimeListData } = useWorldTimeFetch(isOpen);
   
   return (
     <BottomSheet isOpen={isOpen} onClose={onClose} sheetTitle="Choose a City">
