@@ -1,4 +1,4 @@
-import gsap from "gsap";
+import { gsap } from "gsap/gsap-core";
 import { BUFFER, DEG_STEP, LINE_HEIGHT, TOTAL } from "../consts";
 import type { TimePickerState } from "../types";
 

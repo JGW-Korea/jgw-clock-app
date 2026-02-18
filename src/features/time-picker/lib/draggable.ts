@@ -1,7 +1,7 @@
-import { Draggable } from "gsap/Draggable";
+import Draggable from "gsap/Draggable";
 import { DEG_STEP, LINE_HEIGHT } from "../consts";
 import type { CreateDraggableParameter, DraggableParameter, RegisterDraggableParameter } from "../types";
-import gsap from "gsap";
+import { gsap } from "gsap/gsap-core";
 import { syncMeridiem } from "./toggleMeridiem";
 import { clearScrollPropsIfCSS, getScrollIndex, indexFromRotation, setProxyRotationFromIndex } from "../utils";
 

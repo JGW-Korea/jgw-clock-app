@@ -1,4 +1,4 @@
-import gsap from "gsap";
+import { gsap } from "gsap/gsap-core";
 import type { TimePickerController } from "../types";
 import { LINE_HEIGHT, TOTAL } from "../consts";
 

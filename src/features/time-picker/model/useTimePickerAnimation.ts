@@ -7,10 +7,9 @@ import {
 } from "../lib";
 import type { ScrollWatcherReturn, TimePickerController, TimePickerState } from "../types";
 import { getScrollIndex, setProxyRotationFromIndex } from "../utils";
-import gsap from "gsap";
+import { gsap } from "gsap/gsap-core";
 import Draggable from "gsap/Draggable";
 import InertiaPlugin from "gsap/InertiaPlugin";
-// import { registerDraggable } from "../lib/draggable";
 
 export default function useTimePickerAnimation(updateTimePicker: (isPM: boolean, hours: number, minutes: number) => void) {
   const meridiemRef = useRef<HTMLUListElement>(null);
