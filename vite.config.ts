@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite'
+import { defineConfig, type TerserOptions } from 'vite'
 import react from '@vitejs/plugin-react'
 import svgr from "vite-plugin-svgr";
 import path from 'path';
@@ -30,6 +30,13 @@ export default defineConfig({
   },
   build: {
     minify: "terser",
+    terserOptions: {
+      compress: {
+        unused: true,
+        dead_code: true,
+        side_effects: true
+      }
+    } as TerserOptions,
     rollupOptions: {
       output: {
         manualChunks(id) {
