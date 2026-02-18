@@ -1,9 +1,9 @@
 import { useWorldTimeList } from "@entities/world";
 import { useBottomSheetControls } from "@features/bottom-sheet";
 import { useListEditControls } from "@features/list-edit";
-import { WorldBottomSheet } from "@widgets/bottom-sheet";
-import { WorldContent } from "@widgets/contents";
-import { WorldHeader } from "@widgets/headers";
+import WorldHeader from "@widgets/headers/WorldHeader";
+import { WorldBottomSheet } from "@widgets/bottom-sheet/WorldBottomSheet";
+import { WorldContent } from "@widgets/contents/WorldContent";
 
 export default function WorldPage() {
   const { editMode, handleEditModeActive } = useListEditControls();

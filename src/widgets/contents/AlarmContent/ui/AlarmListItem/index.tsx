@@ -1,6 +1,6 @@
 import type { AlarmData } from "@entities/alarm";
 import { SwipeToDelete } from "@features/swipe-to-delete";
-import { ToggleSwitch } from "@shared/ui";
+import ToggleSwitch from "@shared/ui/ToggleSwitch";
 import { formatSelectedWeekdays } from "../../model";
 import type { EditMode } from "@features/list-edit";
 

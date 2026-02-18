@@ -1,8 +1,8 @@
 import { useBottomSheetControls } from "@features/bottom-sheet";
 import { useListEditControls } from "@features/list-edit";
-import { AlarmBottomSheet } from "@widgets/bottom-sheet";
-import { AlarmContent } from "@widgets/contents";
-import { AlarmHeader } from "@widgets/headers";
+import AlarmHeader from "@widgets/headers/AlarmHeader";
+import { AlarmContent } from "@widgets/contents/AlarmContent";
+import { AlarmBottomSheet } from "@widgets/bottom-sheet/AlarmBottomSheet";
 
 export default function AlarmPage() {
   const { editMode, handleEditModeActive } = useListEditControls();

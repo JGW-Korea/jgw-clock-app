@@ -1,4 +1,4 @@
-import { ListItem } from "@shared/ui";
+import ListItem from "@shared/ui/ListItem";
 
 interface Props {
   styles: CSSModuleClasses;

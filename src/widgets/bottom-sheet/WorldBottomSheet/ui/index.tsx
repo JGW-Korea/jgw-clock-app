@@ -1,5 +1,5 @@
 import WorldSheetListItem from "./WorldBottomSheetListItem";
-import { BottomSheet } from "@shared/ui";
+import BottomSheet from "@shared/ui/BottomSheet";
 import { useWorldTimeFetch, type WorldAppendHandler } from "../model";
 import styles from "./index.module.scss";
 

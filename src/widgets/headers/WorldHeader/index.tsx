@@ -1,7 +1,7 @@
 import style from "./index.module.scss";
 import PlusIcon from "@shared/assets/icons/plus.svg?react";
 import Check from "@shared/assets/icons/check.svg?react";
-import { Header } from "@shared/ui";
+import Header from "@shared/ui/Header";
 import type { EditMode } from "@features/list-edit";
 
 interface Props {

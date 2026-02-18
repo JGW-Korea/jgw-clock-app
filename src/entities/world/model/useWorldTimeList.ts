@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { WordTimeListType } from "./index.type";
-import type { WorldAppendHandler } from "@widgets/bottom-sheet";
+import type { WorldAppendHandler } from "@widgets/bottom-sheet/WorldBottomSheet";
 import type { EditMode } from "@features/list-edit";
 
 export default function useWorldTimeList(handleCloseBottomSheet: () => void, handleEditModeActive:(type: keyof EditMode) => void) {

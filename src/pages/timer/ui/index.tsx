@@ -1,4 +1,4 @@
-import { TimerContent } from "@widgets/contents";
+import { TimerContent } from "@widgets/contents/TimerContent";
 
 export default function TimerPage() {
   return (

@@ -1,4 +1,4 @@
-import { ListItem, type ListItemProps } from "@shared/ui";
+import ListItem, { type Props as ListItemProps } from "@shared/ui/ListItem";
 import { useSwipeToDelete } from "../model";
 import styles from "./index.module.scss";
 import SwipeToDeleteActions from "./SwipeToDeleteActions";

@@ -3,7 +3,7 @@ import Check from "@shared/assets/icons/check.svg?react";
 import PlusIcon from "@shared/assets/icons/plus.svg?react";
 import { useContext } from "react";
 import { AlarmContext, type AlarmContextType } from "@entities/alarm";
-import { Header } from "@shared/ui";
+import Header from "@shared/ui/Header";
 import type { EditMode } from "@features/list-edit";
 
 interface Props {
