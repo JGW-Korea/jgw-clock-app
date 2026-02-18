@@ -13,7 +13,14 @@ export default defineConfig({
       },
     }),
     svgr(),
-    visualizer()
+    visualizer(),
+    {
+      name: "replace-preload-with-script",
+      transformIndexHtml(html) {
+        const preloadRegex = /<link rel="modulepreload" [^>]*href="([^"]*vendor-animation[^"]*)"[^>]*>/g;
+        return html.replace(preloadRegex, (_, href) => `<script type="module" crossorigin src="${href}"></script>`);
+      }
+    }
   ],
   server: {
     port: Number(process.env.PORT) || 5173,
@@ -35,9 +42,9 @@ export default defineConfig({
           if(id.includes("react") || id.includes("scheduler")) {
             return;
           }
-          // if(id.includes("gsap") || id.includes("motion")) {
-          //   return "vendor-animation";
-          // }
+          if(id.includes("gsap") || id.includes("motion")) {
+            return "vendor-animation";
+          }
           if(id.includes("node_modules") || id.includes(".yarn")) {
             return "vendor-libs";
           }
