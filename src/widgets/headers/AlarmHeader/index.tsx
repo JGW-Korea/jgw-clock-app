@@ -12,7 +12,6 @@ interface Props {
   onClickOpenSheet: () => void;
 }
 
-
 export default function AlarmHeader({ editMode, onClickEditModeActive, onClickOpenSheet }: Props) {
   const { alarmList } = useContext<AlarmContextType | null>(AlarmContext)!;
   
