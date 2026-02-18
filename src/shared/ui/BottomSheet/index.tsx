@@ -1,12 +1,14 @@
 import { Sheet, type SheetProps } from "react-modal-sheet";
 import styles from "./index.module.scss";
-import BottomSheetHeader from "./BottomSheetHeader";
+import { lazy } from "react";
 
 interface Props extends SheetProps {
   sheetTitle: string;
   showRightButton?: boolean;
   onRightButtonClick?: () => void;
 } 
+
+const BottomSheetHeader = lazy(() => import("./BottomSheetHeader"));
 
 /**
  * 각 라우트에서 재사용할 전역 BottomSheet 컴포넌트 Content 내부의 구성만 호출하는 쪽에서 구성하여 Content를 구성한다.
