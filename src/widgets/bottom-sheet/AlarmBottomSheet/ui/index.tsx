@@ -1,7 +1,6 @@
 import Check from "@shared/assets/icons/check.svg?react";
 import styles from "./index.module.scss";
 import { BottomSheet } from "@shared/ui";
-// import { TimePicker } from "@features/time-picker";
 import { useAlarmSchedule, useTimePickerDraggable } from "../model";
 import { ALARM_WEEKDAYS } from "../consts";
 import { lazy } from "react";
