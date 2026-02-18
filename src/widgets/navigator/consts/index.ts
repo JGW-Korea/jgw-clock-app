@@ -1,14 +1,7 @@
-// import World from "@shared/assets/icons/world.svg?react";
-// import Alarm from "@shared/assets/icons/alarm.svg?react";
-// import Stopwatch from "@shared/assets/icons/stopwatch.svg?react";
-// import Timer from "@shared/assets/icons/timer.svg?react";
-
-import { lazy } from "react";
-
-const WorldSVGComponent = lazy(() => import("@shared/assets/icons/world.svg?react"));
-const AlarmSVGComponent = lazy(() => import("@shared/assets/icons/alarm.svg?react"));
-const StopwatchSVGComponent = lazy(() => import("@shared/assets/icons/stopwatch.svg?react"));
-const TimerSVGComponent = lazy(() => import("@shared/assets/icons/timer.svg?react"));
+import WorldSVGComponent from "@shared/assets/icons/world.svg?react";
+import AlarmSVGComponent from "@shared/assets/icons/alarm.svg?react";
+import StopwatchSVGComponent from "@shared/assets/icons/stopwatch.svg?react";
+import TimerSVGComponent from "@shared/assets/icons/timer.svg?react";
 
 export const TABS: { id: number, path: string; label: string; icon: React.FC<React.SVGProps<SVGSVGElement>> }[] = [
   { id: 1, path: "/", label: "World", icon: WorldSVGComponent },

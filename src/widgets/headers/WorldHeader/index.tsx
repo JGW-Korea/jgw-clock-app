@@ -1,9 +1,8 @@
 import style from "./index.module.scss";
-// import PlusIcon from "@shared/assets/icons/plus.svg?react";
-// import Check from "@shared/assets/icons/check.svg?react";
+import PlusIconSVGComponent from "@shared/assets/icons/plus.svg?react";
+import CheckSVGComponent from "@shared/assets/icons/check.svg?react";
 import Header from "@shared/ui/Header";
 import type { EditMode } from "@features/list-edit";
-import { lazy } from "react";
 
 interface Props {
   worldTimeList: object[];
@@ -11,9 +10,6 @@ interface Props {
   onClickEditModeActive: (type: keyof EditMode) => void;
   onClickOpenSheet: () => void;
 }
-
-const PlusIconSVGComponent = lazy(() => import("@shared/assets/icons/plus.svg?react"));
-const CheckSVGComponent = lazy(() => import("@shared/assets/icons/check.svg?react"));
 
 /**
  * -------------------------------------

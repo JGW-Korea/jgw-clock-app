@@ -1,11 +1,7 @@
 import { Sheet } from "react-modal-sheet";
 import styles from "./index.module.scss";
-import { lazy } from "react";
-// import Cancel from "@shared/assets/icons/plus.svg?react"
-// import Check from "@shared/assets/icons/check.svg?react"
-
-const CancelSVGComponent = lazy(() => import("@shared/assets/icons/plus.svg?react"));
-const CheckSVGComponent = lazy(() => import("@shared/assets/icons/check.svg?react"));
+import CancelSVGComponent from "@shared/assets/icons/plus.svg?react"
+import CheckSVGComponent from "@shared/assets/icons/check.svg?react"
 
 // BottomSheetHeader가 기본적으로 가져야 하는 Props 구성
 interface Props {

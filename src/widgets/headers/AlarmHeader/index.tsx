@@ -1,7 +1,7 @@
 import style from "./index.module.scss";
-// import Check from "@shared/assets/icons/check.svg?react";
-// import PlusIcon from "@shared/assets/icons/plus.svg?react";
-import { lazy, useContext } from "react";
+import PlusIconSVGComponent from "@shared/assets/icons/plus.svg?react";
+import CheckSVGComponent from "@shared/assets/icons/check.svg?react";
+import { useContext } from "react";
 import { AlarmContext, type AlarmContextType } from "@entities/alarm";
 import Header from "@shared/ui/Header";
 import type { EditMode } from "@features/list-edit";
@@ -12,8 +12,6 @@ interface Props {
   onClickOpenSheet: () => void;
 }
 
-const PlusIconSVGComponent = lazy(() => import("@shared/assets/icons/plus.svg?react"));
-const CheckSVGComponent = lazy(() => import("@shared/assets/icons/check.svg?react"));
 
 export default function AlarmHeader({ editMode, onClickEditModeActive, onClickOpenSheet }: Props) {
   const { alarmList } = useContext<AlarmContextType | null>(AlarmContext)!;
