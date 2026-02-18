@@ -28,4 +28,15 @@ export default defineConfig({
       { find: "@shared", replacement: path.resolve(__dirname, "src/shared") },
     ]
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          "vendor-react": ["react", "react-dom", "react-router", "react-modal-sheet"],
+          "vendor-animation": ["gsap", "@gsap/react", "motion"],
+          "vendor-utils": ["axios"]
+        }
+      }
+    }
+  }
 });
