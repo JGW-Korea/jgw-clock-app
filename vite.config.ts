@@ -35,14 +35,17 @@ export default defineConfig({
           if(id.includes("react") || id.includes("scheduler")) {
             return;
           }
-          if(id.includes("gsap") || id.includes("motion")) {
-            return "vendor-animation";
-          }
+          // if(id.includes("gsap") || id.includes("motion")) {
+          //   return "vendor-animation";
+          // }
           if(id.includes("node_modules") || id.includes(".yarn")) {
             return "vendor-libs";
           }
         }
       }
+    },
+    modulePreload: {
+      polyfill: false,
     }
   }
 });
