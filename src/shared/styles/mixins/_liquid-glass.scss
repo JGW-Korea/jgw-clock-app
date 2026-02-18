@@ -1,0 +1,80 @@
+@use "sass:map";
+
+// ----------------------------------------------------------------------------
+// Liquid-Glass 스타일에서만 사용되는 값들이므로
+// 전역 변수로 분리하지 않고, 해당 스타일 파일 내부의 지역 변수로 선언한다.
+// 이를 통해 Liquid-Glass 스타일 숮어 시 다른 파일을 참조할 필요 없이
+// 하나의 파일에서 관련 값과 로직을 함께 관리할 수 있도록 구성한다.
+// ----------------------------------------------------------------------------
+$liquid-glass-colors: ( // Liquid-Glass 기반 UI 컴포넌트에서 활용될 색상 변수
+  glass: #bbbbbc,
+  content: #e1e1e1,
+  action: #ff7f00,
+  dark: #000000,
+  light: #ffffff,
+);
+
+$liquid-glass-backdrop-filter: (
+  blur: 2rem,
+  saturation: 150%,
+);
+
+$liquid-glass-reflex-dark: 2;
+$liquid-glass-reflex-light: 0.3;
+$liquid-glass-transition: 400ms cubic-bezier(1, 0, 0.4, 1);
+$liquid-glass-rounded: 9999px;
+
+// ----------------------------------------------------------------------------
+// Liquid-Glass 스타일 내부에서 조건에 따라 서로 다른 값을 적반환하기 위한 함수
+// ----------------------------------------------------------------------------
+@function liquid-glass-color-mix($colorKey: glass, $colorPercent: 12%) {
+  @return color-mix(
+    in srgb,
+    map.get($liquid-glass-colors, $colorKey) $colorPercent,
+    transparent
+  );
+}
+
+@function liquid-glass-backdrop-filter() {
+  @return blur(map.get($liquid-glass-backdrop-filter, blur)) saturate(map.get($liquid-glass-backdrop-filter, saturation));
+};
+
+// ----------------------------------------------------------------------------
+// Liquid-Glass 스타일 내부에서 조건에 따라 서로 다른 스타일을 적용하기 위한 전용 mixin 로직
+// ----------------------------------------------------------------------------
+@mixin liguid-glass-box-shadow($variant: "strong") {
+  @if($variant == "strong") {
+    box-shadow:
+      inset 0 0 0 1px liquid-glass-color-mix(light, $liquid-glass-reflex-light * 10%),
+      inset 1.8px 3px 0px -2px liquid-glass-color-mix(light, $liquid-glass-reflex-light * 90%),
+      inset -2px -2px 0px -2px liquid-glass-color-mix(light, $liquid-glass-reflex-light * 80%),
+      inset -3px -8px 1px -6px liquid-glass-color-mix(light, $liquid-glass-reflex-light * 60%),
+      inset -0.3px -1px 4px 0px liquid-glass-color-mix(dark, $liquid-glass-reflex-dark * 12%),
+      inset -1.5px 2.5px 0px -2px liquid-glass-color-mix(dark, $liquid-glass-reflex-dark * 12%),
+      inset 0px 3px 4px -2px liquid-glass-color-mix(dark, $liquid-glass-reflex-dark * 12%),
+      inset 2px -6.5px 1px -4px liquid-glass-color-mix(dark, $liquid-glass-reflex-dark * 12%),
+      0px 1px 5px 0px liquid-glass-color-mix(dark, $liquid-glass-reflex-dark * 12%),
+      0px 6px 16px 0px liquid-glass-color-mix(dark, $liquid-glass-reflex-dark * 12%);
+  } @else {
+    box-shadow: 
+      inset 0 0 0 1px liquid-glass-color-mix(light, $liquid-glass-reflex-light * 10%)
+      inset 2px 1px 0px -1px liquid-glass-color-mix(light, $liquid-glass-reflex-light * 10%)
+      inset -1.5px -1px 0px -1px liquid-glass-color-mix(light, $liquid-glass-reflex-light * 10%)
+      inset -2px -6px 1px -5px liquid-glass-color-mix(light, $liquid-glass-reflex-light * 10%)
+      inset -1px 2px 3px -1px liquid-glass-color-mix(dark, $liquid-glass-reflex-dark * 20%),
+      inset 0px -4px 1px -2px liquid-glass-color-mix(dark, $liquid-glass-reflex-dark * 20%),
+      0px 3px 6px 0px liquid-glass-color-mix(dark, $liquid-glass-reflex-dark * 20%);
+  }
+}
+
+// ----------------------------------------------------------------------------
+// 전역에서 재활용할 Liquid-Glass 스타일 Mixin (show)
+// ----------------------------------------------------------------------------
+@mixin liquid-glass($colorKey: glass, $colorPercent: 12%, $boxShadow: "strong", $transition: null) {
+  background-color: liquid-glass-color-mix($colorKey, $colorPercent);
+  backdrop-filter: liquid-glass-backdrop-filter();
+  -webkit-backdrop-filter: liquid-glass-backdrop-filter();
+
+  @include liguid-glass-box-shadow($boxShadow);
+  transition: $transition;
+}
