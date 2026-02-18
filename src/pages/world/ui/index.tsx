@@ -3,10 +3,7 @@ import { useBottomSheetControls } from "@features/bottom-sheet";
 import { useListEditControls } from "@features/list-edit";
 import WorldHeader from "@widgets/headers/WorldHeader";
 import { WorldContent } from "@widgets/contents/WorldContent";
-import { lazy } from "react";
-// import { WorldBottomSheet } from "@widgets/bottom-sheet/WorldBottomSheet";
-
-const WorldBottomSheet = lazy(() => import("@widgets/bottom-sheet/WorldBottomSheet").then((module) => ({ default: module.WorldBottomSheet })));
+import { WorldBottomSheet } from "@widgets/bottom-sheet/WorldBottomSheet";
 
 export default function WorldPage() {
   const { editMode, handleEditModeActive } = useListEditControls();

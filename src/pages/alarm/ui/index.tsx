@@ -2,10 +2,7 @@ import { useBottomSheetControls } from "@features/bottom-sheet";
 import { useListEditControls } from "@features/list-edit";
 import AlarmHeader from "@widgets/headers/AlarmHeader";
 import { AlarmContent } from "@widgets/contents/AlarmContent";
-import { lazy } from "react";
-// import { AlarmBottomSheet } from "@widgets/bottom-sheet/AlarmBottomSheet";
-
-const AlarmBottomSheet = lazy(() => import("@widgets/bottom-sheet/AlarmBottomSheet").then((module) => ({ default: module.AlarmBottomSheet })));
+import { AlarmBottomSheet } from "@widgets/bottom-sheet/AlarmBottomSheet";
 
 export default function AlarmPage() {
   const { editMode, handleEditModeActive } = useListEditControls();
