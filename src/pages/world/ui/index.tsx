@@ -2,13 +2,13 @@ import { useWorldTimeList } from "@entities/world";
 import { useBottomSheetControls } from "@features/bottom-sheet";
 import { useListEditControls } from "@features/list-edit";
 import WorldHeader from "@widgets/headers/WorldHeader";
-import { WorldBottomSheet } from "@widgets/bottom-sheet/WorldBottomSheet";
+// import { WorldBottomSheet } from "@widgets/bottom-sheet/WorldBottomSheet";
 import { WorldContent } from "@widgets/contents/WorldContent";
 
 export default function WorldPage() {
   const { editMode, handleEditModeActive } = useListEditControls();
-  const { isOpen, handleOpenBottomSheet, handleCloseBottomSheet } = useBottomSheetControls();
-  const { worldTimeList, handleAppendWorldTime, handleDelete } = useWorldTimeList(handleCloseBottomSheet, handleEditModeActive);
+  const { handleOpenBottomSheet, handleCloseBottomSheet } = useBottomSheetControls();
+  const { worldTimeList, handleDelete } = useWorldTimeList(handleCloseBottomSheet, handleEditModeActive);
 
   return (
     <>
@@ -27,11 +27,11 @@ export default function WorldPage() {
         onEditModeActive={handleEditModeActive}
       />
 
-      <WorldBottomSheet
+      {/* <WorldBottomSheet
         isOpen={isOpen}
         onClose={handleCloseBottomSheet}
         onClickAppendWorld={handleAppendWorldTime}
-      />
+      /> */}
     </>
   );
 }

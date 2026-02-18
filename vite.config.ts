@@ -1,4 +1,4 @@
-import { defineConfig, type TerserOptions } from 'vite'
+import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import svgr from "vite-plugin-svgr";
 import path from 'path';
@@ -30,23 +30,19 @@ export default defineConfig({
   },
   build: {
     minify: "terser",
-    terserOptions: {
-      compress: {
-        unused: true,
-        dead_code: true,
-        side_effects: true
-      }
-    } as TerserOptions,
     rollupOptions: {
       output: {
         manualChunks(id) {
-          if(id.includes("react-modal-sheet") || id.includes("motion")) {
-            return "vendor-modal-sheet";
-          }
+          // if(id.includes("react-modal-sheet")) {
+          //   return "vendor-modal-sheet";
+          // }
           if(id.includes("react") || id.includes("scheduler")) {
             return;
           }
           if(id.includes("gsap")) {
+            return "vendor-gsap";
+          }
+          if(id.includes("motion")) {
             return "vendor-gsap";
           }
           if(id.includes("node_modules") || id.includes(".yarn")) {
