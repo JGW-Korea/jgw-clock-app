@@ -27,11 +27,13 @@ export default function WorldPage() {
         onEditModeActive={handleEditModeActive}
       />
 
-      <WorldBottomSheet
-        isOpen={isOpen}
-        onClose={handleCloseBottomSheet}
-        onClickAppendWorld={handleAppendWorldTime}
-      />
+      {isOpen && (
+        <WorldBottomSheet
+          isOpen={isOpen}
+          onClose={handleCloseBottomSheet}
+          onClickAppendWorld={handleAppendWorldTime}
+        />
+      )}
     </>
   );
 }
