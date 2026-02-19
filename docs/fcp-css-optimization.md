@@ -1,6 +1,6 @@
 ![FCP Thumbnail](./images/First-contentful-paint.jpg)
 
-> ☝️ 이 문서에서는 Lighthouse Performance 감점 요인 중 CSS로 인한 Render blocking requests 항목을 주요 원인으로 판단한 근거와, 이를 개선하기 위한 과정을 정리했습니다.
+> ☝️ 이 문서에서는 Lighthouse Performance 감점 요인 중 CSS로 인한 Render blocking requests 개선하기 위한 과정을 정리했습니다.
 
 <br />
 
