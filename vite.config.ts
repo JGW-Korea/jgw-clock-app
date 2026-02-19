@@ -28,25 +28,21 @@ export default defineConfig({
       { find: "@shared", replacement: path.resolve(__dirname, "src/shared") },
     ]
   },
-  // build: {
-  //   minify: "terser",
-  //   rollupOptions: {
-  //     output: {
-  //       manualChunks(id) {
-  //         // if(id.includes("react-modal-sheet") || id.includes("motion")) {
-  //         //   return "vendor-modal-sheet";
-  //         // }
-  //         if(id.includes("react") || id.includes("scheduler")) {
-  //           return;
-  //         }
-  //         if(id.includes("gsap")) {
-  //           return "vendor-gsap";
-  //         }
-  //         if(id.includes("node_modules") || id.includes(".yarn")) {
-  //           return "vendor-libs";
-  //         }
-  //       }
-  //     }
-  //   },
-  // }
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if(id.includes("react") || id.includes("scheduler")) { // React 관련 로직은 메인 번들에 포함
+            return;
+          }
+          if(id.includes("gsap")) { // GSAP 패키지는 용량이 크기 때문에 별도 Chunk로 분리
+            return "vendor-gsap";
+          }
+          if(id.includes("node_modules") || id.includes(".yarn")) { // 기타 패키지는 별도 Chunk로 분리
+            return "vendor-libs";
+          }
+        }
+      }
+    },
+  }
 });
