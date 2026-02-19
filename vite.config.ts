@@ -28,25 +28,25 @@ export default defineConfig({
       { find: "@shared", replacement: path.resolve(__dirname, "src/shared") },
     ]
   },
-  build: {
-    minify: "terser",
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          // if(id.includes("react-modal-sheet") || id.includes("motion")) {
-          //   return "vendor-modal-sheet";
-          // }
-          if(id.includes("react") || id.includes("scheduler")) {
-            return;
-          }
-          if(id.includes("gsap")) {
-            return "vendor-gsap";
-          }
-          if(id.includes("node_modules") || id.includes(".yarn")) {
-            return "vendor-libs";
-          }
-        }
-      }
-    },
-  }
+  // build: {
+  //   minify: "terser",
+  //   rollupOptions: {
+  //     output: {
+  //       manualChunks(id) {
+  //         // if(id.includes("react-modal-sheet") || id.includes("motion")) {
+  //         //   return "vendor-modal-sheet";
+  //         // }
+  //         if(id.includes("react") || id.includes("scheduler")) {
+  //           return;
+  //         }
+  //         if(id.includes("gsap")) {
+  //           return "vendor-gsap";
+  //         }
+  //         if(id.includes("node_modules") || id.includes(".yarn")) {
+  //           return "vendor-libs";
+  //         }
+  //       }
+  //     }
+  //   },
+  // }
 });
