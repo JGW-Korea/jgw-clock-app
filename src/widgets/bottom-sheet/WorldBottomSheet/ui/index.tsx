@@ -1,8 +1,8 @@
 import WorldSheetListItem from "./WorldBottomSheetListItem";
-import BottomSheet from "@shared/ui/BottomSheet";
+// import BottomSheet from "@shared/ui/BottomSheet";
 import { useWorldTimeFetch, type WorldAppendHandler } from "../model";
 import styles from "./index.module.scss";
-// import { lazy } from "react";
+import { lazy } from "react";
 
 interface Props {
   isOpen: boolean;
@@ -10,7 +10,7 @@ interface Props {
   onClickAppendWorld: WorldAppendHandler;
 }
 
-// const BottomSheet = lazy(() => import("@shared/ui/BottomSheet"));
+const BottomSheet = lazy(() => import("@shared/ui/BottomSheet"));
 
 /**
  * World Route 내에서 독립적으로 사용되는 Bottom Sheet 컴포넌트
