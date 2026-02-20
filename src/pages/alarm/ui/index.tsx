@@ -17,7 +17,7 @@ export default function AlarmPage() {
       <AlarmContent editMode={editMode} onEditModeActive={handleEditModeActive} />
 
       {/* Alarm Route 전용 Bottom Sheet 컴포넌트 */}
-      {isOpen && (<AlarmBottomSheet isOpen={isOpen} onClose={handleCloseBottomSheet}/>)}
+      <AlarmBottomSheet isOpen={isOpen} onClose={handleCloseBottomSheet}/>
     </>
   );
 }
