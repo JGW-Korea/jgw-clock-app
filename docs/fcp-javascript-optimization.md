@@ -106,7 +106,7 @@ Performance 결과를 확인해보면, 난독화로 인해 정확히 어떤 함�
 
 하지만 SPA + CSR 환경에서는 **여러 개의 자원을 개별적으로 전달받는 구조**이든, **하나의 파일로 번들링된 자원을 전달받는 구조**이든 **"현재 시점"에 필요하지 않더라도 모든 자원을 요청하는 구조라는 점은 동일**합니다. 이에 대해 보다 정확히 확인하기 위해, 앞서 개발 서버에서 최초 접속 시 여러 개의 자원을 전달받는 구조임을 확인했으므로 **`rollup-plugin-visualizer` 패키지를 설치하여 JavaScript 번들링 결과물의 구조를 확인**해보겠습니다.
 
-<br />
+<!-- <br />
 
 ```md
 09:19:47.161 | dist/index.html                              2.27 kB │ gzip:   0.87 kB
@@ -123,7 +123,7 @@ Performance 결과를 확인해보면, 난독화로 인해 정확히 어떤 함�
 ...
 ```
 
-> 위 코드 블록은 번들 결과를 분리하기 이전의 Deployment 로그를 보기 쉽게 Markdown 형식으로 정리한 내용입니다. 실제 Deployment 결과는 [여기](./images/no-chunk-bundle-result-visualizer-deployment-logs.png)에서 확인할 수 있습니다.
+> 위 코드 블록은 번들 결과를 분리하기 이전의 Deployment 로그를 보기 쉽게 Markdown 형식으로 정리한 내용입니다. 실제 Deployment 결과는 [여기](./images/no-chunk-bundle-result-visualizer-deployment-logs.png)에서 확인할 수 있습니다. -->
 
 <br />
 
@@ -166,7 +166,7 @@ export default defineConfig({
 
 <br />
 
-```md
+<!-- ```md
 00:55:12.696 | dist/index.html                              2.43 kB │ gzip:   0.92 kB
 00:55:12.696 | dist/assets/SF_Pro-Bold-7QsjyyjH.woff2      98.32 kB
 00:55:12.697 | dist/assets/SF_Pro-Regular-D7lx-8SM.woff2  102.66 kB
@@ -180,7 +180,7 @@ export default defineConfig({
 
 > 위 코드 블록은 번들 결과를 분리하기 이후의 Deployment 로그를 보기 쉽게 Markdown 형식으로 정리한 내용입니다. 실제 Deployment 결과는 [여기](./images/bundle-result-chunk-visualizer-deployment-logs.png)에서 확인할 수 있습니다.
 
-<br />
+<br /> -->
 
 ![Bundle Result Chunk Visualizer](./images/bundle-result-chunk-visualizer.png)
 
@@ -200,11 +200,11 @@ Network 탭에서 결과를 확인해보면 **번들 자원을 여러 개의 작
 
 <br />
 
-![Bundle Result Chunk Visualizer after Performance](./images/bundle-result-chunk-visualizer-after-performance.png)
+![Bundle Result Chunk Visualizer after Performance Function calls](./images/bundle-result-chunk-visualizer-after-performance-function-calls.png)
 
 <br />
 
-Performance 탭에서 결과를 확인해보면, 앞서 개발 서버에서 다수의 네트워크 요청이 발생했던 과정과 유사하게 **메인 번들 결과물과 더불어 분리된 Chunk 자원들을동일한 시점에 네트워크 자원을 요청**하며, **모든 응답을 받은 이후 Virtual DOM을 구축하기 위한 다양한 함수가 호출**되고 있음을 확인할 수 있습니다.
+Performance 탭에서 결과를 확인해보면, 앞서 개발 서버에서 다수의 네트워크 요청이 발생했던 과정과 유사하게, 최초 접속 당시에 **메인 번들 결과물과 더불어 분리된 Chunk 자원들을 요청**하며, **모든 응답을 받은 이후 Virtual DOM을 구축하기 위한 다양한 함수가 호출**되고 있음을 확인할 수 있습니다.
 
 또한 여러 차례 언급했듯이 Virtual DOM 구축 과정 자체는 현재 URL에 매칭된 라우트에 대해서만 수행되지만, **전달받은 JavaScript 로직은 실행을 위한 준비 상태까지 진행**된다고 했습니다. 그렇기 때문에 Performance 결과에서 **빨간색으로 하이라이팅된 영역**을 확인해보면 **`vendor-gsap`으로 분리한 Chunk 내부의 `GSAP.registerPlugin()` 함수가 호출**되는 것을 확인할 수 있습니다.
 
@@ -394,3 +394,96 @@ export default function AppRouter() {
 <br />
 
 Lighthouse Performance 결과를 확인해보면, **최종적으로 FCP 측정 시점이 약 1.8s에서 1.5s로 단축되었으며 점수 또한 99점에서 100점으로 개선**된 것을 확인할 수 있습니다.
+
+<br />
+
+## IV. Lighthouse Performance 점수를 100점으로 개선한 것 외에 얻을 수 있는 이점
+
+앞서 [｢II. SPA + CSR 환경에서 Reduce unused JavaScript로 인한 FCP 측정 시점 단축의 구조적 한계｣](#ii-spa--csr-환경에서-reduce-unused-javascript로-인한-fcp-측정-시점-단축의-구조적-한계) 목차에서는 **하나의 번들 결과물을 여러 개의 작은 조각(Chunk)으로 분리하는 과정**을 일부 다루었고, [｢III. 그럼에도 Lighthouse Performance를 100점으로 개선하는 방법｣](#iii-그럼에도-lighthouse-performance를-100점으로-개선하는-방법) 목차에서는 `React.lazy()`를 활용하여 **FCP를 약 1.8s에서 1.5s로 단축시키고 Lighthouse Performance 점수를 98점에서 100점으로 개선하는 과정**을 설명했습니다.
+
+이제 하나의 번들 결과물을 여러 개의 작은 조각(Chunk)으로 분리하고, `React.lazy()`를 적용하여 Lighthouse Performance 점수를 100점으로 개선한 것 외에 **추가적으로 얻을 수 있는 이점**이 무엇인지 살펴볼 필요가 있습니다. 왜냐하면 개발에서의 **모든 선택은 트레이드오프(Trade-off) 관계를 가지기 때문**입니다.
+
+<br />
+
+**① 하나의 번들 결과물을 여러 개의 작은 조각(Chunk)으로 분리**
+
+[｢II. SPA + CSR 환경에서 Reduce unused JavaScript로 인한 FCP 측정 시점 단축의 구조적 한계｣](#ii-spa--csr-환경에서-reduce-unused-javascript로-인한-fcp-측정-시점-단축의-구조적-한계) 목차에서 SPA + CSR 환경에서는 **모든 정적 자원을 최초에 요청**하게 되어, **현재 시점에 필요하지 않은 JavaScript 파일까지 함께 전달받는 구조**가 된다고 설명했습니다. 이로 인해 **다수의 네트워크 요청이 발생하고, 응답을 받기 전까지 Virtual DOM 구축 시점이 지연**된다고 언급했습니다.
+
+하지만 **번들링(Bundling)을 통해 이러한 문제를 일정 부분 완화**할 수 있으며, Vite와 같은 번들러 또는 빌드 도구는 하나의 파일로 번들 결과물을 생성하고 내부적으로 난독화, 트리셰이킹, 압축 등의 과정을 거쳐 파일 크기를 축소해줍니다.
+
+다만 프로젝트에서 작성한 **모든 JavaScript 모듈들이 포함되기 때문에, 프로젝트 규모가 커질수록 번들 결과물의 크기 역시 증가**하게 됩니다. 그 결과 **번들 내부에는 현재 시점에 필요하지 않은 JavaScript 코드까지 함께 포함**되게 됩니다.
+
+이러한 한계를 보완하기 위해 Vite에서는 **번들 자원을 여러 개의 작은 조각(Chunk)으로 분리할 수 있는 기능을 제공**합니다. 그러나 앞선 목차에서는 번들 크기 자체를 줄이기 위한 목적보다는, **최초 접속 시점에 필요하지 않은 로직을 분리할 수 있는지 검증하기 위한 용도로 활용**했습니다. 그 과정에서 번들 결과물을 분리한 상태로 지금까지 문서를 작성해왔습니다.
+
+이제 여러 개의 작은 조각(Chunk)으로 **분리하지 않은 경우와 분리한 경우를 비교**하기 위해, **먼저 분리하지 않은 상태의 Vercel의 Deployment Log를 살펴보겠습니다.**
+
+<br />
+
+```md
+09:19:47.161 | dist/index.html                              2.27 kB │ gzip:   0.87 kB
+09:19:47.162 | dist/assets/SF_Pro-Bold-7QsjyyjH.woff2      98.32 kB
+09:19:47.162 | dist/assets/SF_Pro-Regular-D7lx-8SM.woff2  102.66 kB
+09:19:47.162 | dist/assets/SF_Pro-Light-CWkfg6lM.woff2    113.46 kB
+09:19:47.163 | dist/assets/index-TXEuhWPf.css              23.48 kB │ gzip:   4.76 kB
+09:19:47.163 | dist/assets/index-D32C65n_.js              592.54 kB │ gzip: 204.36 kB
+
+⚠️ Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+...
+```
+
+> 위 코드 블록은 번들 결과를 분리하기 이전의 Deployment 로그를 보기 쉽게 Markdown 형식으로 정리한 내용입니다. 실제 Deployment 결과는 [여기](./images/no-chunk-bundle-result-visualizer-deployment-logs.png)에서 확인할 수 있습니다.
+
+<br />
+
+결과를 확인해보면 **JavaScript 번들 결과물의 크기가 총 592.54kB**, **압축 크기가 204.36kB**임을 확인할 수 있습니다. 또한 로그에서는 **"Some chunks are larger than 500 kB after minification."** 와 같은 경고 메시지가 출력되고 있습니다.
+
+이는 Vite 빌드 단계에서 사용되는 Rollup 번들러가 **번들 결과물 중 500kB를 초과하는 자원이 존재**한다는 점을 경고 형태로 안내하고 있는 것입니다. 이와 같은 경고 메시지가 출력되는 이유는 자원 크기가 커질수록 **네트워크 응답 시간, 파싱 등의 과정들이 지연**되어 **렌더링 성능이 저하될 가능성이 높아지기 때문**입니다.
+
+또한 **네트워크 요청에는 요청 간 의존성이 존재**합니다. 이를 쉽게 설명하면 **A 자원을 먼저 요청하고 해석해야만 B 자원 요청이 가능해지는 구조**를 의미합니다.
+
+이 때문에 **개발 서버(Dev Server)**가 배포 서버(Production Server)보다 **런타임 성능이 저하되는 주요 원인 중 하나**가 됩니다. 단순히 네트워크 요청 수가 많기 때문만이 아니라, **A 모듈이 B 모듈을 의존하고, B 모듈이 다시 C 모듈을 의존하는 방식으로 연쇄적인 요청이 발생**하기 때문입니다. 그 결과 최초 요청 시 A -> B -> C -> D와 같은 순차적 네트워크 요청과 실행 준비 과정이 이어지며, FCP, LCP와 같은 핵심 성능 지표가 직접적으로 저하되는 원인이 될 수 있습니다.
+
+<br />
+
+![No Chunk Javascript Requests Dependency](./images/spa-many-requests-javascript-resources.png)
+
+<br />
+
+반면 Vite에서 제공하는 번들 자원을 작은 조각(Chunk)으로 분리하는 기능을 적용한 결과를 확인해보면, **네트워크 요청 간 의존성이 형성되지 않고 동시에 요청이 수행되는 것을 확인**할 수 있습니다.
+
+<br />
+
+```md
+00:55:12.696 | dist/index.html                              2.43 kB │ gzip:   0.92 kB
+00:55:12.696 | dist/assets/SF_Pro-Bold-7QsjyyjH.woff2      98.32 kB
+00:55:12.697 | dist/assets/SF_Pro-Regular-D7lx-8SM.woff2  102.66 kB
+00:55:12.702 | dist/assets/SF_Pro-Light-CWkfg6lM.woff2    113.46 kB
+00:55:12.702 | dist/assets/index-TXEuhWPf.css              23.48 kB │ gzip:   4.76 kB
+00:55:12.702 | dist/assets/vendor-gsap-BBM_9RY7.js        111.88 kB │ gzip:  42.98 kB   # Chunk 단위로 분리한 GSAP 패키지 번들 자원
+00:55:12.703 | dist/assets/vendor-libs-DxHqpy7U.js        167.99 kB │ gzip:  57.93 kB   # Chunk 단위로 분리한 기타 패키지 번들 자원
+00:55:12.703 | dist/assets/index-BCq25VZB.js              311.16 kB │ gzip: 101.94 kB   # 메인 번들 자원
+...
+```
+
+> 위 코드 블록은 번들 결과를 분리하기 이후의 Deployment 로그를 보기 쉽게 Markdown 형식으로 정리한 내용입니다. 실제 Deployment 결과는 [여기](./images/bundle-result-chunk-visualizer-deployment-logs.png)에서 확인할 수 있습니다.
+
+<br >
+
+![Bundle Result Chunk Visualizer after Performance](./images/bundle-result-chunk-visualizer-after-performance.png)
+
+<br >
+
+이와 같은 결과가 나타나는 이유는 Vite가 **분리된 Chunk 자원을 별도의 `<link>` 태그로 주입하여 비동기적으로 요청할 수 있도록 구성해주기 때문**입니다. 따라서 HTML 문서를 해석하는 과정에서 `<head>` 태그에 포함된 **외부 자원 요청이 병령적으로 수행**되며, **네트워크 요청 간 의존성이 발생하지 않게 됩니다.**
+
+결과적으로 **하나의 번들 결과물을 여러 개의 작은 조각(Chunk) 단위로 분리하는 방식**은, **분리된 Chunk 개수만큼 네트워크 요청이 증가한다는 단점은 존재**합니다. 그러나 하나의 큰 번들 결과물을 분리한 것이기 때문에 **각 자원의 크기가 작아져 응답 시간이 단축**되고, **파싱 및 실행 준비에 소요되는 시간 역시 감소**하는 효과를 얻을 수 있습니다.
+
+또한 분리된 Chunk 자원 간 네트워크 요청 의존성이 형성되지 않고 **비동기적으로 요청**되기 때문에, 개발 서버 환경에서 발생한 것과 같은 런타임 성능 저하 역시 크게 발생하지는 않습니다.
+
+즉 하나의 번들 결과물을 여러 개의 조각(Chunk)으로 분리하는 방식은 네트워크 요청 수가 증가한다는 점을 제외하면, 런타임 성능 측면에서 **더 유리한 트레이드오프(Trade-off) 관계가 성립**한다고 판단하여 기존 단일 번들 방식으로 되돌리지 않기로 결정했습니다.
+
+<br />
+
+**② `React.lazy()`를 활용하여 FCP 측정 시점 단축**
