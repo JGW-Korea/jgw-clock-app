@@ -178,7 +178,7 @@ export default defineConfig({
 ...
 ```
 
-> 위 코드 블록은 번들 결과를 분리하기 이후의 Deployment 로그를 보기 쉽게 Markdown 형식으로 정리한 내용입니다. 실제 Deployment 결과는 [여기](./images/no-chunk-bundle-result-visualizer-deployment-logs.png)에서 확인할 수 있습니다.
+> 위 코드 블록은 번들 결과를 분리하기 이후의 Deployment 로그를 보기 쉽게 Markdown 형식으로 정리한 내용입니다. 실제 Deployment 결과는 [여기](./images/bundle-result-chunk-visualizer-deployment-logs.png)에서 확인할 수 있습니다.
 
 <br />
 
@@ -204,7 +204,7 @@ Network 탭에서 결과를 확인해보면 **번들 자원을 여러 개의 작
 
 <br />
 
-Performance 탭에서 결과를 확인해보면, 앞서 개발 서버에서 다수의 네트워크 요청이 발생했던 과정과 유사하게 **메인 번들 결과물과 더불어 분리된 Chunk 자원들 역시 동일한 시점에 네트워크 요청이 발생**하며, **모든 응답을 받은 이후 Virtual DOM을 구축하기 위한 다양한 함수가 호출**되고 있음을 확인할 수 있습니다.
+Performance 탭에서 결과를 확인해보면, 앞서 개발 서버에서 다수의 네트워크 요청이 발생했던 과정과 유사하게 **메인 번들 결과물과 더불어 분리된 Chunk 자원들을동일한 시점에 네트워크 자원을 요청**하며, **모든 응답을 받은 이후 Virtual DOM을 구축하기 위한 다양한 함수가 호출**되고 있음을 확인할 수 있습니다.
 
 또한 여러 차례 언급했듯이 Virtual DOM 구축 과정 자체는 현재 URL에 매칭된 라우트에 대해서만 수행되지만, **전달받은 JavaScript 로직은 실행을 위한 준비 상태까지 진행**된다고 했습니다. 그렇기 때문에 Performance 결과에서 **빨간색으로 하이라이팅된 영역**을 확인해보면 **`vendor-gsap`으로 분리한 Chunk 내부의 `GSAP.registerPlugin()` 함수가 호출**되는 것을 확인할 수 있습니다.
 
@@ -212,5 +212,185 @@ Performance 탭에서 결과를 확인해보면, 앞서 개발 서버에서 다�
 
 <br />
 
-## III. 그럼에도 FCP 시점을 단축시키는 방법
+## III. 그럼에도 Lighthouse Performance를 100점으로 개선하는 방법
 
+앞서 [｢II. SPA + CSR 환경에서 Reduce unused JavaScript로 인한 FCP 측정 시점 단축의 구조적 한계｣](#ii-spa--csr-환경에서-reduce-unused-javascript로-인한-fcp-측정-시점-단축의-구조적-한계) 목차에서 React와 같은 SPA + CSR 기반 웹 애플리케이션 환경에서는 **Reduce unused JavaScript** 문제를 **구조적인 한계로 인해 명확하게 해결하기 어려운 이유**에 대해 설명했습니다.
+
+그렇다면 Lighthouse Performance 점수를 100점으로 개선할 수 있는 방법은 무엇일까요? 바로 **Lighthouse Performance의 감점 요인 항목 자체를 제거**하는 것이 아니라, **FCP, LCP 등과 같이 점수 산정에 직접적으로 반영되는 핵심 성능 지표를 개선**하는 것입니다.
+
+이것이 가능한 이유는 Lighthouse Performance의 감점 요인 항목이 **실제 점수에 직접 반영되는 요소가 아니라(Unscored),** 현재 성능 결과를 바탕으로 **개선 가능성이 있는 지점을 안내하는 "힌트" 역할을 하기 때문**입니다. 따라서 **이러한 항목을 개선**하면 **특정 성능 지표가 함께 개선**될 가능성이 높으며, 그 결과 **Lighthouse Performance 점수 역시 간접적으로 상승**하게 됩니다.
+
+<br />
+
+> 💡 실제 [｢Lighthouse 성능 점수 | Chrome for Developers｣](https://developer.chrome.com/docs/lighthouse/performance/performance-scoring?utm_source=lighthouse&utm_medium=devtools&hl=ko) 페이지를 확인하면 "일반적으로 기회 또는 진단의 결과가 아니라 측정항목만 Lighthouse 실적 점수에 기여합니다. 하지만 기회와 진단을 개선하면 측정항목 값이 개선될 가능성이 높으므로 간접적인 관계가 있습니다." 라고 설명하고 있습니다.
+
+<br />
+
+그렇다면 이전 [**｢FCP 개선을 위한 CSS 최적화｣**](./fcp-css-optimization.md) 문서에서 jsDelivr CDN에서 제공하는 스타일 초기화 파일 요청을 제거한 이후 Lighthouse Performance를 개선한 결과, **FCP 측정 시점이 약 2.4s에서 약 1.8s로 단축**되었으며 **점수 또한 94점에서 98점으로 개선**되었습니다.
+
+<br />
+
+![jsDeliver CDN reset-min-css after refactoring global-css](./images/js-deliver-cdn-reset-min-css-after-refactoring-global-css.png)
+
+<br />
+
+그러면 이에 앞서 SPA + CSR 기반의 웹 애플리리케이션 환경에서는 **최초 접속 시 "현재 시점"에 불필요한 모든 정적 자원을 함께 전달**받아, **필요하지 않은 JavaScript 로직까지 포함**된다고 설명했습니다. 또한 **이러한 자원들은 실제로 실행되지 않더라도 JavaScript 실행을 위한 준비 단계까지 수행**된다고 했습니다.
+
+그렇기 때문에 Virtual DOM 구축 자체는 현재 URL에 매칭되는 라우트에 대해서만 수행되지만, 결과적으로 **다른 라우트를 구성하고 있는 JavaScript 모듈들까지 실행 준비 상태**에 들어가게 됩니다. 또한 앞서 확인했듯이 번들 결과물을 여러 개의 작은 조각(Chunk)으로 분리했음에도 불구하고 **`vendor-gsap` Chunk 내부의 `GSAP.registerPlugin()`과 같은 함수가 호출**되는 것도 확인할 수 있었습니다.
+
+즉 이 모든 것들은 **현재 시점에서는 필요하지 않은 자원들에 대한 불필요한 실행 준비 상태를 유발**하며, **함수 호출**과 **JavaScript 메인 스레드 점유**를 통해 결국 **FCP 측정 시점을 지연시키는 요인으로 작용**하게 됩니다. 그렇다면 **FCP 측정 시점을 지연시키는 자원들을 최초 접속 이후에 전달받는 구조로 변경**한다면, **그만큼 FCP 측정 시점을 단축**시킬 수 있다는 의미가 됩니다.
+
+이를 위해서는 **최초 접속 이후에 자원을 전달받도록 구조를 변경할 수 있는 방법이 필요**합니다. React에서는 이를 위한 방법으로 **`React.lazy()` 메서드를 제공**합니다. 이는 최초 렌더링 시점에 컴포넌트 코드를 즉시 요청하는 것이 아니라, **실제로 필요한 시점까지 요청을 지연(Lazy)시키는 기능을 제공**하는 메서드입니다. 즉 이를 활용하면 특정 컴포넌트 코드에 한해 최초 접속 이후에 전달받는 구조로 변경할 수 있습니다.
+
+<br />
+
+> Vite와 같은 번들러 또는 빌드 도구를 사용할 경우, `React.lazy()`를 통해 동적 import 되는 모듈들은 별도의 Chunk로 자동 분리되어 번들링됩니다.
+
+<br />
+
+그렇다면 현재 번들 결과물을 여러 개의 작은 조각(Chunk)으로 분리한 시점에서, **어떤 자원을 사용하는 컴포넌트 코드를 지연 요청 대상으로 설정하는 것이 적절한지 확인**하기 위해 `rollup-plugin-visualizer` 결과를 다시 살펴보겠습니다.
+
+<br />
+
+![Bundle Result Chunk Visualizer GSAP](./images/bundle-result-chunk-visualizer-gsap.png)
+
+<br />
+
+결과를 확인해보면 메인 번들 결과물, GSAP 패키지를 포함하는 `vendor-gsap` Chunk, 기타 패키지를 포함하는 `vendor-libs` Chunk로 **총 3개의 덩어리로 구성**되어 있습니다. 
+
+이 중 **GSAP 패키지를 포함하는 `vendor-gsap` Chunk**는 Alarm 라우트에서 Bottom Sheet를 활성화하여 알림 시간을 설정하는 **TimePicker 컴포넌트 내부에서만 사용**됨에도 불구하고, **약 366.38kB의 크기를 가지며 분리 이전 번들 결과물 기준으로 전체의 약 21.28%를 차지**하고 있습니다.
+
+즉 현재 시점에 필요하지 않음에도 SPA 구조 특성상 최초 접속 시 해당 Chunk까지 함께 전달받게 되며, 동시에 JavaScript 실행 준비를 수행하게 됩니다. 이로 인해 불필요한 함수 호출과 JavaScript 메인 스레드 점유가 발생하고, 결과적으로 **FCP 측정 시점을 지연시키는 주요 원인 중 하나**로 작용하게 됩니다.
+
+그렇다면 이 Chunk를 사용하는 **TimePicker 컴포넌트 자체에 `React.lazy()`를 적용할 경우 어떤 변화가 발생하는지 확인**하기 위해, 다음과 같이 코드를 수정한 뒤 재빌드를 진행하고 배포 서버에서 **개발자 도구 Network 패널의 결과를 확인**해보겠습니다.
+
+<br />
+
+```tsx
+// ...
+import { lazy } from "react";
+
+// // import { TimePicker } from "@features/time-picker"; 에서 다음과 같이 동적 import로 변경
+const TimePicker = lazy(() => import("@features/time-picker").then((moduel) => ({ default: moduel.TimePicker })));
+
+export default function AlarmBottomSheet({ isOpen, onClose }: Props) {
+  // ...
+
+  return (
+    <BottomSheet {...}>
+      <div className={`${styles["alarm-sheet-content"]}`}>
+        <TimePicker onPointerOver={handleTimePickerMouseOver} onPointerLeave={handleTimePickerMouseLeave} updateTimePicker={handleTimeChange} />
+
+        {/* ... */}
+      </div>
+    </BottomSheet>
+  );
+}
+```
+
+<br />
+
+```md
+19:13:18.827 | dist/index.html                              2.35 kB │ gzip:  0.90 kB
+19:13:18.827 | dist/assets/SF_Pro-Bold-7QsjyyjH.woff2      98.32 kB
+19:13:18.827 | dist/assets/SF_Pro-Regular-D7lx-8SM.woff2  102.66 kB
+19:13:18.828 | dist/assets/SF_Pro-Light-CWkfg6lM.woff2    113.46 kB
+19:13:18.828 | dist/assets/index-C8B5jrWO.css               2.96 kB │ gzip:  0.96 kB   # React.lazy()로 분리하여 TimePicker 관련 CSS 별도 Chunk로 분리됨
+19:13:18.828 | dist/assets/index-BcF60dKn.css              20.54 kB │ gzip:  4.08 kB
+19:13:18.828 | dist/assets/index-BV2k9fO4.js               10.75 kB │ gzip:  3.96 kB   # React.lazy()로 분리하여 TimePicker 관련 JavaScript 별도 Chunk로 분리됨
+19:13:18.828 | dist/assets/vendor-gsap-BBM_9RY7.js        111.88 kB │ gzip: 42.98 kB
+19:13:18.828 | dist/assets/vendor-libs-DxHqpy7U.js        167.99 kB │ gzip: 57.93 kB
+19:13:18.828 | dist/assets/index-B4mDj_3K.js              301.83 kB │ gzip: 99.21 kB
+...
+```
+
+> 위 코드 블록은 TimePicker 컴포넌트를 React.lazy 적용 이후의 Deployment 로그를 보기 쉽게 Markdown 형식으로 정리한 내용입니다. 실제 Deployment 결과는 [여기](./images/time-picker-react-lazy-after-deployment-logs.png)에서 확인할 수 있습니다.
+
+<br />
+
+![Time Picker React.lazy() 적용 이후 최초 접속 시 Network 탭](./images/time-picker-react-lazy-after-first-network.png)
+
+<br />
+
+TimePicker 컴포넌트에 `React.lazy()`를 적용한 이후 개발자 도구 Network 결과를 확인해보면, **이전과 달리 최초 접속 시 `vendor-gsap`이 요청되지 않는 것을 확인**할 수 있습니다.
+
+즉 Vite와 같은 빌드 도구를 사용하는 경우, **번들 결과물을 여러 개의 작은 조각(Chunk)으로 분리**하더라도 **`React.lazy()`를 적용하면 TimePicker가 실제로 필요한 시점까지 로딩이 지연**되며, **해당 컴포넌트에서만 사용되는 GSAP 패키지를 포함한 `vendor-gsap` 또한 TimePicker 컴포넌트가 마운트될 때까지 요청이 지연**되는 것을 확인할 수 있습니다.
+
+그렇다면 최초 접속 이후 Alarm 라우트로 이동한 뒤 Bottom Sheet를 활성화하여 **TimePicker 컴포넌트가 마운트되는 시점**에 **`vendor-gsap`이 실제로 요청되는지 확인**해보겠습니다.
+
+<br />
+
+![Time Picker React.lazy() 적용 이후 Alarm 라우트 이동 후 Bottom Sheet 활성화 이후 Network 탭](./images/time-picker-react-lazy-after-alarm-bottom-sheet-is-active-network.png)
+
+<br />
+
+Network 결과를 확인해보면, TimePicker 컴포넌트가 마운트되는 시점에 해당 컴포넌트 로직이 포함된 **`index-BV2k9fO4.js`와 `vendor-gsap` 파일이 요청**되는 것을 확인할 수 있습니다.
+
+즉 현재 시점에 필요하지 않은 **GSAP 패키지를 포함한 `vendor-gsap` Chunk를 최초 접속 시 전달받지 않도록 변경**함으로써, 불필요한 JavaScript 실행 준비 상태를 유발하지 않게 되었고, 그로 인해 함수 호출 및 JavaScript 메인 스레드 점유가 감소하여 FCP 측정 시점을 지연시키지 않게 됩니다.
+
+그렇다면 TimePicker 컴포넌트에 `React.lazy()`를 적용한 이후 **Lighthouse 전체 보고서**를 다시 한 번 확인해보겠습니다.
+
+<br />
+
+![Time Picker React.lazy() 적용 이후 Lighthouse Performance 요약 결과](./images/time-picker-react-lazy-after-lighthouse-performance-summary-result.png)
+
+![Time Picker React.lazy() 적용 이후 Lighthouse Performance 감점 요인 결과](./images/time-picker-react-lazy-after-lighthouse-performance-list-result.png)
+
+<br />
+
+Lighthouse Performance 요약 결과를 확인해보면, **FCP 측정 시점이 약 1.8s에서 1.7s로 단축**되었으며 **점수 또한 98점에서 99점으로 개선**된 것을 확인할 수 있습니다.
+
+그러나 앞서 [도입부](#iii-그럼에도-lighthouse-performance를-100점으로-개선하는-방법)에서 언급했듯이 SPA + CSR 기반 웹 애플리케이션 환경에서는 **구조적으로 최초 접속 시 모든 정적 자원을 전달**받기 때문에 Lighthouse Performance 감점 요인에서 **Reduce unused JavaScript 항목이 완전히 사라지지 않은 것을 확인**할 수 있습니다.
+
+즉 **감점 요인 항목**은 **현재 성능 결과를 바탕으로 개선 가능성이 있는 지점을 안내하는 "힌트" 역할**을 한다는 점을 다시 한 번 **명확히 확인**할 수 있었습니다.
+
+**남은 1점을 개선**하기 위해서는 현재 시점에 필요하지 않은 GSAP 패키지를 포함한 `vendor-gsap` Chunk를 지연 요청한 것과 동일한 방식으로, **현재 시점에 필요하지 않은 JavaScript 로직들 역시 `React.lazy()`를 통해 지연 요청 구조로 변경**하여 **Lighthouse Performance의 FCP, LCP 등 점수 산정에 직접 반영되는 성능 지표를 추가로 개선**하면 됩니다.
+
+그렇다면 현재 시점에 필요하지 않은 JavaScript 자원은 무엇일까요? 바로 메인 페이지(`/world`)를 제외한 **다른 라우트에 대한 로직**입니다. **최초 접속 시 기준이 되는 페이지는 메인 페이지**이기 때문에, **다른 페이지에 대한 JavaScript 실행 준비를 수행할 필요가 없기 때문**입니다.
+
+<br />
+
+> 해당 문서에서는 직접적으로 다루지 않았지만, 문서를 작성하기 이전에 Lighthouse Performance 점수를 100점으로 개선하기 위한 사전 테스트 과정을 진행했습니다. <br />
+> Clock 프로젝트의 Bottom Sheet UI 컴포넌트는 `react-modal-sheet` 패키지를 사용하고 있으며, 해당 패키지의 Peer dependency인 Motion 또한 GSAP과 유사하게 큰 용량을 차지하고 있었습니다. <br />
+> 이로 인해 Bottom Sheet UI와 관련된 로직에 조건부 렌더링과 `React.lazy()`를 적용하지 않을 경우, Motion 패키지로 인해 Lighthouse Performance 점수를 100점으로 개선하기 어려웠습니다. <br />
+> 이러한 이유로 문서에서는 별도로 명시하지 않았지만, `react-modal-sheet` 관련 로직 역시 조건부 렌더링과 `React.lazy()`를 적용한 이후 본 개선 과정을 진행했습니다.
+
+<br />
+
+```tsx
+import { Route, Routes } from "react-router";
+import Layout from "@app/layout";
+import { lazy } from "react";
+import { WorldPage } from "@pages/world";
+
+// 메인 라우트(World)를 제외한 다른 라우트들은 다음과 같이 동적 import로 변경
+const AlarmPage = lazy(() => import("@pages/alarm").then((module) => ({ default: module.AlarmPage })));
+const StopwatchPage = lazy(() => import("@pages/stopwatch").then((module) => ({ default: module.StopwatchPage })));
+const TimerPage = lazy(() => import("@pages/timer").then((module) => ({ default: module.TimerPage })));
+
+export default function AppRouter() {
+  return (
+    <Routes>
+      <Route element={<Layout />}>
+        <Route index element={<WorldPage />}  />
+        <Route path="/alarm" element={<AlarmPage />}  />
+        <Route path="/stopwatch" element={<StopwatchPage />}  />
+        <Route path="/timer" element={<TimerPage />}  />  
+      </Route>
+    </Routes>
+  );
+}
+```
+
+<br />
+
+이와 같이 메인 페이지를 제외한 **다른 라우트 로직에 `React.lazy()`를 적용하여 별도의 Chunk로 분리한 이후**, 해당 **컴포넌트가 필요한 시점에 요청이 발생하도록 구조를 변경**한 뒤 **Lighthouse Performance 결과를 확인**해보면 다음과 같습니다.
+
+
+<br />
+
+![라우트 React.lazy 적용 이후 Lighthouse Performance 결과](./images/routes-react-lazy-after-lighthouse-performance-result.png)
+
+<br />
+
+Lighthouse Performance 결과를 확인해보면, **최종적으로 FCP 측정 시점이 약 1.8s에서 1.5s로 단축되었으며 점수 또한 99점에서 100점으로 개선**된 것을 확인할 수 있습니다.
