@@ -77,7 +77,7 @@ Clock 프로젝트를 진행하면서 **디렉토리 구조 설계, 리팩토링
 
 - [**Lighthouse SEO 점수 개선 및 Google Search Console 사이트 등록**](./docs/seo-optimization.md): 개발자 도구 Lighthouse를 활용해 **SEO 점수를 100점으로 개선**하고, 사이트를 **Google 및 Naver 검색엔진에 노출시키기 위한 선정 이유**와 **Google Search Console 등록 과정**을 정리한 문서입니다.
 
-- [**Google Lighthouse 개선**](./docs/google-lighthouse-upgrade.md): Clock 프로젝트 개발 완료 이후 Google Lighthouse를 활용해 100점을 달성하지 못한 **Performance**, **Accessibility** 항목의 **감점 요인을 분석한 내용을 정리한 문서**입니다. 해당 문서에는 **Accessibility 개선 과정만 다루었으며,** Performance 항목은 내용이 방대해 별도 문서에서 개선 과정을 정리했습니다.
+- [**Google Lighthouse 지표 개선**](./docs/google-lighthouse-upgrade.md): Clock 프로젝트 개발 완료 이후 Google Lighthouse를 활용해 100점을 달성하지 못한 **Performance**, **Accessibility** 항목의 **감점 요인을 분석한 내용을 정리한 문서**입니다. 해당 문서에는 **Accessibility 개선 과정만 다루었으며,** Performance 항목은 내용이 방대해 별도 문서에서 개선 과정을 정리했습니다.
 
 - [**FCP 개선을 위한 CSS 최적화**](./docs/fcp-css-optimization.md): **CSS로 인한 FCP 측정 지연 원인을 분석**하고, **jsDelivr CDN 스타일 초기화 파일 요청의 불필요성을 검토한 뒤 요청 제거 과정**과 **CSS 번들 결과물의 파일 크기를 축소한 이유, 그리고 이에 대한 적합성을 판단**한 과정을 정리한 문서입니다.
 
