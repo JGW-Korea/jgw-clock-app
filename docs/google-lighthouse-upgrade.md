@@ -211,7 +211,7 @@ Lighthouse의 Accessibility 감점 요인 리스트를 살펴보면, **"Buttons 
 
 <br />
 
-## III. Lighthouse Performance 성능 개선
+## III. Lighthouse - Performance 성능 개선
 
 먼저 Lighthouse Performance 성능 개선을 진행하기에 앞서, [｢Lighthouse Performance 점수 94점 측정 원인｣](#b-lighthouse-performance-점수-94점-측정-원인)에서 확인한 **감점 요인 리스트를 간단히 다시 살펴보겠습니다.**
 
@@ -263,6 +263,145 @@ Render blocking requests 항목을 개선하기 위해 **jsDelivr CDN 스타일 
 
 <br />
 
+![jsDeliver CDN reset-min-css after refactoring global-css](./images/js-deliver-cdn-reset-min-css-after-refactoring-global-css.png)
+
+<br />
+
 ### B. Reduce unused JavaScript
 
 FCP 측정 시점을 지연시키는 주요 원인 중 하나인 **"사용되지 않는 JavaScript 코드가 존재(Reduce unused JavaScript)"** 항목을 개선하는 과정이 길어져, [**｢FCP 개선을 위한 JavaScript 최적화｣**](./fcp-javascript-optimization.md) 문서로 **별도 정리**했습니다.
+
+SPA + CSR 환경에서는 **Reduce unused JavaScript 항목을 해결하기 어려운 구조적인 문제를 서술**하고, 그럼에도 이를 해결하기 위해 **Vite에서 제공하는 하나의 번들을 여러 개의 작은 조각(Chunk)으로 분리하는 과정**과 **`React.lazy()`를 활용하여 현재 시점에 필요하지 않은 자원들의 요청을 지연**시키는 등 다양한 방법을 적용했습니다.
+
+결과적으로 하나의 번들 결과물을 여러 개의 작은 조각(Chunk)으로 분리하는 과정은 직접적인 Lighthouse Performance 점수 개선에 큰 효과를 주지는 못했습니다. 그러나 **`React.lazy()`**를 통해 **FCP 측정 시점을 약 1.8s에서 1.5s로 단축**시켜, **Lighthouse Performance 점수를 100점으로 개선**할 수 있었습니다.
+
+<br />
+
+![라우트 React.lazy 적용 이후 Lighthouse Performance 결과](./images/routes-react-lazy-after-lighthouse-performance-result.png)
+
+<br />
+
+또한 이러한 과정을 통해 Lighthouse Performance 점수를 100점으로 개선한 것뿐만 아니라, 적용한 방법들이 과연 **합리적인 트레이드오프(Trade-off) 관계였는지를 판단하는 과정까지 함께 다루었습니다.**
+
+<br />
+
+## IV. Lighthouse - Accessibility 성능 개선
+
+먼저 Lighthouse Accessibility 성능 개선을 진행하기에 앞서 [｢Lighthouse Accessibility 점수 93점 측정 원인｣](#c-lighthouse-accessibility-점수-93점-측정-원인)에서 확인한 **감점 요인 리스트를 간단히 다시 살펴보겠습니다.**
+
+- `button._header-button_1g6qn_8.liquid-glass.fast` HTML 버튼 요소에 스크린 리더가 버튼의 역할을 명확히 전달할 수 있는 이름이 없음 _(Buttons do not have an accessible name)_
+
+웹 접근성은 장애인, 노약자 등 모든 사용자가 서비스 이용에 제한 없이 누구나 사용할 수 있도록 설계하는 것을 목표로 합니다. 그러나 **현재 화면에 노출되는 버튼**에는 **이를 식별할 수 있는 정보가 없어 스크린 리더가 버튼의 역할을 명확히 전달할 수 없기 때문에 감점 요인이 된다는 것을 의미**합니다. 그렇다면 해당 **버튼 요소가 어떤 구조로 이루어져 있는지 HTML 요소 구조를 확인**해보겠습니다.
+
+<br />
+
+```tsx
+export default function WorldHeader({ worldTimeList, editMode, onClickOpenSheet, onClickEditModeActive }: Props) {
+  return (
+    <Header title="World Clock">
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
+        {/* ... */}
+        
+        <button className={`${style["header-button"]} liquid-glass fast`} onClick={onClickOpenSheet} >
+          <PlusIconSVGComponent />
+        </button>
+      </div>
+    </Header>
+  );
+}
+```
+
+<br />
+
+구조를 보면 알 수 있듯이 Lighthouse Accessibility 감점 요인에 해당하는 버튼 요소는 **스크린 리더가 식별할 수 있는 정보가 없고, 단순 아이콘으로만 구성**되어 있기 때문에 **스크린 리더가 버튼의 역할을 명확히 식별할 수 없는 상태로 구성**되어 있습니다.
+
+이와 같은 경우에는 두 가지 방법을 시도해볼 수 있습니다. **버튼 요소에 `<span>` 태그를 자식 요소로 삽입하여 화면에 보이지 않도록 구성하는 방법**과, **HTML 요소에 `aria-*` 속성을 할당하는 방법**이 있습니다. 다만 두 방법 모두 실무에서 다양하게 활용되는 방식이기 때문에 어떤 방식을 선택하더라도 오답은 아닙니다.
+
+그러나 저는 `<span>` 태그를 자식 요소로 삽입하여 화면에 보이지 않도록 구성하는 방법은 스타일 로직도 함께 작성해야 하기 때문에, **HTML 요소에 `aria-*` 속성을 할당하는 방식으로 수정**해보겠습니다.
+
+<br />
+
+```tsx
+export default function WorldHeader({ worldTimeList, editMode, onClickOpenSheet, onClickEditModeActive }: Props) {
+  return (
+    <Header title="World Clock">
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
+        {/* ... */}
+        
+        <button
+          className={`${style["header-button"]} liquid-glass fast`}
+          onClick={onClickOpenSheet}
+          aria-label="World Bottom Sheet Modal Open Button"
+          aria-haspopup="dialog"
+        >
+          <PlusIconSVGComponent />
+        </button>
+      </div>
+    </Header>
+  );
+}
+```
+
+<br />
+
+이와 같이 버튼 요소에 **`aria-*` 속성을 할당한 후 Lighthouse 보고서를 다시 생성하여 Accessibility 점수를 확인**해보겠습니다.
+
+<br />
+
+![Button Aria Attributes After Accessibility Result](./images/button-aria-attribute-after-lighthouse-accessiblity-result);
+
+<br />
+
+점수를 확인해보면 버튼 요소에 `aria-*` 속성을 할당했음에도 불구하고, **이전과 동일하게 93점으로 유지**되는 것을 확인할 수 있습니다. 그러나 결과를 자세히 보면 **Buttons do not have an accessible name 감점 요인 자체는 동일**하지만, **이전과 달리 단순 `button` 요소로 인해 감점 요인이 발생한 것을 확인**할 수 있습니다.
+
+사실 이 감점 요인에서 표출되는 CSS 선택자(Selector) 이름을 마우스로 클릭하면 **개발자 도구 Elements 탭으로 이동하여 해당 CSS 선택자 요소로 포커싱**됩니다.
+
+<br />
+
+![Change CSS Selector Click After Dev Tools Elements Panel](./images/change-css-selector-click-after-dev-tools-elements-panel.png)
+
+<br />
+
+결과를 확인해보면 뷰포트 범위를 벗어난 HTML 요소 중, 사용자가 설정한 알림 시간에 도달했을 때 이에 대한 **알림 오디오를 재생시키는 전역 Audio 컴포넌트**의 **버튼 요소**에 **스크린 리더가 명확히 역할을 식별할 수 없는 상태로 구성되어 있었기 때문이라는 점을 확인**할 수 있었습니다.
+
+그렇다면 이전과 동일하게 **해당 버튼 요소에도 `aria-*` 속성을 할당**한 뒤 Lighthouse 보고서 결과를 다시 확인해보겠습니다.
+
+<br />
+
+```tsx
+export default function Audio() {
+  return (
+    <div className={`${styles["audio"]}`}>
+      {/* ... */}
+      <button
+        aria-label="Audio Widgets Disabled Button"
+        onClick={handleAudioHidden}
+      />
+    </div>
+  );
+}
+```
+
+<br />
+
+![Audio Button Aria Attributes After Accessibility Result](./images/audio-button-aria-attribute-after-lighthouse-accessiblity-result.png)
+
+<br />
+
+Audio 컴포넌트 내부 버튼 요소에 `aria-*` 속성을 추가한 이후 Lighthouse Accessibility 결과를 확인해보면, **최종적으로 93점에서 100점으로 개선**된 것을 확인할 수 있습니다.
+
+이후 수정한 로직을 배포 서버(Production Server)에 반영한 뒤, 외부 요인의 영향을 최대한 덜 받기 위해 Chrome 시크릿 모드를 활용하고 Lighthouse 디바이스 환경을 Mobile로 제한하여 결과 보고서를 생성하면 다음과 같이 **모바일 환경 기준 전 항목 100점을 달성한 것을 확인**할 수 있습니다.
+
+<br />
+
+![Lighthouse All Items Perfact Score](./images/lighthouse-all-items-perfact-score.png)
+
+<br />
+
+여기서 중요한 점은 해당 문서의 첫 번째 목차 [｢I. Google Lighthouse란?｣](#i-google-lighthouse란)에서 설명했던 것처럼 **Google Lighthouse 보고서가 100% 정확한 결과를 제공하는 것이 아니라, Google에서 산정한 정량적 기준에 따라 보고서 결과가 산출**된다는 점입니다.
+
+그렇기 때문에 Lighthouse의 전 항목을 100점으로 달성했더라도, 실질적으로 Performance, Accessibility, Best Practices, SEO 항목 결과처럼 **Clock 애플리케이션의 완벽함을 의미하는 것이 아닙니다.**
+
+또한 첫 번째 목차에서 설명했던 것처럼 **실제 운영 중인 대규모 서비스의 경우** Lighthouse와 같은 정량적 지표보다 **실제 사용자에게 제공되는 런타임 성능을 더욱 중요하게 고려**하기 때문에, **Lighthouse 모든 항목에서 100점을 달성하는 사례는 드문 편**입니다.
+
+그러나 첫 번째 목차에서 설명한 것처럼 지금과 같이 실제 운영 서비스가 아닌 **포트폴리오 성격의 프로젝트**에서는 이러한 **정량적 지표를 개선하는 과정 자체가 중요한 학습 요소**가 된다고 판단했습니다. 이에 Lighthouse 전 항목을 100점으로 개선하는 과정을 진행했습니다.
