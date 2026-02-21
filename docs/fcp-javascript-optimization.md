@@ -488,9 +488,9 @@ Lighthouse Performance 결과를 확인해보면, **최종적으로 FCP 측정 �
 
 **② `React.lazy()`를 활용하여 FCP 측정 시점 단축**
 
-[｢III. 그럼에도 Lighthouse Performance를 100점으로 개선하는 방법｣](#iii-그럼에도-lighthouse-performance를-100점으로-개선하는-방법) 목차에서는 GSAP 패키지를 포함하는 `vendor-gsap` Chunk가 Alarm 라우트에서 Bottom Sheet를 활성화한 경우 TimePicker 컴포넌트에서만 사용된다는 것을 확인하고 React.lazy()를 활용하여 최초 접속 시 `vendor-gsap`을 전달받는 것이 아닌 실제 TimePicker 컴포넌트 마운트 시점에 요청을 지연시켰습니다.
+[｢III. 그럼에도 Lighthouse Performance를 100점으로 개선하는 방법｣](#iii-그럼에도-lighthouse-performance를-100점으로-개선하는-방법) 목차에서는 GSAP 패키지를 포함한 `vendor-gsap` Chunk가 Alarm 라우트에서 Bottom Sheet를 활성화한 경우, TimePicker 컴포넌트에서만 사용된다는 점을 확인했습니다. 이에 따라 **`React.lazy()`를 활용하여 최초 접속 시 `vendor-gsap`을 전달받는 것이 아니라, 실제 TimePicker 컴포넌트가 마운트되는 시점에 자원 요청이 이루어지도록 지연**시켰습니다.
 
-또한 Lighthouse 보고서 측정 결과는 최초 접속 시에는 메인 페이지(`/world`)를 기준으로 되기 때문에, 최초 접속 시에 필요없는 다른 라우트에 React.lazy()를 활용하여 요청을 지연시키도록 만들었습니다. 그 결과, FCP 측정 시점을 약 1.8s에서 1.5s로 단축시켜, 최종적으로 Lighthouse Performance 점수를 98점에서 100점으로 개선시키는 과정을 다루었습니다.
+또한 Lighthouse 보고서는 최초 접속 경로인 **메인 페이지(`/world`)를 기준으로 측정**되기 때문에, **최초 접속 시 불필요한 다른 라우트들 역시 `React.lazy()`를 적용하여 자원 요청이 지연되도록 구성**했습니다. 그 결과 **FCP 측정 시점을 약 1.8s -> 1.5s 수준으로 단축**시켜, **Lighthouse Performance 점수를 98점에서 100점으로 개선**할 수 있었습니다.
 
 <br />
 
@@ -498,12 +498,54 @@ Lighthouse Performance 결과를 확인해보면, **최종적으로 FCP 측정 �
 
 <br />
 
-React.lazy()를 활용함으로써 결과적으로 목표로 하던 Lighthouse Performance 점수를 100점으로 개선시킬 수 있었지만, React.lazy()는 컴포넌트가 실제로 호출될 당시에 해당 자원 요청을 지연시킨다고 했습니다. 즉, React.lazy()를 적용하기 이전과 달리 Alarm 라우트 이동 후, Bottom Sheet를 활성화 당시에 TimePicker 컴포넌트를 구성하고 있는 자원을 요청을 하게되고 응답을 받은 후 이에 대한 Virtual DOM에 반영을 하게 될 것입니다.
+다만 목표로 하던 Lighthouse Performance 100점을 달성할 수 있었지만, `React.lazy()`는 **컴포넌트가 실제 호출되는 시점에 자원 요청을 수행**합니다.
 
-또한 메인 페이지 이외에 React.lazy()를 통해 분리한 다른 라우트들에 대해서도 해당 라우트로 이동이 발생할 경우 라우트 자원에 대한 요청이 발생하게 되며, 응답을 받은 후 이에 대한 Virtual DOM에 반영을 하게 될 것입니다. 이 말은 결국에는 일정 수준의 딜레이(delay)가 발생한다는 의미가 되기도 합니다.
+즉 적용 이전과 달리 **Alarm 라우트 이동 후 Bottom Sheet를 활성화하는 시점에 TimePicer 구성 자원을 요청**하게 되며, **응답 이후 Virtual DOM에 반영**되는 구조가 됩니다.
+
+또한 메인 페이지 외 `React.lazy()`로 분리한 **다른 라우트 역시 최초 이동 시 라우트 자원 요청이 발생**하고, **응답 이후 Virtual DOM에 반영**됩니다. 이는 곧 **일정 수준의 지연(Delay)이 발생**함을 의미합니다.
+
+<br />
+
+![Route Navigate Network Delay Mobile](./images/route-move-network-delay-mobile.gif)
 
 <br />
 
-![Route Navigate Network Delay](./images/route-move-network-delay.gif)
+결과를 보면 메인 페이지 이후 **다른 라우트로 최초 이동이 발생**할 경우, 해당 **라우트 자원을 서버에 요청한 뒤 응답을 수신하고, 이를 Virtual DOM에 반영한 이후 실제 라우트 전환**이 이루어지고 있습니다.
+
+이처럼 **서비스 이용 중 발생하는 지연(Delay) 역시 UX 저하 요인**이 되지만, 더 큰 문제는 **사용자 환경에 따라 지연 시간이 달라진다는 점**입니다. 앞선 테스트는 개발자 도구에서 **CPU Throttling 4x slowdown**, **Network Slow 4G**로 **제한한 환경**이었습니다.
+
+만약 이보다 **더 열악한 사용자 환경이라면 지연 시간은 더욱 길어질 수밖에 없습니다.** 이를 확인하기 위해 Chrom 개발자 도구에서 제공하는 **최저 성능 환경으로 제한하여 다시 측정**해보겠습니다.
 
 <br />
+
+![Route Navigate Network Delay Stress](./images/route-move-network-delay-stress.gif)
+
+<br />
+
+모바일 성능 제한 환경에서는 약 580ms ~ 600ms 이후 응답을 수신한 뒤 페이지 이동이 발생했습니다. 반면 **최악의 환경에서는 약 2.02s ~ 2.09s 이후에야 라우트 자원 응답을 받은 뒤 페이지 이동**이 이루어졌습니다.
+
+여기서 중요한 점은 라우트 자원 요청 시 JavaScript뿐만 아니라 **CSS 파일도 함께 요청**된다는 점입니다.
+
+즉 최초 접속 시에 DOM + CSSOM 결합을 통해 Render Tree가 구성되지만, 라우트 이동 과정에서 **신규 자원이 응답**되면 **Virtual DOM 재구성이 발생**하고 **Reflow, Repaint가 수행**됩니다. 그 결과 **최초 렌더링 시 계산된 스타일 또한 재계산이 발생**하게 됩니다.
+
+<br />
+
+![Route Navigate Delay Stress Performance](./images/route-move-delay-stress-performance.png)
+
+<br />
+
+다만 Clock 웹 애플리케이션은 모바일 웹 환경을 기준으로 개발되었습니다. Lighthouse 디바이스 환경을 **Desktop으로 설정할 경우 Performance 점수가 100점으로 측정**됨에도 불구하고, **실제 타겟은 모바일 환경이기 때문에 이에 맞춰 개발과 성능 최적화를 진행**해왔습니다.
+
+그러나 `React.lazy()`를 통해 FCP를 약 1.5s까지 단축하여 Lighthouse Performance 100점을 만드는 것은, **측정 지표상 개선일 뿐 실제 서비스 이용 과정에서의 런타임 성능은 오히려 저하되는 결과를 초래**합니다.
+
+또한 Google Lighthouse FCP 점수 기준을 보면 **약 0s ~ 1.8s 구간은 안정 구간(🟢)으로 분류**됩니다. `React.lazy()` 적용 이전에도 **FCP는 약 1.8s 수준**이었으며 **Performance 점수 역시 98점**으로 낮지 않은 수치였습니다.
+
+<br />
+
+![Google Lighthouse Performance FCP Score](./images/google-lighthouse-performnace-fcp-score.png)
+
+<br />
+
+즉 `React.lazy()` 적용 이전에도 **FCP는 안정 구간에 근접**했고, **Lighthouse 점수 역시 충분히 양호**했습니다. 그러나 개인적으로는 프론트엔드 개발자는 **FCP, LCP 등과 같은 주요 성능 지표에 신경을 쓰는 것도 중요**하지만, 이를 개선하는 과정에서 **UX와 런타임 성능 저하가 발생하는 것**은 오히려 **불필요한 트레이드오프(Trade-off) 관계**라고 판단했습니다.
+
+이로 인해 `React.lazy()`를 적용하여 Lighthouse Performance 점수를 100점대로 유지하는 것보다, **UX와 런타임 성능을 저하시키지 않는 것이 더 합리적으로 판단**했기 때문에 **관련 코드는 `React.lazy()` 적용 이전 구조로 되돌리기로 결정**했습니다.
