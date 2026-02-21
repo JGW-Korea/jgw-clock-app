@@ -30,7 +30,12 @@ export default function WorldHeader({ worldTimeList, editMode, onClickOpenSheet,
         </button>
         
         {/* Bottom Sheet 활성화 버튼 */}
-        <button className={`${style["header-button"]} liquid-glass fast`} onClick={onClickOpenSheet}>
+        <button
+          className={`${style["header-button"]} liquid-glass fast`}
+          onClick={onClickOpenSheet}
+          aria-label="World Bottom Sheet Modal Open Button"
+          aria-haspopup="dialog"
+        >
           <PlusIconSVGComponent />
         </button>
       </div>

@@ -24,7 +24,12 @@ export default function AlarmHeader({ editMode, onClickEditModeActive, onClickOp
           >
           {(editMode.click || editMode.swipe) ? <CheckSVGComponent /> : "Edit" }
         </button>
-        <button className={`${style["header-button"]} liquid-glass fast`} onClick={onClickOpenSheet}>
+        <button
+          className={`${style["header-button"]} liquid-glass fast`}
+          onClick={onClickOpenSheet}
+          aria-label="Alarm Bottom Sheet Modal Open Button"
+          aria-haspopup="dialog"
+        >
           <PlusIconSVGComponent />
         </button>
       </div>
