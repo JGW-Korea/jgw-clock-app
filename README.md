@@ -10,7 +10,7 @@
 **■ JGW Clock - KPI(Key Performance Indicator)**
 
 - [**Lighthouse 전 항목 100점 달성**](./docs/images/lighthouse-all-items-perfact-score.png) 및 **Google Search Console, Naver Search Advisor에 사이트 등록 완료**
-- JavaScript 번들 총 592.54kB를 Vite의 Chunk 단위 코드 분할을 통해 **311.16kB(메인 번들)**, **111.88kB(GSAP 번들)**, **167.99kB(기타 패키지 번들)**로 **분리**
+- JavaScript 번들 총 592.54kB를 Vite의 Chunk 단위 코드 분할을 통해 **311.16kB(메인 번들)**, **111.88kB(GSAP 번들)**, **167.99kB(기타 패키지 번들)** 로 **분리**
 - jsDelivr CDN 스타일 초기화 파일을 `global.scss`에 병합하여 **CSS 요청 수를 제거**하고, **FCP 측정 시점을 2.4s → 1.8s로 단축**
 - **Vercel 서버리스 함수 도입**을 통해 **Time Zone API 요청 시 API Key 노출 문제를 해결**하고, **`Cache-Control` 기반 브라우저 캐시 전략을 적용하여 동일 List Time Zone API의 반복 요청 구조 개선**
 - 두 도시 간 시차 계산 로직을 **Intl API 기반**으로 전환하여 **네트워크 의존성 제거**하고, 3G 환경에서 약 **2.04s 발생하던 UI 반영 지연 문제 개선**

@@ -6,7 +6,7 @@
 >
 > 초기에는 List Time Zone API에 `Cache-Control` 헤더가 설정되지 않아, **브라우저 캐시 저장소를 활용할 수 없는 환경**이었기 때문에 **이를 대체하기 위한 방안**으로 **Local Storage**와 **IndexedDB** 중 어떤 저장소가 더 적절한지를 분석하였습니다. 이를 위해 개발자 도구의 **Performance 패널**과 **Show frames per second meter**를 활용하여 **동기･비동기 방식에서의 렌더링 흐름을 직접 분석**하고, **성능 관점에서의 적절한 대체 저장소를 선정하는 과정**을 서술했습니다.
 >
-> 그러나 List Time Zone API 요청 과정에서 개발자 도구의 **Network 패널을 통해 API Key가 노출되는 문제**를 확인하게 되었고, **보안을 위해 [｢Vercel Functions를 이용한 서버리스 함수를 도입｣](./vercel-functions-integration.md)**하게 되었습니다. 이 과정에서 해당 요청에 대한 **응답 헤더를 직접 설정할 수 있다는 점을 확인**하였고, **`Cache-Control`을 적용한 결과 실제로 브라우저 캐시 저장소에 응답 결과가 저장**되는 것을 확인할 수 있었습니다.
+> 그러나 List Time Zone API 요청 과정에서 개발자 도구의 **Network 패널을 통해 API Key가 노출되는 문제**를 확인하게 되었고, **보안을 위해 [｢Vercel Functions를 이용한 서버리스 함수를 도입｣](./vercel-functions-integration.md)** 하게 되었습니다. 이 과정에서 해당 요청에 대한 **응답 헤더를 직접 설정할 수 있다는 점을 확인**하였고, **`Cache-Control`을 적용한 결과 실제로 브라우저 캐시 저장소에 응답 결과가 저장**되는 것을 확인할 수 있었습니다.
 > 
 > 이에 따라 기존에 **IndexedDB를 통한 브라우저 캐시 저장소를 대체하던 방식을 유지할 필요성이 사라졌으며,** **Vercel Functions의 응답 헤더에 Cache-Control을 설정하여 브라우저 캐시 저장소를 활용하는 방식으로 캐싱 전략을 변경**하게 되었습니다.
 >

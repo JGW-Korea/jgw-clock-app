@@ -567,7 +567,7 @@ SCSS를 CSS 전처리기 언어가 아닌 번들링 도구처럼 인식하고 **
 
 <br />
 
-Vite는 다양한 설정을 지원하기 때문에 먼저 공식 문서의 [｢Vite 설정 > 빌드 옵션｣](https://ko.vite.dev/config/build-options.html) 페이지로 이동했습니다. 여러 설정 항목이 존재했지만, 그 중 **`build.cssMinify` 설정**은 직역하면 **"CSS 파일 압축"**이라는 의미이기 때문에 해당 설정을 먼저 확인했습니다.
+Vite는 다양한 설정을 지원하기 때문에 먼저 공식 문서의 [｢Vite 설정 > 빌드 옵션｣](https://ko.vite.dev/config/build-options.html) 페이지로 이동했습니다. 여러 설정 항목이 존재했지만, 그 중 **`build.cssMinify` 설정**은 직역하면 **"CSS 파일 압축"** 이라는 의미이기 때문에 해당 설정을 먼저 확인했습니다.
 
 <br />
 
