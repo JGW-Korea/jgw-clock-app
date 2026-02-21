@@ -8,7 +8,10 @@ export default function Audio() {
     <div className={`${styles["audio"]}`}>
       <h3>{audioType === "alarm" ? "Alarm" : "Timer"}</h3>
       <audio ref={audioRef} src="/audio/alarm.mp3" muted loop style={{ display: "none" }} />
-      <button onClick={handleAudioHidden} />
+      <button
+        aria-label="Audio Widgets Disabled Button"
+        onClick={handleAudioHidden}
+      />
     </div>
   );
 }
