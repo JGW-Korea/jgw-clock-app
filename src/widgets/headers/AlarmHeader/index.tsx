@@ -24,7 +24,7 @@ export default function AlarmHeader({ editMode, onClickEditModeActive, onClickOp
           >
           {(editMode.click || editMode.swipe) ? <CheckSVGComponent /> : "Edit" }
         </button>
-        <button className={`${style["header-button"]} ${style["header-button__icon"]} liquid-glass fast`} onClick={onClickOpenSheet}>
+        <button className={`${style["header-button"]} liquid-glass fast`} onClick={onClickOpenSheet}>
           <PlusIconSVGComponent />
         </button>
       </div>
