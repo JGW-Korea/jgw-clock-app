@@ -348,7 +348,7 @@ export default function WorldHeader({ worldTimeList, editMode, onClickOpenSheet,
 
 <br />
 
-![Button Aria Attributes After Accessibility Result](./images/button-aria-attribute-after-lighthouse-accessiblity-result);
+![Button Aria Attributes After Accessibility Result](./images/button-aria-attribute-after-lighthouse-accessiblity-result.png)
 
 <br />
 
