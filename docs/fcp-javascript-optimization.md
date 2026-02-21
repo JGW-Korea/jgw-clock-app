@@ -393,7 +393,7 @@ export default function AppRouter() {
 
 <br />
 
-Lighthouse Performance 결과를 확인해보면, **최종적으로 FCP 측정 시점이 약 1.8s에서 1.5s로 단축되었으며 점수 또한 99점에서 100점으로 개선**된 것을 확인할 수 있습니다.
+Lighthouse Performance 결과를 확인해보면, **최종적으로 FCP 측정 시점이 약 1.8s에서 1.5s로 단축되었으며 점수 또한 98점에서 100점으로 개선**된 것을 확인할 수 있습니다.
 
 <br />
 
@@ -487,3 +487,23 @@ Lighthouse Performance 결과를 확인해보면, **최종적으로 FCP 측정 �
 <br />
 
 **② `React.lazy()`를 활용하여 FCP 측정 시점 단축**
+
+[｢III. 그럼에도 Lighthouse Performance를 100점으로 개선하는 방법｣](#iii-그럼에도-lighthouse-performance를-100점으로-개선하는-방법) 목차에서는 GSAP 패키지를 포함하는 `vendor-gsap` Chunk가 Alarm 라우트에서 Bottom Sheet를 활성화한 경우 TimePicker 컴포넌트에서만 사용된다는 것을 확인하고 React.lazy()를 활용하여 최초 접속 시 `vendor-gsap`을 전달받는 것이 아닌 실제 TimePicker 컴포넌트 마운트 시점에 요청을 지연시켰습니다.
+
+또한 Lighthouse 보고서 측정 결과는 최초 접속 시에는 메인 페이지(`/world`)를 기준으로 되기 때문에, 최초 접속 시에 필요없는 다른 라우트에 React.lazy()를 활용하여 요청을 지연시키도록 만들었습니다. 그 결과, FCP 측정 시점을 약 1.8s에서 1.5s로 단축시켜, 최종적으로 Lighthouse Performance 점수를 98점에서 100점으로 개선시키는 과정을 다루었습니다.
+
+<br />
+
+![라우트 React.lazy 적용 이후 Lighthouse Performance 결과](./images/routes-react-lazy-after-lighthouse-performance-result.png)
+
+<br />
+
+React.lazy()를 활용함으로써 결과적으로 목표로 하던 Lighthouse Performance 점수를 100점으로 개선시킬 수 있었지만, React.lazy()는 컴포넌트가 실제로 호출될 당시에 해당 자원 요청을 지연시킨다고 했습니다. 즉, React.lazy()를 적용하기 이전과 달리 Alarm 라우트 이동 후, Bottom Sheet를 활성화 당시에 TimePicker 컴포넌트를 구성하고 있는 자원을 요청을 하게되고 응답을 받은 후 이에 대한 Virtual DOM에 반영을 하게 될 것입니다.
+
+또한 메인 페이지 이외에 React.lazy()를 통해 분리한 다른 라우트들에 대해서도 해당 라우트로 이동이 발생할 경우 라우트 자원에 대한 요청이 발생하게 되며, 응답을 받은 후 이에 대한 Virtual DOM에 반영을 하게 될 것입니다. 이 말은 결국에는 일정 수준의 딜레이(delay)가 발생한다는 의미가 되기도 합니다.
+
+<br />
+
+![Route Navigate Network Delay](./images/route-move-network-delay.gif)
+
+<br />
